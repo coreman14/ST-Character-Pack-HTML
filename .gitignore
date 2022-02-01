@@ -4,3 +4,4 @@ characters/*
 scenario.yml
 scenario.json
 zipapps cmdline.txt
+zipapps_cache/*

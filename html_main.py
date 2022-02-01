@@ -326,12 +326,14 @@ def main():
         and not args.bounds
     ):
         print(f"Error: Scenario.yaml does not exsist in '{args.inputdir}'.")
-        print(
-            "If it is in json, please use the -j option to convert all JSON files to YAML"
+        response = input(
+            "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): "
         )
-        input("Press Enter to exit...")
-        sys.exit()
-    elif not args.bounds:
+        if response.lower() in ["y"]:
+            json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
+        else:
+            sys.exit()
+    if not args.bounds:
         # Try to read YAML:
         with open(
             os.path.join(args.inputdir, "scenario.yml"), "r", encoding="utf8"
