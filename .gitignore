@@ -1,0 +1,6 @@
+*.pyz
+characters/*
+*.html
+scenario.yml
+scenario.json
+zipapps cmdline.txt

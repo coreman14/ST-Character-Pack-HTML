@@ -1,0 +1,142 @@
+import os
+from argparse import ArgumentTypeError
+from glob import glob
+
+from classes import ImagePath
+
+ACCEPTED_EXT = [".webp", ".png"]
+
+
+def find_access(out_path) -> tuple[str, list[str]]:
+    outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
+    return_acc = []
+    if len(outfit_access) == 0:
+        return out_path, return_acc
+    for direct in outfit_access:
+        for ext in ACCEPTED_EXT:
+            acc_list = glob(os.path.join(direct, f"*{ext}"))
+            acc_list.sort()
+            if len(acc_list) > 0:
+                acc_dict = {
+                    x.split(os.sep)[-1]: os.sep.join(x.split(os.sep)[:-1])
+                    for x in acc_list
+                }
+                if f"off{ext}" in acc_dict:
+                    return_acc.append(os.path.join(acc_dict[f"off{ext}"], f"off{ext}"))
+    return out_path, return_acc
+
+
+def get_faces_and_outfits(pose_2):
+    outfits_r: list[str] = []
+    for ext in ACCEPTED_EXT:
+        outfits_r.extend(glob(os.path.join(pose_2, "outfits", "*" + ext)))
+        outfits_r.extend(
+            find_access(x)
+            for x in glob(os.path.join(pose_2, "outfits", "*", "*" + ext))
+        )
+
+    faces_r: list[str] = [
+        *glob(os.path.join(pose_2, "faces", "face", "*.webp")),
+        *glob(os.path.join(pose_2, "faces", "face", "*.png")),
+    ]
+    faces_r = remove_path_dups_no_ext(faces_r)
+    outfits_r = remove_path_dups_no_ext(outfits_r)
+    return faces_r, outfits_r
+
+
+def remove_path_dups_no_ext(a: list[str | tuple[str]]):
+    seen = set()
+    result = []
+    for item in a:
+        if not isinstance(item, str):
+            parse_item = item[0].split(os.sep)[-1].split(".")[0]
+
+        else:
+            parse_item = item.split(os.sep)[-1].split(".")[0]
+        if parse_item not in seen:
+            seen.add(parse_item)
+            result.append(item)
+    return result
+
+
+def remove_path(a, full_path):
+    if not isinstance(a, str):
+        return a[0].replace(full_path + os.sep, "").replace(os.sep, "/")
+    return a.replace(full_path + os.sep, "").replace(os.sep, "/")
+
+
+def get_default_outfit(
+    outfit_data: list[str | tuple[str]], char_data: dict, trim_images, full_path
+):
+    """Returns best default outfit for headshot.
+
+    Priority list:
+        uniform
+        casual
+        under
+        nude
+
+    """
+
+    # Check in tuple for outfit
+
+    # Return given/list or blank one
+    outfit_dict = {str(i): outfit_data[i] for i in range(len(outfit_data))}
+    if char_data and "mutations" in char_data:
+        char_data = char_data["mutations"]
+        for x in char_data:
+            for y in char_data[x]:
+                del_key = [
+                    k
+                    for k, v in outfit_dict.items()
+                    if y + "." in v or (not isinstance(v, str) and y + "." in v[0])
+                ]
+                for i in del_key:
+                    del outfit_dict[i]
+    uniform = ""
+    casual = ""
+    nude = ""
+    under = ""
+    for key, outfit in outfit_dict.items():
+        # This could be a typle and thus could be left out of running
+        if not isinstance(outfit, str):
+            outfit = outfit[0]
+
+        if "uniform." in outfit:
+            uniform = key
+        elif "casual." in outfit or ("dress." in outfit and not casual):
+            casual = key
+        elif "under." in outfit or "underwear." in outfit:
+            under = key
+        elif "nude." in outfit:
+            nude = key
+    outfit = ""
+    image_paths_access = []
+    if uniform:
+        outfit = outfit_dict[uniform]
+    elif casual:
+        outfit = outfit_dict[casual]
+    elif under:
+        outfit = outfit_dict[under]
+    elif nude:
+        outfit = outfit_dict[nude]
+    else:
+        outfit = outfit_data[0]
+    if not isinstance(outfit, str):
+        no_blank_access = [x for x in outfit[1] if trim_images(x) is not None]
+        image_paths_access = [
+            ImagePath(remove_path(x, full_path), *trim_images(x))
+            for x in no_blank_access
+        ]
+
+    return (
+        ImagePath(remove_path(outfit, full_path), *trim_images(outfit)),
+        image_paths_access,
+    )
+
+
+def dir_path(path: str) -> str:
+    """Checks if a path is real and returns the full path, else error's out"""
+    if os.path.exists(path):
+        return os.path.abspath(path)
+    raise ArgumentTypeError(f'Output directory "{path}" is not a valid path')
