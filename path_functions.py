@@ -39,12 +39,12 @@ def get_faces_and_outfits(pose_2):
         *glob(os.path.join(pose_2, "faces", "face", "*.webp")),
         *glob(os.path.join(pose_2, "faces", "face", "*.png")),
     ]
-    faces_r = remove_path_dups_no_ext(faces_r)
-    outfits_r = remove_path_dups_no_ext(outfits_r)
+    faces_r = remove_path_duplicates_no_ext(faces_r)
+    outfits_r = remove_path_duplicates_no_ext(outfits_r)
     return faces_r, outfits_r
 
 
-def remove_path_dups_no_ext(a: list[str | tuple[str]]):
+def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
     seen = set()
     result = []
     for item in a:
@@ -98,7 +98,6 @@ def get_default_outfit(
     nude = ""
     under = ""
     for key, outfit in outfit_dict.items():
-        # This could be a typle and thus could be left out of running
         if not isinstance(outfit, str):
             outfit = outfit[0]
 

@@ -28,7 +28,7 @@ class CropBox(NamedTuple):
         return cls(bounds_box[0], bounds_box[1], bounds_box[2], bounds_box[3])
 
     @classmethod
-    def bbox_from_multple_pil(cls, bounds_boxes: list[tuple[int]]):
+    def bbox_from_multiple_pil(cls, bounds_boxes: list[tuple[int]]):
         q = list(bounds_boxes)
         while None in q:
             q.remove(None)
@@ -78,7 +78,7 @@ class Pose(NamedTuple):
 
     @property
     def get_imagebox_faces(self) -> list[str]:
-        return CropBox.bbox_from_multple_pil(
+        return CropBox.bbox_from_multiple_pil(
             (
                 Image.open(os.path.join(self.path, x.path))
                 .convert("RGBA")
@@ -90,7 +90,7 @@ class Pose(NamedTuple):
 
     @property
     def get_max_imagebox_height(self):
-        bbox = CropBox.bbox_from_multple_pil(
+        bbox = CropBox.bbox_from_multiple_pil(
             (
                 Image.open(os.path.join(self.path, x.path))
                 .convert("RGBA")
@@ -110,9 +110,9 @@ class Pose(NamedTuple):
     @property
     def outfit_bbox(self):
         face_height = self.get_max_imagebox_height
-        bboxs = []
+        boundary_boxes = []
         crop_image = Image.open(self.full_default_outfit)
-        backupbb = crop_image.getbbox()
+        backup_box = crop_image.getbbox()
         if crop_image.mode != "RGBA":
             crop_image = crop_image.convert("RGBA")
         crop_image = crop_image.split()[-1].crop(
@@ -120,13 +120,13 @@ class Pose(NamedTuple):
         )
         c_bbox = crop_image.getbbox()
         if c_bbox is not None:
-            bboxs.append(c_bbox)
+            boundary_boxes.append(c_bbox)
         ff_box = self.get_imagebox_faces
         if ff_box is not None:
-            bboxs.append((ff_box))
+            boundary_boxes.append((ff_box))
         c_bbox = crop_image.getbbox()
         if c_bbox is not None:
-            bboxs.append(c_bbox)
+            boundary_boxes.append(c_bbox)
         for accessory in self.full_accessories_list:
             accessory_image = Image.open(accessory).convert("RGBA").split()[-1]
             accessory_image = accessory_image.crop(
@@ -134,11 +134,11 @@ class Pose(NamedTuple):
             )
             a_bbox = accessory_image.getbbox()
             if a_bbox is not None:
-                bboxs.append(a_bbox)
-        if not bboxs:
-            bboxs.append(backupbb)
+                boundary_boxes.append(a_bbox)
+        if not boundary_boxes:
+            boundary_boxes.append(backup_box)
 
-        return CropBox.bbox_from_multple_pil(bboxs)
+        return CropBox.bbox_from_multiple_pil(boundary_boxes)
 
     @property
     def max_face_height(self):

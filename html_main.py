@@ -23,9 +23,9 @@ import path_functions
 import sort_functions
 
 html_snip1 = """<!DOCTYPE html><html> <head> <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/> <title>"""  # Add Scenario Title before continue
-html_snip2 = '''</title> <script src="https://code.jquery.com/jquery-3.5.1.slim.js"></script> <script src="https://code.jquery.com/jquery-3.5.0.js"></script> <style>body{text-align: center;}#canvas{padding-top: 10px;}.characters{display: flex; flex-wrap: wrap; justify-content: center; /* here we just put the only child div to the center */}.character{margin: 10px 10px 0 0; padding: 0px 0px; height: 238px; display: flex; flex-wrap: nowrap; justify-content: center; /* here we just put the only child div to the center */ border-radius: 0.5px; border-color: grey; border-style: solid; position: relative;}.character2{margin: 10px 10px 0 0; padding: 0px 0px; height: 220px; display: flex; flex-wrap: nowrap; justify-content: center; /* here we just put the only child div to the center */ border-radius: 0.5px; border-color: grey; border-style: solid; position: relative;}.character2Container{display: flex; flex-wrap: wrap; justify-content: center; /* here we just put the only child div to the center */}.character span{position: absolute; background-color: grey; color: white; width: 100%;}.character2 span{position: absolute; background-color: grey; color: white; width: 100%;}.characterImagesOutfit{height: 200px; position: relative; top: 20px; left: 0px;}.characterposename{position: absolute; left: 50%; top: 100%; transform: translate(-50%, 0%); z-index: 31; background-color: grey; color: white; margin-top: 16px; width: 100%;}#ToggleText{/*Stolen From W3*/ width: 160px; position: fixed; top: 10px; right: 12px; font-size: 24px; display: none;}.popup{background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 8px 0; margin-left: -80px; z-index: 1;}#HelpText{position: absolute; top: 7%; width: 450px; padding: 10px 15px; padding-bottom: 15px; margin-left: auto; margin-right: auto; left: 0; right: 0; visibility: hidden;}#HelpTitle{font-size: 24px; display: block;}.HelpLine{display: block;}</style> </head> <body> <span id="ToggleText" class="popup"></span> <span id="HelpText" class="popup" ><span id="HelpTitle">Character Viewer Shortcuts</span> <br/><span class="HelpLine" >Pipe | BackSlash: Disable and enable these shortcuts</span> <br/><span class="HelpLine" >UpArrow: Return to this page from any page</span> <br/><span class="HelpLine" >Backspace: Return to previous page</span> <br/><span class="HelpLine" >Left/Right Arrow: Navigate through characters in alphabetical order</span> </span> <div> <h1 id="title" onmouseover="popouthelp()" onmouseout="hidehelp()" ></h1> </div><div id="imageList" class="characters"></div><div id="imageList2"></div></body> <script type="text/javascript">function popouthelp(){var popup=document.getElementById("HelpText"); popup.style.visibility="visible";}function hidehelp(){var popup=document.getElementById("HelpText"); popup.style.visibility="hidden";}function parseTextBool(textToParse){return textToParse=="true" ? true : false;}function getTextWidth(text, font){const canvas=getTextWidth.canvas || (getTextWidth.canvas=document.createElement("canvas")); const context=canvas.getContext("2d"); context.font=font; const metrics=context.measureText(text); return metrics.width;}function loadImages(sources, callback){var images={}; var loadedImages=0; var numImages=0; for (var src in sources){numImages++;}for (var src in sources){images[src]=new Image(); images[src].onload=function (){if (++loadedImages >=numImages){callback(images);}}; images[src].src=sources[src];}}function makeCharURL(namepose){var splitted=namepose.toString().split(","); return "character=" + splitted[0] + "&pose=" + splitted[1];}var disable_keys=parseTextBool( sessionStorage.getItem("disable_keys") ); if (disable_keys==false){sessionStorage.setItem("disable_keys", false); disable_keys=false;}$("#ToggleText").text( disable_keys ? "Keyboard shortcuts are disabled." : "Keyboard shortcuts are enabled." ); var scenario="'''
+html_snip2 = ''' Viewer</title> <script src="https://code.jquery.com/jquery-3.5.0.js"></script> <style>body{text-align: center; background-color: white; /*Background Replace*/}#canvas{padding-top: 10px;}.characters{display: flex; flex-wrap: wrap; justify-content: center; /* here we just put the only child div to the center */}.character{margin: 10px 10px 0 0; padding: 0px 0px; height: 238px; display: flex; flex-wrap: nowrap; justify-content: center; /* here we just put the only child div to the center */ border-radius: 0.5px; border-color: grey; border-style: solid; position: relative;}.character2{margin: 10px 10px 0 0; padding: 0px 0px; height: 220px; display: flex; flex-wrap: nowrap; justify-content: center; /* here we just put the only child div to the center */ border-radius: 0.5px; border-color: grey; border-style: solid; position: relative;}.character2Container{display: flex; flex-wrap: wrap; justify-content: center; /* here we just put the only child div to the center */}.character span{position: absolute; background-color: grey; color: white; width: 100%;}.character2 span{position: absolute; background-color: grey; color: white; width: 100%;}.characterImagesOutfit{height: 200px; position: relative; top: 20px; left: 0px;}.characterposename{position: absolute; left: 50%; top: 100%; transform: translate(-50%, 0%); z-index: 31; background-color: grey; color: white; margin-top: 16px; width: 100%;}#ToggleText{/*Stolen From W3*/ width: 160px; position: fixed; top: 10px; right: 12px; font-size: 24px; display: none;}.popup{background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 8px 0; margin-left: -80px; z-index: 1;}#HelpText{position: absolute; top: 7%; width: 450px; padding: 10px 15px; padding-bottom: 15px; margin-left: auto; margin-right: auto; left: 0; right: 0; visibility: hidden;}#HelpTitle{font-size: 24px; display: block;}.HelpLine{display: block;}</style> </head> <body> <span id="ToggleText" class="popup"></span> <span id="HelpText" class="popup" ><span id="HelpTitle">Character Viewer Shortcuts</span> <br/><span class="HelpLine" >Pipe | BackSlash: Disable and enable these shortcuts</span > <br/><span class="HelpLine" >UpArrow: Return to this page from any page</span > <br/><span class="HelpLine" >Backspace: Return to previous page</span > <br/><span class="HelpLine" >Left/Right Arrow: Navigate through characters in alphabetical order</span > </span> <div> <h1 id="title" onmouseover="popouthelp()" onmouseout="hidehelp()" ></h1> </div><div id="imageList" class="characters"></div><div id="imageList2"></div></body> <script type="text/javascript">function popouthelp(){var popup=document.getElementById("HelpText"); popup.style.visibility="visible";}function hidehelp(){var popup=document.getElementById("HelpText"); popup.style.visibility="hidden";}function parseTextBool(textToParse){return textToParse=="true" ? true : false;}function getTextWidth(text, font){const canvas=getTextWidth.canvas || (getTextWidth.canvas=document.createElement("canvas")); const context=canvas.getContext("2d"); context.font=font; const metrics=context.measureText(text); return metrics.width;}function loadImages(sources, callback){var images={}; var loadedImages=0; var numImages=0; for (var src in sources){numImages++;}for (var src in sources){images[src]=new Image(); images[src].onload=function (){if (++loadedImages >=numImages){callback(images);}}; images[src].src=sources[src];}}function makeCharURL(namepose){var splitted=namepose.toString().split(","); return "character=" + splitted[0] + "&pose=" + splitted[1];}var disable_keys=parseTextBool( sessionStorage.getItem("disable_keys") ); if (disable_keys==false){sessionStorage.setItem("disable_keys", false); disable_keys=false;}$("#ToggleText").text( disable_keys ? "Keyboard shortcuts are disabled." : "Keyboard shortcuts are enabled." ); var scenario="'''
 # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
-html_snip3 = """indexLen=testArray.length - 1; file_name=location.pathname.split("/").pop();function* enumerate(it, start=0){let i=start; for (const x of it) yield [i++, x];}const urlParams=new URLSearchParams(window.location.search); var urlIndex=urlParams.get("index"); if (urlIndex > indexLen || urlIndex < 0){window.location.replace(file_name);}var selectedPose=undefined; const selectedCharacter=urlParams.get("character") ? urlParams.get("character") : urlIndex ? testArray[urlIndex][0] : undefined; if ( selectedCharacter !=undefined && !(selectedCharacter in jsonData) ){selectedCharacter=undefined; window.history.pushState(scenario, scenario, file_name);}var head=document.getElementById("title"); var rect_height=24; if (selectedCharacter==undefined){title.textContent=scenario; Object.entries(jsonData).forEach(([character, characterData])=>{var html="<div class='character'><span>" + character + "</span>"; Object.entries(characterData.poses).forEach( ([pose, poseData])=>{var outfitPath=poseData.default_outfit; html +="<a href='" + file_name + "?character=" + character + "&pose=" + pose + "'><div style='position:relative;text-align:center'><img class='characterImagesOutfit' src='" + outfitPath + "'/><div class='characterposename'>" + pose + "</div></div></a>";}); html +="</div>"; $("#imageList").append(html); window.history.pushState(scenario, scenario, file_name);});}else{var character=jsonData[selectedCharacter]; selectedPose=urlParams.get("pose") || testArray[urlIndex][1]; if (!(selectedPose in character.poses)){window.location.replace(file_name);}title.textContent=selectedCharacter + "_" + selectedPose; var html="<div class='character2Container'><a href='" + file_name + "'><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4UlEQVR42mNgGAWjgAKQnZlZk5WV0TBwlmdm/AdjejsiKyMjB245vR0BtLwCaOFvNAd8z8pK9xgYn4McQ0fLR6LPszISsPj8c1ZWms1AWT6QPk9/P5A+pyrGV8Kl0NpyvA4ABvN6WluO1wENDQ0swGw3f8AcAAOZmRmzsWi8nZaWJkK3SgeHI+5nZGQo0K/my8zsxuaIrKwslYENiYyMx4MhJJ7npKeb0DEk0psxHZH+PictTYOeITF9wEMC1PxCdwQwdPrp2i4EWYiUIOeDCjC6t4zBIZGVMXlALB8FwwYAANeQ3GvAWTt8AAAAAElFTkSuQmCC' style='height: 25px;width: auto;padding-top: 10px;'></a>"; let outfits=Object.keys(character.poses[selectedPose].outfits); Object.entries(character.poses[selectedPose].outfits).forEach( ([index, outfit])=>{var outfitPath=outfit; var outfitName=outfit.split("/").pop(); html +="<div class='character2' style='min-width:" + (getTextWidth(outfitName, '16px "Times New Roman"') + 5) + "px;'><img class='characterImagesOutfit' src='" + outfitPath + "'/><span>" + outfit.split("/").pop() + "</span></div>";}); html +="</div>"; $("#imageList").append(html); html=""; var total_images=character["poses"][selectedPose]["faces"]; var columns=parseInt(Math.sqrt(total_images.length)); var rows=parseInt(Math.ceil(total_images.length / columns)); html +="<canvas id='canvas'/><canvas>"; $("#imageList2").append(html); var canvas=document.getElementById("canvas"); var default_outfit=[].concat( character.poses[selectedPose].default_outfit ); if (character.poses[selectedPose].default_accessories.length > 0){default_outfit=default_outfit.concat( character.poses[selectedPose].default_accessories );}const skip_num=default_outfit.length; character.poses[selectedPose].faces=default_outfit.concat( character.poses[selectedPose].faces ); var context=canvas.getContext("2d"); var left_crop=character.poses[selectedPose].default_left_crop; var right_crop=character.poses[selectedPose].default_right_crop; var top_crop=character.poses[selectedPose].default_top_crop; var nheight=parseInt( character.poses[selectedPose].max_face_height * 1.07 - top_crop + rect_height ); var nwidth=right_crop - left_crop; canvas.height=parseInt(nheight + rect_height / 2) * rows; canvas.width=nwidth * columns; loadImages(character.poses[selectedPose].faces, function (images){var current_column=0; var swidth=0; var sheight=0; for (const [index, element] of enumerate( character.poses[selectedPose].faces )){if (index < skip_num){continue;}if (index % 2==1){context.fillStyle="black";}else{context.fillStyle="#121212";}context.fillRect(swidth, sheight, nwidth, nheight); for (var i=0; i < skip_num; i++){context.drawImage( images[i], left_crop, top_crop, nwidth, nheight, swidth, sheight, nwidth, nheight );}context.drawImage( images[index], left_crop, top_crop, nwidth, nheight, swidth, sheight, nwidth, nheight ); context.font="24pt Calibri"; txt_str=selectedPose + "_" + element .split("/") .pop() .split(".")[0] .replace("%23", "#"); context.fillStyle="white"; context.fillRect( swidth, sheight + nheight - rect_height + 1, nwidth, rect_height ); context.fillStyle="black"; context.fillText( txt_str, (nwidth - getTextWidth(txt_str, context.font)) / 2 + swidth, sheight + nheight ); swidth +=nwidth; current_column++; if (current_column >=columns){sheight +=nheight + rect_height / 2; swidth=0; current_column=0;}}}); html=""; $("#imageList2").append(html); document.title=scenario + " " + selectedCharacter + "_" + selectedPose;}$("body").bind("keydown", function (event){if (event.key=="Backspace" && selectedCharacter !=undefined){history.back();}else if (event.code=="Backslash"){disable_keys=!disable_keys; sessionStorage.setItem("disable_keys", disable_keys); $("#ToggleText").finish(); $("#ToggleText") .text( disable_keys ? "Keyboard shortcuts are disabled." : "Keyboard shortcuts are enabled." ) .fadeIn(1250) .delay(3000) .fadeOut(2000);}else if (disable_keys){}else if (event.key=="ArrowUp"){window.location.href=file_name;}else if (event.key=="ArrowRight"){if (selectedCharacter !=undefined && urlIndex==undefined){testIndex=testArray.findIndex( (element)=> element.toString()==[selectedCharacter, selectedPose].toString() ); testIndex=testIndex==indexLen ? 0 : testIndex + 1; window.location.href=file_name + "?" + makeCharURL(testArray[testIndex]);}else if (urlIndex==undefined){window.location.href=file_name + "?index=0";}else{window.location.href=file_name + "?index=" + (urlIndex - 1 + 2 > indexLen ? 0 : urlIndex - 1 + 2);}}else if (event.key=="ArrowLeft"){if (selectedCharacter !=undefined && urlIndex==undefined){testIndex=testArray.findIndex( (element)=> element.toString()==[selectedCharacter, selectedPose].toString() ); testIndex=testIndex==0 ? indexLen : testIndex - 1; window.location.href=file_name + "?" + makeCharURL(testArray[testIndex]);}else if (urlIndex==undefined){window.location.href=file_name + "?index=0";}else{window.location.href=file_name + "?index=" + (urlIndex - 1 < 0 ? indexLen : urlIndex - 1);}}}); </script></html>"""
+html_snip3 = """ indexLen=testArray.length - 1; file_name=location.pathname.split("/").pop(); function* enumerate(it, start=0){let i=start; for (const x of it) yield [i++, x];}const urlParams=new URLSearchParams(window.location.search); var urlIndex=urlParams.get("index"); if (urlIndex > indexLen || urlIndex < 0){window.location.replace(file_name);}var selectedPose=undefined; const selectedCharacter=urlParams.get("character") ? urlParams.get("character") : urlIndex ? testArray[urlIndex][0] : undefined; if ( selectedCharacter !=undefined && !(selectedCharacter in jsonData) ){selectedCharacter=undefined; window.history.pushState(scenario, scenario, file_name);}var head=document.getElementById("title"); var rect_height=32; if (selectedCharacter==undefined){title.textContent=scenario; Object.entries(jsonData).forEach(([character, characterData])=>{var html="<div class='character'><span>" + character + "</span>"; Object.entries(characterData.poses).forEach( ([pose, poseData])=>{var outfitPath=poseData.default_outfit; html +="<a href='" + file_name + "?character=" + character + "&pose=" + pose + "'><div style='position:relative;text-align:center'><img class='characterImagesOutfit' src='" + outfitPath + "'/><div class='characterposename'>" + pose + "</div></div></a>";}); html +="</div>"; $("#imageList").append(html); window.history.pushState(scenario, scenario, file_name);});}else{var character=jsonData[selectedCharacter]; selectedPose=urlParams.get("pose") || testArray[urlIndex][1]; if (!(selectedPose in character.poses)){window.location.replace(file_name);}title.textContent=selectedCharacter + "_" + selectedPose; var html="<div class='character2Container'><a href='" + file_name + "'><img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4UlEQVR42mNgGAWjgAKQnZlZk5WV0TBwlmdm/AdjejsiKyMjB245vR0BtLwCaOFvNAd8z8pK9xgYn4McQ0fLR6LPszISsPj8c1ZWms1AWT6QPk9/P5A+pyrGV8Kl0NpyvA4ABvN6WluO1wENDQ0swGw3f8AcAAOZmRmzsWi8nZaWJkK3SgeHI+5nZGQo0K/my8zsxuaIrKwslYENiYyMx4MhJJ7npKeb0DEk0psxHZH+PictTYOeITF9wEMC1PxCdwQwdPrp2i4EWYiUIOeDCjC6t4zBIZGVMXlALB8FwwYAANeQ3GvAWTt8AAAAAElFTkSuQmCC' style='height: 25px;width: auto;padding-top: 10px;'></a>"; let outfits=Object.keys(character.poses[selectedPose].outfits); Object.entries(character.poses[selectedPose].outfits).forEach( ([index, outfit])=>{var outfitPath=outfit; var outfitName=outfit.split("/").pop(); html +="<div class='character2' style='min-width:" + (getTextWidth(outfitName, '16px "Times New Roman"') + 5) + "px;'><img class='characterImagesOutfit' src='" + outfitPath + "'/><span>" + outfit.split("/").pop() + "</span></div>";}); html +="</div>"; $("#imageList").append(html); html=""; var total_images=character["poses"][selectedPose]["faces"]; var columns=parseInt(Math.sqrt(total_images.length)); var rows=parseInt(Math.ceil(total_images.length / columns)); const image_padding=10; html +="<canvas id='canvas'/><canvas>"; $("#imageList2").append(html); var canvas=document.getElementById("canvas"); var default_outfit=[].concat( character.poses[selectedPose].default_outfit ); if (character.poses[selectedPose].default_accessories.length > 0){default_outfit=default_outfit.concat( character.poses[selectedPose].default_accessories );}const skip_num=default_outfit.length; character.poses[selectedPose].faces=default_outfit.concat( character.poses[selectedPose].faces ); var context=canvas.getContext("2d"); var left_crop=character.poses[selectedPose].default_left_crop; var right_crop=character.poses[selectedPose].default_right_crop; var top_crop=character.poses[selectedPose].default_top_crop; var nheight=parseInt( character.poses[selectedPose].max_face_height * 1.07 - top_crop + rect_height ); var nwidth=right_crop - left_crop; canvas.height = (nheight + image_padding)* rows; canvas.width=nwidth * columns; loadImages(character.poses[selectedPose].faces, function (images){var current_column=0; var swidth=0; var sheight=0; for (const [index, element] of enumerate( character.poses[selectedPose].faces )){if (index < skip_num){continue;}if (index % 2==1){context.fillStyle="black";}else{context.fillStyle="#121212";}context.fillRect( swidth, sheight, nwidth, nheight + image_padding ); for (var i=0; i < skip_num; i++){context.drawImage( images[i], left_crop, top_crop, nwidth, nheight, swidth, sheight, nwidth, nheight );}context.drawImage( images[index], left_crop, top_crop, nwidth, nheight, swidth, sheight, nwidth, nheight ); context.font="24pt Calibri"; txt_str=selectedPose + "_" + element .split("/") .pop() .split(".")[0] .replace("%23", "#"); context.fillStyle="white";/*rect color*/ context.fillRect( swidth, sheight + nheight - rect_height, nwidth, rect_height + image_padding ); context.fillStyle="black";/*text color*/ context.fillText( txt_str, (nwidth - getTextWidth(txt_str, context.font)) / 2 + swidth, sheight + nheight - (rect_height -image_padding) / 2 / 2 ); swidth +=nwidth; current_column++; if (current_column >=columns){sheight +=nheight + image_padding; swidth=0; current_column=0;}}}); html=""; $("#imageList2").append(html); document.title=scenario + " " + selectedCharacter + "_" + selectedPose;}$("body").bind("keydown", function (event){if (event.key=="Backspace" && selectedCharacter !=undefined){history.back();}else if (event.code=="Backslash"){disable_keys=!disable_keys; sessionStorage.setItem("disable_keys", disable_keys); $("#ToggleText").finish(); $("#ToggleText") .text( disable_keys ? "Keyboard shortcuts are disabled." : "Keyboard shortcuts are enabled." ) .fadeIn(1250) .delay(3000) .fadeOut(2000);}else if (disable_keys){}else if (event.key=="ArrowUp"){window.location.href=file_name;}else if (event.key=="ArrowRight"){if (selectedCharacter !=undefined && urlIndex==undefined){testIndex=testArray.findIndex( (element)=> element.toString()==[selectedCharacter, selectedPose].toString() ); testIndex=testIndex==indexLen ? 0 : testIndex + 1; window.location.href=file_name + "?" + makeCharURL(testArray[testIndex]);}else if (urlIndex==undefined){window.location.href=file_name + "?index=0";}else{window.location.href=file_name + "?index=" + (urlIndex - 1 + 2 > indexLen ? 0 : urlIndex - 1 + 2);}}else if (event.key=="ArrowLeft"){if (selectedCharacter !=undefined && urlIndex==undefined){testIndex=testArray.findIndex( (element)=> element.toString()==[selectedCharacter, selectedPose].toString() ); testIndex=testIndex==0 ? indexLen : testIndex - 1; window.location.href=file_name + "?" + makeCharURL(testArray[testIndex]);}else if (urlIndex==undefined){window.location.href=file_name + "?index=0";}else{window.location.href=file_name + "?index=" + (urlIndex - 1 < 0 ? indexLen : urlIndex - 1);}}}); </script></html>"""
 
 
 def create_html(args, yml):
@@ -92,13 +92,13 @@ def create_html(args, yml):
 
             if not outfits:
                 print(
-                    f'Error: Character "{character_name}" with corrasponding pose "{pose_letter}" does not contain outfits. Skipping.'
+                    f'Error: Character "{character_name}" with corresponding pose "{pose_letter}" does not contain outfits. Skipping.'
                 )
                 continue
 
             if not faces:
                 print(
-                    f'Error: Character "{character_name}" with corrasponding pose "{pose_letter}" does not contain faces. Skipping now.'
+                    f'Error: Character "{character_name}" with corresponding pose "{pose_letter}" does not contain faces. Skipping now.'
                 )
                 continue
 
@@ -169,7 +169,7 @@ def create_html(args, yml):
             for sizes in map(trim_images, outfits):
                 widths.append(sizes[0])
                 heights.append(sizes[1])
-            # We remove accessories here due to untupling
+
             outfit_tuple = path_functions.get_default_outfit(
                 outfits,
                 char_data=char_yml,
@@ -199,7 +199,7 @@ def create_html(args, yml):
 
     if not chars:
         print(
-            "No suitable characters exsist. Read what each character is missing and add those to create html."
+            "No suitable characters exist. Read what each character is missing and add those to create html."
         )
         input("Press enter to exit...")
         sys.exit()
@@ -212,7 +212,12 @@ def create_html(args, yml):
     ) as html_file:
         html_file.write(html_snip1 + scenario_title)
         # Add Scenario Title before continue
-        html_file.write(html_snip2)
+        html_file.write(
+            html_snip2.replace(
+                "background-color: white; /*Background Replace*/",
+                f"background-color: {args.backgroundcolor}; /*Background Replace*/",
+            )
+        )
         html_file.write(
             scenario_title
             + '"; var testArray=['
@@ -226,12 +231,20 @@ def create_html(args, yml):
             html_snip3.replace(
                 '"black";}else{context.fillStyle="#121212";}',
                 f'"black";}}else{{context.fillStyle="{args.color2}";}}',
-            ).replace(
+            )
+            .replace(
                 'index % 2==1){context.fillStyle="black";',
                 f'index % 2==1){{context.fillStyle="{args.color1}";',
             )
+            .replace(
+                'context.fillStyle="white";/*rect color*/',
+                f'context.fillStyle="{args.rectbackgroundcolor}";/*rect color*/',
+            )
+            .replace(
+                'context.fillStyle="black";/*text color*/',
+                f'context.fillStyle="{args.textcolor}";/*text color*/',
+            )
         )
-        # if (index % 2==1){context.fillStyle="black";}else{context.fillStyle="#121212";}
 
     input(
         f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}, press enter to exit..."
@@ -256,7 +269,7 @@ def main():
     argroup.add_argument(
         "-b",
         "--bounds",
-        help="Don't make html File. Outbox boundry boxes(how it could be cropped to make smaller) for all files. ",
+        help="Don't make html File. Outbox boundary boxes(how it could be cropped to make smaller) for all files. ",
         action="store_true",
     )
     argroup.add_argument(
@@ -306,13 +319,36 @@ def main():
     argroup.add_argument(
         "-c2",
         "--color2",
-        help="Change the first color of the expressions sheet generator. Accepts css color code or #RGB value. Default is #121212",
+        help="Change the second color of the expressions sheet generator. Accepts css color code or #RGB value. Default is #121212",
         default="#121212",
     )
     argroup.add_argument(
         "-tn",
         "--titlename",
         help="Use given name as Title (On main page) instead of the one from scenario.yaml.",
+    )
+    argroup.add_argument(
+        "--transparent",
+        help="Sets both colors to #00000000 (The extra 2 zero mean no alpha) making the squares transparent. ",
+        action="store_true",
+    )
+    argroup.add_argument(
+        "-bg",
+        "--backgroundcolor",
+        help="Changed the background of the whole webpage. This applies for both the main and character pages. Accepts css color code or #RGB value. Default white.",
+        default="white",
+    )
+    argroup.add_argument(
+        "-rbg",
+        "--rectbackgroundcolor",
+        help="Changed the background of the rectangles that hold the face reference on the character page. Accepts css color code or #RGB value. Default white.",
+        default="white",
+    )
+    argroup.add_argument(
+        "-txt",
+        "--textcolor",
+        help="Change the color of the text that says the face references on the character page. Accepts css color code or #RGB value. Default black.",
+        default="black",
     )
 
     args = parser.parse_args()
@@ -325,7 +361,7 @@ def main():
         not os.path.exists(os.path.join(args.inputdir, "scenario.yml"))
         and not args.bounds
     ):
-        print(f"Error: Scenario.yaml does not exsist in '{args.inputdir}'.")
+        print(f"Error: Scenario.yaml does not exist in '{args.inputdir}'.")
         response = input(
             "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): "
         )
@@ -359,6 +395,9 @@ def main():
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")
         input("Press Enter to exit...")
         sys.exit()
+    if args.transparent:
+        args.color1 = "#00000000"
+        args.color2 = "#00000000"
     create_html(args, yml_data)
 
 
