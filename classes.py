@@ -1,5 +1,7 @@
 import html
 import os
+import re
+from dataclasses import dataclass
 from typing import NamedTuple
 
 from PIL import Image
@@ -11,9 +13,16 @@ class ImagePath(NamedTuple):
     path: str
     width: int
     height: int
+    cropbox: "CropBox"
+
+    @property
+    def clean_path(self):
+        return re.sub("characters/[^/]+/[^/]+/(outfits|faces/face)/", "", self.path)
 
     def __repr__(self) -> str:
-        return f'"{self.path}"'
+        return (
+            f'"{re.sub("characters/[^/]+/[^/]+/(outfits|faces/face)/", "", self.path)}"'
+        )
 
 
 class CropBox(NamedTuple):
@@ -54,7 +63,8 @@ class CropBox(NamedTuple):
         return {CropBox.bbox_from_from_pil(x) for x in bounds_boxes}
 
 
-class Pose(NamedTuple):
+@dataclass
+class Pose:
     """Holds a pose's name, outfits and faces"""
 
     path: str
@@ -63,10 +73,11 @@ class Pose(NamedTuple):
     faces: tuple[ImagePath]
     default_outfit: ImagePath
     default_accessories: list[ImagePath]
+    face_height: int = None
 
     @property
     def faces_escaped(self):
-        return [html.escape(x.path.replace("#", "%23")) for x in self.faces]
+        return [html.escape(x.clean_path.replace("#", "%23")) for x in self.faces]
 
     @property
     def full_default_outfit(self):
@@ -77,39 +88,14 @@ class Pose(NamedTuple):
         return [os.path.join(self.path, x.path) for x in self.default_accessories]
 
     @property
-    def get_imagebox_faces(self) -> list[str]:
-        return CropBox.bbox_from_multiple_pil(
-            (
-                Image.open(os.path.join(self.path, x.path))
-                .convert("RGBA")
-                .split()[-1]
-                .getbbox()
-                for x in self.faces
-            )
-        )
-
-    @property
-    def get_max_imagebox_height(self):
-        bbox = CropBox.bbox_from_multiple_pil(
-            (
-                Image.open(os.path.join(self.path, x.path))
-                .convert("RGBA")
-                .split()[3]
-                .getbbox()
-                for x in self.faces
-            )
-        )
-        if not bbox:
-            return self.max_face_height
-        return bbox.bottom
-
-    @property
-    def default_outfit_height(self):
-        return self.default_outfit
+    def get_imagebox_faces(self) -> CropBox:
+        return CropBox.bbox_from_multiple_pil((x.cropbox for x in self.faces))
 
     @property
     def outfit_bbox(self):
-        face_height = self.get_max_imagebox_height
+        ff_box = self.get_imagebox_faces
+        face_height = ff_box.bottom if ff_box is not None else self.max_face_height
+        self.face_height = face_height
         boundary_boxes = []
         crop_image = Image.open(self.full_default_outfit)
         backup_box = crop_image.getbbox()
@@ -121,7 +107,6 @@ class Pose(NamedTuple):
         c_bbox = crop_image.getbbox()
         if c_bbox is not None:
             boundary_boxes.append(c_bbox)
-        ff_box = self.get_imagebox_faces
         if ff_box is not None:
             boundary_boxes.append((ff_box))
         c_bbox = crop_image.getbbox()
@@ -166,13 +151,18 @@ class Character(NamedTuple):
 
     name: str
     poses: list[Pose]
+    max_height_multiplier: float
 
     def __repr__(self):
         print(f"Creating: {self.name}")
         builder = f'"{self.name}": {{"name": "{self.name}", "poses" :{{'
         for pose in self.poses:
             boundsBox = pose.outfit_bbox
-            faceBoundsBox = pose.get_max_imagebox_height
+            faceBoundsBox = (
+                int(pose.face_height * self.max_height_multiplier)
+                if pose.face_height not in [0, None]
+                else boundsBox.bottom
+            )
             acc = "".join(str(x) + ", " for x in pose.default_accessories)
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "faces": {pose.faces_escaped}, '
             builder += f'"default_outfit" : {pose.default_outfit}, '
