@@ -195,7 +195,6 @@ def create_html(args, yml):
 
     if args.bounds:
         sys.exit()
-    print("Creating Html...")
 
     if not chars:
         print(
@@ -204,6 +203,7 @@ def create_html(args, yml):
         input("Press enter to exit...")
         sys.exit()
 
+    print("Creating Html...")
     scenario_title = yml["title"]
 
     # print(chars[0])
