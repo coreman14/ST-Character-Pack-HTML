@@ -1,0 +1,16 @@
+{
+    "name_color": "#cdc09d",
+    "name": "Watson",
+    "voice": "male",
+    "eye_line": 0.195,
+    "scale": 0.9,
+    "default_outfit": "coat",
+    "poses": {
+        "a": {
+            facing: left
+        },
+        "b": {
+            facing: right
+        }
+    }
+}
