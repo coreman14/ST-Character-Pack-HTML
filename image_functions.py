@@ -15,7 +15,7 @@ def tryOpenImageIter(name, index=0):
         input("Press any key to exit...")
 
 
-def return_bb_box(name, trim_RGB, remove_empty=False):
+def return_bb_box(name, trim_RGB=False, remove_empty=False):
     name, trim_img = tryOpenImageIter(name, index=0)
     if trim_img.mode != "RGBA" and not trim_RGB:
         trim_img = trim_img.convert("RGBA")
@@ -34,14 +34,15 @@ def trimImage(name, do_trim=False, remove_empty=False):
     bbox = trim_img.split()[-1].getbbox()
     if not bbox:
         if os.sep + "face" + os.sep in name or "/face/" in name:
-            return 0, 0, 0, 0
+            return (0, 0, [0, 0, 0, 0])
         print("{} is empty, it can be removed".format(name))
         if remove_empty:
             os.remove(name)
-        return None
+        return (0, 0, [0, 0, 0, 0])
     trimmedSize = bbox[2:]
 
     if trimmedSize != trim_img.size and do_trim:
         trim_img = trim_img.crop((0, 0) + trimmedSize)
+        bbox = trim_img.getbbox()
         trim_img.save(name)
-    return trim_img.size
+    return (*trim_img.size, bbox)

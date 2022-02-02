@@ -15,14 +15,10 @@ def find_access(out_path) -> tuple[str, list[str]]:
     for direct in outfit_access:
         for ext in ACCEPTED_EXT:
             acc_list = glob(os.path.join(direct, f"*{ext}"))
-            acc_list.sort()
             if len(acc_list) > 0:
-                acc_dict = {
-                    x.split(os.sep)[-1]: os.sep.join(x.split(os.sep)[:-1])
-                    for x in acc_list
-                }
+                acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
                 if f"off{ext}" in acc_dict:
-                    return_acc.append(os.path.join(acc_dict[f"off{ext}"], f"off{ext}"))
+                    return_acc.append(acc_dict[f"off{ext}"])
     return out_path, return_acc
 
 
@@ -49,10 +45,12 @@ def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
     result = []
     for item in a:
         if not isinstance(item, str):
-            parse_item = item[0].split(os.sep)[-1].split(".")[0]
+            parse_item = os.sep.join(item[0].split(os.sep)[-2:]).split(".", maxsplit=1)[
+                0
+            ]
 
         else:
-            parse_item = item.split(os.sep)[-1].split(".")[0]
+            parse_item = os.sep.join(item.split(os.sep)[-2:]).split(".", maxsplit=1)[0]
         if parse_item not in seen:
             seen.add(parse_item)
             result.append(item)

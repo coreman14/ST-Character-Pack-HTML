@@ -1,6 +1,15 @@
 import os
+from typing import Protocol
 
-import classes
+
+class ImagePath(Protocol):
+    path: str
+    width: int
+    height: int
+
+    @property
+    def clean_path(self):
+        ...
 
 
 def sort_by_numbers(path: str, sep=os.sep):
@@ -17,9 +26,9 @@ def sort_by_numbers(path: str, sep=os.sep):
     return ("0" * (3 - len(num))) + path.split(os.sep)[-1].split(".")[0]
 
 
-def face_sort_imp(image: classes.ImagePath):
+def face_sort_imp(image: ImagePath):
     return sort_by_numbers(image.path, sep="/")
 
 
-def face_sort_outtuple(image: classes.ImagePath):
+def face_sort_outtuple(image: ImagePath):
     return sort_by_numbers(image[0])
