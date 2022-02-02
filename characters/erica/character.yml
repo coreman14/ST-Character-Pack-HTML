@@ -1,0 +1,13 @@
+default_outfit: uniform_b
+display_name: Erica
+eye_line: 0.0
+name_color: '#304947'
+poses:
+  a:
+    center_width: 197
+  b:
+    center_width: 197
+  c:
+    center_width: 285
+scale: 0.9
+voice: girl

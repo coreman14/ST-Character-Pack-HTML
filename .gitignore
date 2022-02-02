@@ -1,7 +1,8 @@
 *.pyz
-characters/*
-*.html
+
+
 scenario.yml
 scenario.json
 zipapps cmdline.txt
 zipapps_cache/*
+__pycache__/*

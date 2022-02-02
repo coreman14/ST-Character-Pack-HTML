@@ -1,0 +1,12 @@
+default_outfit: uniform_b
+display_name: Iroha
+eye_line: 0.0
+name_color: '#c5c8e8'
+poses:
+  a:
+    center_width: 227
+  b:
+    center_width: 275
+    facing: right
+scale: 1.0
+voice: woman
