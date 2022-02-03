@@ -15,15 +15,14 @@ def tryOpenImageIter(name, index=0):
         input("Press any key to exit...")
 
 
-def return_bb_box(name, trim_RGB=False, remove_empty=False):
+def return_bb_box(name, remove_empty=False):
     name, trim_img = tryOpenImageIter(name, index=0)
-    if trim_img.mode != "RGBA" and not trim_RGB:
+    if trim_img.mode != "RGBA":
         trim_img = trim_img.convert("RGBA")
-    if bbox := trim_img.split()[-1].getbbox():
-        return bbox
+    bbox = trim_img.split()[-1].getbbox()
     if remove_empty:
         os.remove(name)
-    return 0, 0, 0, 0
+    return bbox or (0, 0, 0, 0)
 
 
 # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
