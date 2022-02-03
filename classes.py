@@ -43,6 +43,8 @@ class CropBox(NamedTuple):
             q.remove(None)
         if not q:
             return None
+        if len(q) == 1:
+            return cls(*q[0])
         return cls(
             min(x[0] for x in q),
             min(x[1] for x in q),
@@ -94,7 +96,7 @@ class Pose:
     @property
     def outfit_bbox(self):
         ff_box = self.get_imagebox_faces
-        face_height = ff_box.bottom if ff_box is not None else self.max_face_height
+        face_height = ff_box.bottom if ff_box is not None else 0
         self.face_height = face_height
         boundary_boxes = []
         crop_image = Image.open(self.full_default_outfit)
@@ -160,7 +162,7 @@ class Character(NamedTuple):
             boundsBox = pose.outfit_bbox
             faceBoundsBox = (
                 int(pose.face_height * self.max_height_multiplier)
-                if pose.face_height not in [0, None]
+                if pose.face_height != 0
                 else boundsBox.bottom
             )
             acc = "".join(str(x) + ", " for x in pose.default_accessories)

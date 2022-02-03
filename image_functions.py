@@ -29,16 +29,17 @@ def return_bb_box(name, trim_RGB=False, remove_empty=False):
 # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
 def trimImage(name, do_trim=False, remove_empty=False):
     name, trim_img = tryOpenImageIter(name)
+    tsize = trim_img.size
     if trim_img.mode != "RGBA":
         trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
     if not bbox:
         if os.sep + "face" + os.sep in name or "/face/" in name:
-            return (0, 0, [0, 0, 0, 0])
+            return (*tsize, None)
         print("{} is empty, it can be removed".format(name))
         if remove_empty:
             os.remove(name)
-        return (0, 0, [0, 0, 0, 0])
+        return (*tsize, None)
     trimmedSize = bbox[2:]
 
     if trimmedSize != trim_img.size and do_trim:
