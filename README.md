@@ -35,7 +35,7 @@ Character Page:
 
 ## Requirements (>=Python 3.8)
 
-For the script to run, it requires both pillow and pyyaml. You can use `python -m pip install -r requirements` if you cloned the repository, or `python -m pip install pyyaml pillow`.
+For the script to run, it requires both pillow, colorama and pyyaml. You can use `python -m pip install -r requirements` if you cloned the repository, or `python -m pip install pyyaml pillow colorama`.
 
 If you downloaded the release that includes these packages, they will unzip to `zipapps_cache` when the script is called. They do not self remove but will be extracted from the file whenever ran.
 
@@ -43,12 +43,12 @@ If you downloaded the release that includes these packages, they will unzip to `
 
 To use this util, clone the repo or download the pyz files from [GitHub](https://github.com/coreman14/StHTMLHolyPack) as I have yet to grasp how gitlab expects me to do releases.
 
-There are 2 versions, one requires that pillow and pyyaml are installed beforehand, and one that unzips them from inside.
+There are 2 versions, one requires that pillow, colorama and pyyaml are installed beforehand, and one that unzips them from inside.
 
 To run the script:
 
 ```bash
-python STHtml.pyz
+python STHtml_[nor|hasr].pyz
 #or if using the cloned version
 python html_main.py
 ```
