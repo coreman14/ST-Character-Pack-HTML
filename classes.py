@@ -64,6 +64,9 @@ class CropBox(NamedTuple):
     def set_of_bbox_from_pil(bounds_boxes: list[tuple[int]]):
         return {CropBox.bbox_from_from_pil(x) for x in bounds_boxes}
 
+    def __repr__(self) -> str:
+        return f"Actual Image Size {self.right - self.left}x{self.bottom - self.top}"
+
 
 @dataclass
 class Pose:

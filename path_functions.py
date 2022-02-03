@@ -22,22 +22,29 @@ def find_access(out_path) -> tuple[str, list[str]]:
     return out_path, return_acc
 
 
-def get_faces_and_outfits(pose_2):
-    outfits_r: list[str] = []
+def get_faces_and_outfits(pose, character_name):
+    outfits: list[str] = []
     for ext in ACCEPTED_EXT:
-        outfits_r.extend(glob(os.path.join(pose_2, "outfits", "*" + ext)))
-        outfits_r.extend(
-            find_access(x)
-            for x in glob(os.path.join(pose_2, "outfits", "*", "*" + ext))
+        outfits.extend(glob(os.path.join(pose, "outfits", "*" + ext)))
+        outfits.extend(
+            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", "*" + ext))
         )
 
-    faces_r: list[str] = [
-        *glob(os.path.join(pose_2, "faces", "face", "*.webp")),
-        *glob(os.path.join(pose_2, "faces", "face", "*.png")),
+    faces: list[str] = [
+        *glob(os.path.join(pose, "faces", "face", "*.webp")),
+        *glob(os.path.join(pose, "faces", "face", "*.png")),
     ]
-    faces_r = remove_path_duplicates_no_ext(faces_r)
-    outfits_r = remove_path_duplicates_no_ext(outfits_r)
-    return faces_r, outfits_r
+    if not outfits or not faces:
+        out_str = ("outfits" if not outfits else "") + (
+            ("faces" if not faces and outfits else " and faces" if not faces else "")
+        )
+        print(
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain {out_str}. Skipping.'
+        )
+        return None, None
+    faces = remove_path_duplicates_no_ext(faces)
+    outfits = remove_path_duplicates_no_ext(outfits)
+    return faces, outfits
 
 
 def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
