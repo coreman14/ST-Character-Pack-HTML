@@ -127,7 +127,7 @@ def get_default_outfit(
     else:
         outfit = outfit_data[0]
     if not isinstance(outfit, str):
-        no_blank_access = [x for x in outfit[1] if trim_images(x) is not None]
+        no_blank_access = [x for x in outfit[1] if None not in trim_images(x)]
         image_paths_access = [
             ImagePath(remove_path(x, full_path), *trim_images(x))
             for x in no_blank_access

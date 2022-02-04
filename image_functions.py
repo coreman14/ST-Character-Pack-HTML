@@ -15,13 +15,11 @@ def tryOpenImageIter(name, index=0):
         input("Press any key to exit...")
 
 
-def return_bb_box(name, remove_empty=False):
+def return_bb_box(name):
     name, trim_img = tryOpenImageIter(name, index=0)
     if trim_img.mode != "RGBA":
         trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
-    if remove_empty:
-        os.remove(name)
     return bbox or (0, 0, 0, 0)
 
 

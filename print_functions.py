@@ -4,16 +4,17 @@ from collections import Counter
 from colorama import Fore, Style
 
 from classes import CropBox
+from image_functions import return_bb_box
 
 
-def bounds_print(to_print, bbox_func, split_str=os.sep):
+def bounds_print(to_print, split_str=os.sep):
     print(Style.RESET_ALL, end="")
     print_box = []
     print_name = []
     for ipath in to_print:
         if not isinstance(ipath, str):
             ipath = ipath[0]
-        if bobobo := bbox_func(ipath):
+        if bobobo := return_bb_box(ipath):
             print_box.append(CropBox(*bobobo))
         else:
             print_box.append(None)

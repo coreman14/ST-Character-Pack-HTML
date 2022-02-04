@@ -35,10 +35,7 @@ def main_loop(args, yml):
         do_trim=args.trim,
         remove_empty=args.removeempty,
     )
-    returnbbbox = partial(
-        image_functions.return_bb_box,
-        remove_empty=args.removeempty,
-    )
+
     remove_path_setup = partial(path_functions.remove_path, full_path=args.inputdir)
 
     chars: list[classes.Character] = []
@@ -67,9 +64,7 @@ def main_loop(args, yml):
             pose_letter = pose_path.split(os.sep)[-1]
 
             if args.bounds:
-                main_functions.bounds(
-                    args.regex, pose_path, character_name, returnbbbox
-                )
+                main_functions.bounds(args.regex, pose_path, character_name)
 
             else:
                 faces, outfits = path_functions.get_faces_and_outfits(
@@ -150,7 +145,7 @@ def main():
     parser.add_argument(
         "-r",
         dest="removeempty",
-        help="This removes any off accessories that are blank. Off accessories do not need to be present if they don't add anything",
+        help="This removes any off accessories that are blank. Off accessories do not need to be present if they don't add anything. Does not remove anything during -b/bounds check.",
         action="store_true",
     )
     parser.add_argument(

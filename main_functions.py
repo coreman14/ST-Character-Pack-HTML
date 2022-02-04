@@ -10,7 +10,7 @@ import sort_functions
 from print_functions import bounds_print
 
 
-def bounds(regex, path, name, bbox):
+def bounds(regex, path, name):
     pose_letter = path.split(os.sep)[-1]
     if regex is None or re.match(regex, name):
         faces, outfits = path_functions.get_faces_and_outfits(path, name)
@@ -19,12 +19,12 @@ def bounds(regex, path, name, bbox):
         print(f"Character {name}: Pose {pose_letter}")
         faces.sort(key=sort_functions.sort_by_numbers)
         print("Faces")
-        bounds_print(faces, bbox)
+        bounds_print(faces)
 
         outfits.sort(key=sort_functions.face_sort_outtuple)
         print()
         print("Outfits")
-        bounds_print(outfits, bbox)
+        bounds_print(outfits)
 
         print()
 

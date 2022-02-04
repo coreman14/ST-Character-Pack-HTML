@@ -1,5 +1,5 @@
 *.pyz
-
+charactersTrim/*
 
 scenario.yml
 scenario.json
