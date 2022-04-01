@@ -1,6 +1,9 @@
 """
-How to finish(in order):
-
+Make bg and bg img both doable and check on how it stacks.
+Add top padding for the character rows.
+Add title color.
+Add character background color(On homepage, behind the characters)
+Add custom title. E:G don't use whats in yaml
 
 """
 
@@ -185,11 +188,17 @@ def main():
         help="Sets both colors to #00000000 (The extra 2 zero mean no alpha) making the squares transparent. ",
         action="store_true",
     )
-    argroup.add_argument(
-        "-bg",
+    argroup2 = argroup.add_mutually_exclusive_group()
+    argroup2.add_argument(
+        "-bgc",
         dest="backgroundcolor",
         help="Changed the background of the whole webpage. This applies for both the main and character pages. Accepts css color code or #RGB value. Default white.",
         default="white",
+    )
+    argroup2.add_argument(
+        "-bgim",
+        dest="backgroundimage",
+        help="Changed the background of the whole webpage to given image. This applies for both the main and character pages. This can be a link to a file on the internet, or a relative path into your scenario folder.",
     )
     argroup.add_argument(
         "-rbg",

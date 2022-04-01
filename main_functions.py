@@ -111,12 +111,20 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
     ) as html_file:
         html_file.write(html_snip1 + scenario_title)
         # Add Scenario Title before continue
-        html_file.write(
-            html_snip2.replace(
-                "background-color: white; /*Background Replace*/",
-                f"background-color: {args.backgroundcolor}; /*Background Replace*/",
+        if args.backgroundimage:
+            html_file.write(
+                html_snip2.replace(
+                    "background-color: white; /*Background Replace*/",
+                    f'background-image: url("{args.backgroundimage}"); /*Background Replace*/',
+                )
             )
-        )
+        else:
+            html_file.write(
+                html_snip2.replace(
+                    "background-color: white; /*Background Replace*/",
+                    f"background-color: {args.backgroundcolor}; /*Background Replace*/",
+                )
+            )
         html_file.write(
             scenario_title
             + '"; var testArray=['
