@@ -1,10 +1,4 @@
 """
-Make bg and bg img both doable and check on how it stacks.
-Add top padding for the character rows.
-Add title color.
-Add character background color(On homepage, behind the characters)
-Add custom title. E:G don't use whats in yaml
-
 """
 
 
@@ -166,6 +160,24 @@ def main():
 
     argroup = parser.add_argument_group("CSS Options")
     argroup.add_argument(
+        "-tp",
+        dest="toppadding",
+        help="Add top padding the character row on main page. Accepts a px value (Just the number).",
+        default="",
+    )
+    argroup.add_argument(
+        "-tc",
+        dest="titlecolor",
+        help="Change the color of the title on all pages. Accepts css color code or #RGB value. Default is black.",
+        default="",
+    )
+    argroup.add_argument(
+        "-cc",
+        dest="charactercolor",
+        help="Change the color behind the characters on the main page. Accepts css color code or #RGB value. Default is none.",
+        default="",
+    )
+    argroup.add_argument(
         "-c1",
         dest="color1",
         help="Change the first color of the expressions sheet generator. Accepts css color code or #RGB value. Default is black",
@@ -188,17 +200,16 @@ def main():
         help="Sets both colors to #00000000 (The extra 2 zero mean no alpha) making the squares transparent. ",
         action="store_true",
     )
-    argroup2 = argroup.add_mutually_exclusive_group()
-    argroup2.add_argument(
+    argroup.add_argument(
         "-bgc",
         dest="backgroundcolor",
         help="Changed the background of the whole webpage. This applies for both the main and character pages. Accepts css color code or #RGB value. Default white.",
         default="white",
     )
-    argroup2.add_argument(
+    argroup.add_argument(
         "-bgim",
         dest="backgroundimage",
-        help="Changed the background of the whole webpage to given image. This applies for both the main and character pages. This can be a link to a file on the internet, or a relative path into your scenario folder.",
+        help="Changed the background of the whole webpage to given image. This applies for both the main and character pages. This can be a link to a file on the internet, or a relative path into your scenario folder. This will show overtop of the bgcolor.",
     )
     argroup.add_argument(
         "-rbg",

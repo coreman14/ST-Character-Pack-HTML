@@ -112,19 +112,34 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
         html_file.write(html_snip1 + scenario_title)
         # Add Scenario Title before continue
         if args.backgroundimage:
-            html_file.write(
-                html_snip2.replace(
-                    "background-color: white; /*Background Replace*/",
-                    f'background-image: url("{args.backgroundimage}"); /*Background Replace*/',
-                )
+            args.backgroundimage = args.backgroundimage.replace("\\", "/")
+            html_snip2 = html_snip2.replace(
+                "background-color: white; /*Background Replace*/",
+                f'background-color: white; /*Background Replace*/background-image: url("{args.backgroundimage}"); /*Background Replace*/',
             )
-        else:
-            html_file.write(
-                html_snip2.replace(
-                    "background-color: white; /*Background Replace*/",
-                    f"background-color: {args.backgroundcolor}; /*Background Replace*/",
-                )
+        if args.backgroundcolor:
+            html_snip2 = html_snip2.replace(
+                "background-color: white; /*Background Replace*/",
+                f"background-color: {args.backgroundcolor}; /*Background Replace*/",
             )
+
+        if args.toppadding:
+            html_snip2 = html_snip2.replace(
+                ".characters{",
+                f".characters{{ padding-top: {args.toppadding}px;",
+            )
+        if args.titlecolor:
+            html_snip2 = html_snip2.replace(
+                "#title{",
+                f"#title{{ color: {args.titlecolor};",
+            )
+        if args.charactercolor:
+            html_snip2 = html_snip2.replace(
+                ".character{",
+                f".character{{ background-color: {args.charactercolor};",
+            )
+
+        html_file.write(html_snip2)
         html_file.write(
             scenario_title
             + '"; var testArray=['
