@@ -142,7 +142,7 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
         html_file.write(html_snip2)
         html_file.write(
             scenario_title
-            + '"; var testArray=['
+            + '"; var characterArray=['
             + ", ".join(str(x) for x in chars_with_poses)
             + "]; var jsonData={ "
             + "".join(str(x) for x in chars)

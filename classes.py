@@ -19,10 +19,14 @@ class ImagePath(NamedTuple):
     def clean_path(self):
         return re.sub("characters/[^/]+/[^/]+/(outfits|faces/face)/", "", self.path)
 
-    def __repr__(self) -> str:
-        return (
-            f'"{re.sub("characters/[^/]+/[^/]+/(outfits|faces/face)/", "", self.path)}"'
+    @property
+    def folder_path(self):
+        return re.sub(
+            "(characters/[^/]+/[^/]+/(outfits|faces/face)/)(.*)", "\\1", self.path
         )
+
+    def __repr__(self) -> str:
+        return f'"{self.clean_path}"'
 
 
 class CropBox(NamedTuple):
@@ -83,6 +87,14 @@ class Pose:
     @property
     def faces_escaped(self):
         return [html.escape(x.clean_path.replace("#", "%23")) for x in self.faces]
+
+    @property
+    def face_path(self):
+        return self.faces[0].folder_path
+
+    @property
+    def outfit_path(self):
+        return self.outfits[0].folder_path
 
     @property
     def full_default_outfit(self):
@@ -168,9 +180,9 @@ class Character(NamedTuple):
                 if pose.face_height != 0
                 else boundsBox.bottom
             )
-            acc = "".join(str(x) + ", " for x in pose.default_accessories)
-            builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "faces": {pose.faces_escaped}, '
-            builder += f'"default_outfit" : {pose.default_outfit}, '
+            acc = "".join(f"{str(x)}, " for x in pose.default_accessories)
+            builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
+            builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : {pose.default_outfit}, '
             builder += f'"default_accessories" : [ {acc}  ], '
             builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.outfits}}}, '
         return builder + "}},"
