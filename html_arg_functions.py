@@ -46,12 +46,12 @@ def update_html_arg_snip3(args: Namespace, string_to_replace: str):
     if hasattr(args, "color2") and args.color2:
         string_to_replace = string_to_replace.replace(
             'context.fillStyle="#121212";/*Color2 replace*/',
-            f'"black";}}else{{context.fillStyle="{args.color2}";}}',
+            f'context.fillStyle="{args.color2}";/*Color2 replace*/',
         )
     if hasattr(args, "color1") and args.color1:
         string_to_replace = string_to_replace.replace(
             'context.fillStyle="black";/*Color1 replace*/',
-            f'index % 2==1){{context.fillStyle="{args.color1}";',
+            f'context.fillStyle="{args.color1}";/*Color1 replace*/',
         )
 
     if hasattr(args, "rectbackgroundcolor") and args.rectbackgroundcolor:
