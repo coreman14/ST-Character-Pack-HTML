@@ -5,6 +5,7 @@ import sys
 import yaml
 
 import classes
+import html_arg_functions
 import path_functions
 import sort_functions
 from print_functions import bounds_print
@@ -105,40 +106,13 @@ def create_character(trim, remove, name, paths):
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple):
     html_snip1, html_snip2, html_snip3 = html_snips
+    html_snip2 = html_arg_functions.update_html_arg_snip2(args, html_snip2)
+    html_snip3 = html_arg_functions.update_html_arg_snip3(args, html_snip3)
     chars_with_poses, chars = chars_tuple
     with open(
         os.path.join(args.inputdir, args.name), "w+", encoding="utf8"
     ) as html_file:
         html_file.write(html_snip1 + scenario_title)
-        # Add Scenario Title before continue
-        if args.backgroundimage:
-            args.backgroundimage = args.backgroundimage.replace("\\", "/")
-            html_snip2 = html_snip2.replace(
-                "background-color: white; /*Background Replace*/",
-                f'background-color: white; /*Background Replace*/background-image: url("{args.backgroundimage}"); /*Background Replace*/',
-            )
-        if args.backgroundcolor:
-            html_snip2 = html_snip2.replace(
-                "background-color: white; /*Background Replace*/",
-                f"background-color: {args.backgroundcolor}; /*Background Replace*/",
-            )
-
-        if args.toppadding:
-            html_snip2 = html_snip2.replace(
-                ".characters{",
-                f".characters{{ padding-top: {args.toppadding}px;",
-            )
-        if args.titlecolor:
-            html_snip2 = html_snip2.replace(
-                "#title{",
-                f"#title{{ color: {args.titlecolor};",
-            )
-        if args.charactercolor:
-            html_snip2 = html_snip2.replace(
-                ".character{",
-                f".character{{ background-color: {args.charactercolor};",
-            )
-
         html_file.write(html_snip2)
         html_file.write(
             scenario_title
@@ -149,24 +123,7 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
             + "};"
         )
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
-        html_file.write(
-            html_snip3.replace(
-                '"black";}else{context.fillStyle="#121212";}',
-                f'"black";}}else{{context.fillStyle="{args.color2}";}}',
-            )
-            .replace(
-                'index % 2==1){context.fillStyle="black";',
-                f'index % 2==1){{context.fillStyle="{args.color1}";',
-            )
-            .replace(
-                'context.fillStyle="white";/*rect color*/',
-                f'context.fillStyle="{args.rectbackgroundcolor}";/*rect color*/',
-            )
-            .replace(
-                'context.fillStyle="black";/*text color*/',
-                f'context.fillStyle="{args.textcolor}";/*text color*/',
-            )
-        )
+        html_file.write(html_snip3)
 
     input(
         f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}, press enter to exit..."
