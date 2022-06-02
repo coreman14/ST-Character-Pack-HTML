@@ -128,3 +128,4 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
     input(
         ", press enter to exit...",
     )
+    print()
