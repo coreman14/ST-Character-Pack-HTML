@@ -110,7 +110,7 @@ def get_args():
         "-bgc",
         dest="backgroundcolor",
         help="Changed the background of the whole webpage. This applies for both the main and character pages. Accepts css color code or #RGB value. Default white.",
-        default="white",
+        default="White",
     )
     argroup.add_argument(
         "-bgim",
@@ -121,13 +121,13 @@ def get_args():
         "-rbg",
         dest="rectbackgroundcolor",
         help="Changed the background of the rectangles that hold the face reference on the character page. Accepts css color code or #RGB value. Default white.",
-        default="white",
+        default="White",
     )
     argroup.add_argument(
         "-txt",
         dest="textcolor",
         help="Change the color of the text that says the face references on the character page. Accepts css color code or #RGB value. Default black.",
-        default="black",
+        default="Black",
     )
     argroup.add_argument(
         "-mhm",
