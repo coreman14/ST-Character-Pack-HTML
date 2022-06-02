@@ -141,6 +141,7 @@ def get_args():
 
 def setup_args(args):
     if args.silent:
+        builtins.input2 = builtins.input
         builtins.input = lambda x: ""
     if args.json2yaml:
         print("Attempting to convert all JSON to YAML.")
