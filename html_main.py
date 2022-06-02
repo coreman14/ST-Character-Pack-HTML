@@ -101,7 +101,7 @@ def main_loop(args, yml):
             "No suitable characters exist. Read what each character is missing and add those to create html."
         )
         input("Press enter to exit...")
-        sys.exit()
+        sys.exit(1)
 
     print("Creating Html...")
     scenario_title = yml["title"]

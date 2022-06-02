@@ -1,4 +1,5 @@
 import argparse
+import builtins
 import os
 import re
 import sys
@@ -21,6 +22,9 @@ def get_args():
         default=os.path.abspath(os.path.dirname(__file__))
         if os.path.isdir(os.path.dirname(__file__))
         else os.path.abspath(os.path.dirname(os.sep.join(__file__.split(os.sep)[:-1]))),
+    )
+    parser.add_argument(
+        "-s", "--silent", help="Will not ask for input", action="store_true"
     )
     argroup = parser.add_argument_group("Return measurements")
     argroup.add_argument(
@@ -132,11 +136,12 @@ def get_args():
         type=float,
         default=1.07,
     )
-
     return parser.parse_args()
 
 
 def setup_args(args):
+    if args.silent:
+        builtins.input = lambda x: ""
     if args.json2yaml:
         print("Attempting to convert all JSON to YAML.")
         json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
@@ -148,12 +153,12 @@ def setup_args(args):
     ):
         print(f"Error: Scenario.yaml does not exist in '{args.inputdir}'.")
         response = input(
-            "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): "
+            "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): ",
         )
         if response.lower() in ["y"]:
             json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
         else:
-            sys.exit()
+            sys.exit(1)
     if not args.bounds:
         # Try to read YAML:
         with open(
@@ -166,12 +171,12 @@ def setup_args(args):
                     f"Error: Could not read YAML data from scenario.yaml.\nInfo:{exc}"
                 )
                 input("Press Enter to exit...")
-                sys.exit()
+                sys.exit(1)
 
         if "title" not in yml_data:
             print("Error: Title Not found in YAML file.")
             input("Press Enter to exit...")
-            sys.exit()
+            sys.exit(1)
 
         if args.titlename:
             yml_data["title"] = args.titlename
@@ -179,7 +184,7 @@ def setup_args(args):
     if "characters" not in os.listdir(args.inputdir):
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")
         input("Press Enter to exit...")
-        sys.exit()
+        sys.exit(1)
     if args.transparent:
         args.color1 = "#00000000"
         args.color2 = "#00000000"

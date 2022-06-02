@@ -12,7 +12,7 @@ def tryOpenImageIter(name, index=0):
     except UnidentifiedImageError as pil_error:
         print()
         print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
-        input("Press any key to exit...")
+        arg_functions.silent_input(args, "Press any key to exit...")
 
 
 def return_bb_box(name):

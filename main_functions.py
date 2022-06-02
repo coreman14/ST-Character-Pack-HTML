@@ -43,12 +43,12 @@ def get_yaml(inputdir, name):
             f"ERROR: Could not find character YML for {name}, please use the jsontoyaml utility by using -j or --jsontoyaml"
         )
         input("Press Enter to exit...")
-        sys.exit()
+        sys.exit(1)
     except yaml.YAMLError as error:
         print(f"ERROR: Character YML for {name}, could not be read.\nInfo: {error}")
 
         input("Press Enter to exit...")
-        sys.exit()
+        sys.exit(1)
 
 
 def create_character(trim, remove, name, paths):
@@ -124,7 +124,7 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
         )
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
         html_file.write(html_snip3)
-
+    print(f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}", end="")
     input(
-        f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}, press enter to exit..."
+        ", press enter to exit...",
     )
