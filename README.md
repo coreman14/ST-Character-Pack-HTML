@@ -28,6 +28,7 @@ Main Page:
 
 -   Added a title for the main page.
 -   Added pose names under each shown outfit on each of the main outfits.
+-   Added pose filter. This lets you choose the minimum number of poses a character must have to show.
 
 Character Page:
 
@@ -38,8 +39,8 @@ Character Page:
 
 Outfit Page:
 
-- This is a new page that lets you see all of the characters outfits for each pose.
-- This was made so that if someone was lookingfor a outfit to add to an exsisting character, I matching the pose and outfit would be easier.
+- This is a new page that lets you see all of the characters outfits for each pose. Demo [here](https://coreman14.github.io/StHTMLHolyPack/?outfitview=1).
+- This was made so that if someone was looking for a outfit to add to an exsisting character, I matching the pose and outfit would be easier.
 
 ## Requirements (>=Python 3.8)
 
