@@ -72,7 +72,7 @@ You can also run this by doing -j on start. You will have to run it again withou
 
 Using -b, it will ouput the size of all the images within the characters folders. This size is the smallest size that the image could become. It will then highlight the largest image. You can also use -re to filter the results. This accepts and uses the value as regex, but it will work if you just put a single name.
 
-Note: I do not remember why I created the bounds function, so I couldn't even tell you why to use it.
+Note: This was made because some faces contained some not erased pixels that was ruining the trim_image process.
 
 ## Notes
 
