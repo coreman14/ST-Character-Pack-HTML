@@ -2,20 +2,20 @@
 
 This repo holds python scripts to create an html file similar to what was including in the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688). Basic demo [here](https://coreman14.github.io/StHTMLHolyPack/).
 
-I've made a few changes for usability (Keyboard shortcuts, expression sheets are made in js rather than needed before hand).
+I've made a few changes for usability (Keyboard shortcuts, expression sheets are made when the character page is opened rather than needed before hand).
 
-I've also added a json2yaml converter and and image trim utility which are taken from [Student Transfer Utils](https://utils.student-transfer.com).
+I've also added a json2yaml converter and image trim utility which are taken from [Student Transfer Utils](https://utils.student-transfer.com).
 
 ## Changes from original
 
-I found the html in [HolyPack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688) and whichever version I had was missing a few expression sheets. I decided  that I could make a script that could generate these and do the expression sheet rendering in JS, meaning less work before and less parts neefed.
+I found the html in [HolyPack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688) and whichever version I had was missing a few expression sheets. I decided  that I could make a script that could generate these and do the expression sheet rendering in JS, meaning less work before and less parts needed.
 
 Here are the changes I made to the look and how it works
 
 General:
 -   Add shortcuts to make browsing easier.
-    - Pipe | BackSlash: Disable and enable these shortcuts.
-    - UpArrow: Return to this page from any page.
+    - Pipe | Backslash: Disable and enable these shortcuts.
+    - Up-arrow: Return to this page from any page.
     - Backspace: Return to previous page. This shortcut will always be enabled.
     - Left/Right Arrow: Navigate through characters in alphabetical order.
     - Equals/Minus: Increase or decrease how many poses a character must have to be shown.
@@ -40,7 +40,7 @@ Character Page:
 Outfit Page:
 
 - This is a new page that lets you see all of the characters outfits for each pose. Demo [here](https://coreman14.github.io/StHTMLHolyPack/?outfitview=1).
-- This was made so that if someone was looking for a outfit to add to an exsisting character, I matching the pose and outfit would be easier.
+- This was made so that if someone was looking for an outfit to add to an existing character, I matching the pose and outfit would be easier.
 
 ## Requirements (>=Python 3.8)
 
@@ -58,7 +58,7 @@ To run the script:
 
 ```bash
 python STHtml_[nor|hasr].pyz
-#or if using the cloned version
+#Or if using the cloned version
 python html_main.py
 ```
 
@@ -70,7 +70,7 @@ You can also run this by doing -j on start. You will have to run it again withou
 
 ## Other features (Using these disables the HTML output)
 
-Using -b, it will ouput the size of all the images within the characters folders. This size is the smallest size that the image could become. It will then highlight the largest image. You can also use -re to filter the results. This accepts and uses the value as regex, but it will work if you just put a single name.
+Using -b, it will output the size of all the images within the characters folders. This size is the smallest size that the image could become. It will then highlight the largest image. You can also use -re to filter the results. This accepts and uses the value as regex, but it will work if you just put a single name.
 
 Note: This was made because some faces contained some not erased pixels that was ruining the trim_image process.
 
@@ -78,7 +78,7 @@ Note: This was made because some faces contained some not erased pixels that was
 
 If you are trimming images, do not stop the program. Doing so can corrupt your images.
 
-If you characters feature any transparency, do not use the trim image function. PIL does not play well with transparency.
+If your characters feature any transparency, do not use the trim image function. PIL does not play well with transparency.
 
 There are some files that pillow does not like read. When this happens, it should output the full path to the file
 
@@ -90,4 +90,4 @@ When this happens, bring image into a photo editor and save it. Or if there is m
 
 I use [XNConvert](https://www.xnview.com/en/xnconvert/link), but there are many options. If you happen to do this, you can also convert the files to WEBP as they take up less space. Google has [utilities](https://developers.google.com/speed/webp/docs/precompiled) for doing from the command line.
 
-If you run into this problem, I more or less use the same process for reading images as when expression sheets are generated. So I'd recommend fixing it is you want either.
+The same process above is used when expression sheets are generated. So, they need to be fixed.
