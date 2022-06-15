@@ -26,7 +26,7 @@ def get_args():
     parser.add_argument(
         "-s", "--silent", help="Will not ask for input", action="store_true"
     )
-    argroup = parser.add_argument_group("Return measurements")
+    argroup = parser.add_argument_group("Bounds functions")
     argroup.add_argument(
         "-b",
         dest="bounds",
@@ -39,25 +39,49 @@ def get_args():
         help="Filter search results by comparing character names to regex.",
         type=re.compile,
     )
-    parser.add_argument(
+    argroup.add_argument(
+        "-ss",
+        dest="skip_if_same",
+        help="In bounds, skip output if all images have the same size.",
+        action="store_true",
+    )
+    argdiff = argroup.add_mutually_exclusive_group()
+    argdiff.add_argument(
+        "-so",
+        dest="skip_outfits",
+        help="In bounds, skip output of outfits.",
+        action="store_false",
+    )
+    argdiff.add_argument(
+        "-sf",
+        dest="skip_faces",
+        help="In bounds, skip output of faces.",
+        action="store_false",
+    )
+
+    # Normal args
+    argroup = parser.add_argument_group("Image functions")
+    argroup.add_argument(
         "-t",
         dest="trim",
-        help="Trim images while making html. This uses the same method as website/robotkyoko (if it's in the github)",
+        help="Trim images while making html. This uses the same method as ST Utils/robotkyoko",
         action="store_true",
     )
-    parser.add_argument(
+    argroup.add_argument(
         "-r",
         dest="removeempty",
-        help="This removes any off accessories that are blank. Off accessories do not need to be present if they don't add anything. Does not remove anything during -b/bounds check.",
+        help="This removes any off accessories that are blank. Off accessories do not need to be present if they have no pixels. Does not remove anything during -b/bounds check.",
         action="store_true",
     )
-    parser.add_argument(
+    argroup.add_argument(
         "-j",
         dest="json2yaml",
         help="Skip HTML and instead convert JSON files to yaml. Will walk through the whole directory and convert any found. Requires YAML for this program to work",
         action="store_true",
     )
-    parser.add_argument(
+
+    argroup = parser.add_argument_group("HTML functions")
+    argroup.add_argument(
         "-fn",
         dest="name",
         help="Change output file name. Default is 'index.html'",

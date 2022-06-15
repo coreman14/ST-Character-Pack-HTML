@@ -56,20 +56,15 @@ class CropBox(NamedTuple):
             max(x[3] for x in q),
         )
 
-    def return_bbox(self, other: "CropBox"):
-        return CropBox(
-            min(self.left, other.left),
-            min(self.top, other.top),
-            max(self.right, other.right),
-            max(self.bottom, other.bottom),
+    def __eq__(self, __o: object) -> bool:
+        return (
+            isinstance(__o, CropBox)
+            and self.right == __o.right
+            and self.bottom == __o.bottom
         )
 
-    @staticmethod
-    def set_of_bbox_from_pil(bounds_boxes: list[tuple[int]]):
-        return {CropBox.bbox_from_from_pil(x) for x in bounds_boxes}
-
     def __repr__(self) -> str:
-        return f"Actual Image Size {self.right - self.left}x{self.bottom - self.top}"
+        return f"Actual Image Size {self.right}x{self.bottom}"
 
 
 @dataclass

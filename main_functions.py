@@ -11,21 +11,23 @@ import sort_functions
 from print_functions import bounds_print
 
 
-def bounds(regex, path, name):
+def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
     if regex is None or re.match(regex, name):
         faces, outfits = path_functions.get_faces_and_outfits(path, name)
         if None in [faces, outfits]:
             return
-        print(f"Character {name}: Pose {pose_letter}")
-        faces.sort(key=sort_functions.sort_by_numbers)
-        print("Faces")
-        bounds_print(faces)
 
-        outfits.sort(key=sort_functions.face_sort_outtuple)
-        print()
-        print("Outfits")
-        bounds_print(outfits)
+        print(f"Character {name}: Pose {pose_letter}")
+        if print_faces:
+            faces.sort(key=sort_functions.sort_by_numbers)
+            print("Faces")
+            bounds_print(faces, skip_if_same)
+        if print_outfits:
+            outfits.sort(key=sort_functions.face_sort_outtuple)
+            print()
+            print("Outfits")
+            bounds_print(outfits, skip_if_same)
 
         print()
 

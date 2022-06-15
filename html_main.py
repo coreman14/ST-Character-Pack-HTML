@@ -69,7 +69,14 @@ def main_loop(args, yml):
             pose_letter = pose_path.split(os.sep)[-1]
 
             if args.bounds:
-                main_functions.bounds(args.regex, pose_path, character_name)
+                main_functions.bounds(
+                    args.regex,
+                    pose_path,
+                    character_name,
+                    args.skip_if_same,
+                    args.skip_faces,
+                    args.skip_outfits,
+                )
 
             else:
                 faces, outfits = path_functions.get_faces_and_outfits(
