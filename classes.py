@@ -36,11 +36,6 @@ class CropBox(NamedTuple):
     bottom: int
 
     @classmethod
-    def bbox_from_from_pil(cls, bounds_box: tuple[int, int, int, int]):
-
-        return cls(bounds_box[0], bounds_box[1], bounds_box[2], bounds_box[3])
-
-    @classmethod
     def bbox_from_multiple_pil(cls, bounds_boxes: list[tuple[int]]):
         q = list(bounds_boxes)
         while None in q:
@@ -136,26 +131,6 @@ class Pose:
             boundary_boxes.append(backup_box)
 
         return CropBox.bbox_from_multiple_pil(boundary_boxes)
-
-    @property
-    def max_face_height(self):
-        """Returns biggest face height"""
-        return max(x.height for x in self.faces)
-
-    @property
-    def max_face_width(self):
-        """Returns biggest face width"""
-        return max(x.width for x in self.faces)
-
-    @property
-    def max_outfit_height(self):
-        """Returns biggest outfit height"""
-        return self.default_outfit.height
-
-    @property
-    def max_outfit_width(self):
-        """Returns biggest outfit width"""
-        return self.default_outfit.width
 
 
 class Character(NamedTuple):
