@@ -1,3 +1,4 @@
+import itertools
 import os
 from argparse import ArgumentTypeError
 from glob import glob
@@ -12,22 +13,21 @@ def find_access(out_path) -> tuple[str, list[str]]:
     return_acc = []
     if len(outfit_access) == 0:
         return out_path, return_acc
-    for direct in outfit_access:
-        for ext in ACCEPTED_EXT:
-            acc_list = glob(os.path.join(direct, f"*{ext}"))
-            if len(acc_list) > 0:
-                acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
-                if f"off{ext}" in acc_dict:
-                    return_acc.append(acc_dict[f"off{ext}"])
+    for direct, ext in itertools.product(outfit_access, ACCEPTED_EXT):
+        acc_list = glob(os.path.join(direct, f"*{ext}"))
+        if len(acc_list) > 0:
+            acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
+            if f"off{ext}" in acc_dict:
+                return_acc.append(acc_dict[f"off{ext}"])
     return out_path, return_acc
 
 
 def get_faces_and_outfits(pose, character_name):
     outfits: list[str] = []
     for ext in ACCEPTED_EXT:
-        outfits.extend(glob(os.path.join(pose, "outfits", "*" + ext)))
+        outfits.extend(glob(os.path.join(pose, "outfits", f"*{ext}")))
         outfits.extend(
-            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", "*" + ext))
+            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
         )
 
     faces: list[str] = [
@@ -35,9 +35,10 @@ def get_faces_and_outfits(pose, character_name):
         *glob(os.path.join(pose, "faces", "face", "*.png")),
     ]
     if not outfits or not faces:
-        out_str = ("outfits" if not outfits else "") + (
-            ("faces" if not faces and outfits else " and faces" if not faces else "")
+        out_str = ("" if outfits else "outfits") + (
+            "faces" if not faces and outfits else "" if faces else " and faces"
         )
+
         print(
             f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain {out_str}. Skipping.'
         )
@@ -51,13 +52,12 @@ def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
     seen = set()
     result = []
     for item in a:
-        if not isinstance(item, str):
-            parse_item = os.sep.join(item[0].split(os.sep)[-2:]).split(".", maxsplit=1)[
-                0
-            ]
+        parse_item = (
+            os.sep.join(item.split(os.sep)[-2:]).split(".", maxsplit=1)[0]
+            if isinstance(item, str)
+            else os.sep.join(item[0].split(os.sep)[-2:]).split(".", maxsplit=1)[0]
+        )
 
-        else:
-            parse_item = os.sep.join(item.split(os.sep)[-2:]).split(".", maxsplit=1)[0]
         if parse_item not in seen:
             seen.add(parse_item)
             result.append(item)
@@ -65,9 +65,11 @@ def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
 
 
 def remove_path(a, full_path):
-    if not isinstance(a, str):
-        return a[0].replace(full_path + os.sep, "").replace(os.sep, "/")
-    return a.replace(full_path + os.sep, "").replace(os.sep, "/")
+    return (
+        a.replace(full_path + os.sep, "").replace(os.sep, "/")
+        if isinstance(a, str)
+        else a[0].replace(full_path + os.sep, "").replace(os.sep, "/")
+    )
 
 
 def get_default_outfit(
@@ -94,8 +96,9 @@ def get_default_outfit(
                 del_key = [
                     k
                     for k, v in outfit_dict.items()
-                    if y + "." in v or (not isinstance(v, str) and y + "." in v[0])
+                    if f"{y}." in v or not isinstance(v, str) and f"{y}." in v[0]
                 ]
+
                 for i in del_key:
                     del outfit_dict[i]
     uniform = ""

@@ -12,7 +12,7 @@ def json2yaml(args):
     file_len = len(files)
     for index, file_json in enumerate(files, start=1):
         print(f"File {file_json}, {index}/{file_len}")
-        file_yaml = "{}.yml".format(os.path.splitext(file_json)[0])
+        file_yaml = f"{os.path.splitext(file_json)[0]}.yml"
         try:
             with open(file_json, "r", encoding="utf8") as f:
                 data = json.load(f)
@@ -27,7 +27,7 @@ def json2yaml(args):
                     )
                 )
         except (OSError, json.JSONDecodeError, YAMLError):
-            print("Failed to parse : " + file_json)
+            print(f"Failed to parse : {file_json}")
 
         os.remove(file_json)
 

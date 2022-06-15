@@ -30,9 +30,9 @@ def trimImage(name, do_trim=False, remove_empty=False):
         trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
     if not bbox:
-        if os.sep + "face" + os.sep in name or "/face/" in name:
+        if f"{os.sep}face{os.sep}" in name or "/face/" in name:
             return (*tsize, None)
-        print("{} is empty, it can be removed".format(name))
+        print(f"{name} is empty, it can be removed")
         if remove_empty:
             os.remove(name)
         return (*tsize, None)
