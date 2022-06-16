@@ -4,6 +4,7 @@ import os
 import re
 import sys
 
+import configargparse
 import yaml
 
 import json2yaml
@@ -11,8 +12,11 @@ import path_functions
 
 
 def get_args():
-    parser = argparse.ArgumentParser(
+    parser = configargparse.ArgumentParser(
         description="Makes an HTML file to browse a scenarios Characters"
+    )
+    parser.add_argument(
+        "-c", "--my-config", is_config_file=True, help="config file path"
     )
     parser.add_argument(
         "-i",
@@ -63,13 +67,13 @@ def get_args():
     argroup = parser.add_argument_group("Image functions")
     argroup.add_argument(
         "-t",
-        dest="trim",
+        "--trim",
         help="Trim images while making html. This uses the same method as ST Utils/robotkyoko",
         action="store_true",
     )
     argroup.add_argument(
         "-r",
-        dest="removeempty",
+        "--removeempty",
         help="This removes any off accessories that are blank. Off accessories do not need to be present if they have no pixels. Does not remove anything during -b/bounds check.",
         action="store_true",
     )
@@ -83,7 +87,7 @@ def get_args():
     argroup = parser.add_argument_group("HTML functions")
     argroup.add_argument(
         "-fn",
-        dest="name",
+        "--name",
         help="Change output file name. Default is 'index.html'",
         default="index.html",
     )
@@ -91,71 +95,71 @@ def get_args():
     argroup = parser.add_argument_group("CSS Options")
     argroup.add_argument(
         "-tp",
-        dest="toppadding",
+        "--toppadding",
         help="Add top padding the character row on main page. Accepts a px value (Just the number).",
         default="",
     )
     argroup.add_argument(
         "-tc",
-        dest="titlecolor",
+        "--titlecolor",
         help="Change the color of the title on all pages. Accepts css color code or #RGB value. Default is black.",
         default="",
     )
     argroup.add_argument(
         "-cc",
-        dest="charactercolor",
+        "--charactercolor",
         help="Change the color behind the characters on the main page. Accepts css color code or #RGB value. Default is none.",
         default="",
     )
     argroup.add_argument(
         "-c1",
-        dest="color1",
+        "--color1",
         help="Change the first color of the expressions sheet generator. Accepts css color code or #RGB value. Default is black",
         default="Black",
     )
     argroup.add_argument(
         "-c2",
-        dest="color2",
+        "--color2",
         help="Change the second color of the expressions sheet generator. Accepts css color code or #RGB value. Default is #121212",
         default="#121212",
     )
     argroup.add_argument(
         "-tn",
-        dest="titlename",
+        "--titlename",
         help="Use given name as Title (On main page) instead of the one from scenario.yaml.",
     )
     argroup.add_argument(
         "-tran",
-        dest="transparent",
+        "--transparent",
         help="Sets both colors to #00000000 (The extra 2 zero mean no alpha) making the squares transparent. ",
         action="store_true",
     )
     argroup.add_argument(
         "-bgc",
-        dest="backgroundcolor",
+        "--backgroundcolor",
         help="Changed the background of the whole webpage. This applies for both the main and character pages. Accepts css color code or #RGB value. Default white.",
         default="White",
     )
     argroup.add_argument(
         "-bgim",
-        dest="backgroundimage",
+        "--backgroundimage",
         help="Changed the background of the whole webpage to given image. This applies for both the main and character pages. This can be a link to a file on the internet, or a relative path into your scenario folder. This will show overtop of the bgcolor.",
     )
     argroup.add_argument(
         "-rbg",
-        dest="rectbackgroundcolor",
+        "--rectbackgroundcolor",
         help="Changed the background of the rectangles that hold the face reference on the character page. Accepts css color code or #RGB value. Default white.",
         default="White",
     )
     argroup.add_argument(
         "-txt",
-        dest="textcolor",
+        "--textcolor",
         help="Change the color of the text that says the face references on the character page. Accepts css color code or #RGB value. Default black.",
         default="Black",
     )
     argroup.add_argument(
         "-mhm",
-        dest="maxheightmultiplier",
+        "--maxheightmultiplier",
         help="Change the max face height multiplier. The bigger the number the more it will show of the outfit. Default is 1.07",
         type=float,
         default=1.07,
