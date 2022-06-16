@@ -1,3 +1,5 @@
 colorama==0.4.4
-Pillow==9.0.1
+ConfigArgParse==1.5.3
+dataclasses==0.8
+Pillow==9.1.1
 PyYAML==6.0
