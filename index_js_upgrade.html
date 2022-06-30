@@ -14,6 +14,10 @@
             #canvas {
                 padding-top: 10px;
             }
+            .outerDiv {
+                position: relative;
+                text-align: center
+            }
             .characterswrap {
                 display: flex;
                 flex-wrap: wrap;
@@ -253,6 +257,7 @@
                 ["watson", "a", 2],
                 ["watson", "b", 2],
             ];
+            var newPoses = ["brenda_a"]; /* This holds new poses added in "name_poseLetter" form*/
             var jsonData = {
                 "brenda": {
                     "name": "brenda",
@@ -282,6 +287,7 @@
                                 "suit.webp",
                                 "uniform.webp",
                             ],
+                            "new_outfits" :{"a":[],"b":[]}, /*This is a dictionary with pose letters for keys that hold the new outfits per pose. */
                         },
                         "b": {
                             "max_face_height": 270,
@@ -1076,64 +1082,92 @@
                         }
                         url2.searchParams.set("character", character);
                         var html = "";
+                        charElement = document.createElement("div");
                         if (outfit_filter) {
                             Object.entries(characterData.poses).forEach(
                                 ([pose, poseData]) => {
                                     var outfitPath =
-                                        poseData.outfit_path +
-                                        poseData.default_outfit;
+                                    poseData.outfit_path +
+                                    poseData.default_outfit;
                                     var outfits = poseData.outfits.map(
                                         (outfit) => [
-                                            poseData.outfit_path + outfit,
-                                            outfit.split("/").pop(),
+                                        poseData.outfit_path + outfit,
+                                        outfit.split("/").pop(),
                                         ]
-                                    );
+                                        );
                                     url2.searchParams.set("pose", pose);
-                                    html +=
-                                        "<div class='character'><span>" +
-                                        character +
-                                        "_" +
-                                        pose +
-                                        "</span>";
+
+                                    characterDiv = document.createElement("div");
+                                    characterDiv.classList.add("character");
+
+                                    span = document.createElement("span");
+                                    span.textContent = character + "_" + pose;
+
+                                    characterDiv.appendChild(span);
+
                                     for (const outfit of outfits) {
-                                        html +=
-                                            "<a href='" +
-                                            url2.toString() +
-                                            "'" +
-                                            "><div style='position:relative;text-align:center'><img class='characterImagesOutfit' src='" +
-                                            outfit[0] +
-                                            "'/><div class='characterposename'>" +
-                                            outfit[1].rsplit(".")[0] +
-                                            "</div></div></a>";
+                                        charLink = document.createElement("a");
+                                        charLink.href = url2.toString();
+                                        characterDiv.appendChild(charLink);
+
+                                        outerDiv = document.createElement("div");
+                                        outerDiv.classList.add("outerDiv");
+                                        charLink.appendChild(outerDiv);
+
+                                        img = document.createElement("img");
+                                        img.src = outfit[0];
+                                        img.alt = outfit[1].rsplit(".")[0];
+                                        img.classList.add("characterImagesOutfit");
+                                        outerDiv.appendChild(img);
+
+                                        nameDiv = document.createElement("div");
+                                        nameDiv.classList.add("characterposename");
+                                        nameDiv.textContent = outfit[1].rsplit(".")[0];
+                                        outerDiv.appendChild(nameDiv);
                                     }
-                                    html += "</div>";
+                                    charElement.appendChild(characterDiv);
+                                    
                                 }
                             );
-                            html += "</div>";
-                            $("#imageList").append(html);
+                           
+                            $("#imageList").append(charElement);
                         } else {
-                            html =
-                                "<div class='character'><span>" +
-                                character +
-                                "</span>";
+                            characterDiv = document.createElement("div");
+                            characterDiv.classList.add("character");
+
+                            span = document.createElement("span");
+                            span.textContent = character;
+
+                            characterDiv.appendChild(span);
+
                             Object.entries(characterData.poses).forEach(
                                 ([pose, poseData]) => {
                                     url2.searchParams.set("pose", pose);
                                     var outfitPath =
                                         poseData.outfit_path +
                                         poseData.default_outfit;
-                                    html +=
-                                        "<a href='" +
-                                        url2.toString() +
-                                        "'><div style='position:relative;text-align:center'><img class='characterImagesOutfit' src='" +
-                                        outfitPath +
-                                        "'/><div class='characterposename'>" +
-                                        pose +
-                                        "</div></div></a>";
+                                    charLink = document.createElement("a");
+                                    charLink.href = url2.toString();
+                                    characterDiv.appendChild(charLink);
+
+                                    outerDiv = document.createElement("div");
+                                    outerDiv.classList.add("outerDiv");
+                                    charLink.appendChild(outerDiv);
+
+                                    img = document.createElement("img");
+                                    img.src = outfitPath;
+                                    img.alt = poseData.default_outfit.rsplit(".")[0];
+                                    img.classList.add("characterImagesOutfit");
+                                    outerDiv.appendChild(img);
+
+                                    nameDiv = document.createElement("div");
+                                    nameDiv.classList.add("characterposename");
+                                    nameDiv.textContent = pose;
+                                    outerDiv.appendChild(nameDiv);
                                 }
                             );
-                            html += "</div>";
-                            $("#imageList").append(html);
+                            charElement.appendChild(characterDiv);
+                            $("#imageList").append(charElement);
                         }
                     }
                 );
@@ -1141,10 +1175,13 @@
                 var character = jsonData[selectedCharacter];
                 const out_start = character.poses[selectedPose].outfit_path;
                 title.textContent = selectedCharacter + "_" + selectedPose;
+
                 $("#backbutton").append(
                     "<img src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA4UlEQVR42mNgGAWjgAKQnZlZk5WV0TBwlmdm/AdjejsiKyMjB245vR0BtLwCaOFvNAd8z8pK9xgYn4McQ0fLR6LPszISsPj8c1ZWms1AWT6QPk9/P5A+pyrGV8Kl0NpyvA4ABvN6WluO1wENDQ0swGw3f8AcAAOZmRmzsWi8nZaWJkK3SgeHI+5nZGQo0K/my8zsxuaIrKwslYENiYyMx4MhJJ7npKeb0DEk0psxHZH+PictTYOeITF9wEMC1PxCdwQwdPrp2i4EWYiUIOeDCjC6t4zBIZGVMXlALB8FwwYAANeQ3GvAWTt8AAAAAElFTkSuQmCC' style='height: 25px;width: auto;padding-top: 10px;'>"
                 );
                 $("#backbutton").attr("href", homeURL.toString());
+                characterContainer = document.createElement("div");
+                characterContainer.classList.add("character2Container");
                 var html = "<div class='character2Container'>";
                 let outfits = Object.keys(
                     character.poses[selectedPose].outfits
@@ -1153,30 +1190,35 @@
                     ([index, outfit]) => {
                         var outfitPath = out_start + outfit;
                         var outfitName = outfit.split("/").pop();
-                        html +=
-                            "<div class='character2' style='min-width:" +
-                            (getTextWidth(
-                                outfitName,
-                                '16px "Times New Roman"'
-                            ) +
-                                5) +
-                            "px;'><img class='characterImagesOutfit' src='" +
-                            outfitPath +
-                            "'/><span>" +
-                            outfit.split("/").pop().rsplit(".")[0] +
-                            "</span></div>";
+                        var char2 = document.createElement("div");
+                        char2.classList.add("character2");
+                        char2.style.minWidth = getTextWidth(outfitName, '16px "Times New Roman"') + 5 + "px";
+
+                        outImg = document.createElement("img");
+                        outImg.src = outfitPath;
+                        outImg.alt = outfitName.rsplit(".")[0];
+                        outImg.classList.add("characterImagesOutfit");
+                        char2.appendChild(outImg);
+
+                        outName = document.createElement("span");
+                        outName.textContent =  outfit.split("/").pop().rsplit(".")[0];
+                        
+                        char2.appendChild(outName);
+                        characterContainer.appendChild(char2);
                     }
                 );
-                html += "</div>";
-                $("#imageList").append(html);
+
+                $("#imageList").append(characterContainer);
+
+                newCanvas = document.createElement("canvas");
+                newCanvas.id = "canvas";
+                $("#imageList2").append(newCanvas)
                 html = "";
                 var face_path = character.poses[selectedPose].face_path;
                 var total_images = character.poses[selectedPose].faces.length;
                 var columns = parseInt(Math.sqrt(total_images));
                 var rows = parseInt(Math.ceil(total_images / columns));
                 const image_padding = 10;
-                html += "<canvas id='canvas'/><canvas>";
-                $("#imageList2").append(html);
                 var canvas = document.getElementById("canvas");
                 var default_outfit = [].concat(
                     out_start + character.poses[selectedPose].default_outfit
@@ -1299,8 +1341,6 @@
                         }
                     }
                 );
-                html = "";
-                $("#imageList2").append(html);
                 document.title =
                     scenario + " " + selectedCharacter + "_" + selectedPose;
             }

@@ -1,4 +1,10 @@
 """
+Things to do:
+    1. Find way to do updates (Show what was added if the pack is updated).
+        A. Find character array to find new poses/characters.
+        B. The character array must have a tru/false after the pose number if it is new.
+        C. Read the json and then check for new outfits.
+
 """
 
 
