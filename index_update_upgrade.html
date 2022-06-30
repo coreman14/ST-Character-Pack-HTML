@@ -41,6 +41,17 @@
                 border-style: solid;
                 position: relative;
             }
+            .characterred {
+                margin: 20px 10px 0 0;
+                padding: 0px 0px 14px 0px;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center; /* here we just put the only child div to the center */
+                border-radius: 0.5px;
+                border-color: red;
+                border-style: solid;
+                position: relative;
+            }
             .character2 {
                 margin: 10px 10px 0 0;
                 padding: 0px 0px;
@@ -76,6 +87,12 @@
                 color: White;
                 width: 100%;
             }
+            .characterred span {
+                position: absolute;
+                background-color: red;
+                color: White;
+                width: 100%;
+            }
             .character2 span {
                 position: absolute;
                 background-color: grey;
@@ -100,6 +117,15 @@
                 transform: translate(-50%, -21%);
                 z-index: 31;
                 background-color: grey;
+                color: White;
+                width: 100%;
+            }
+            .characterposenameredfull {
+                position: absolute;
+                left: 50%;
+                transform: translate(-50%, -21%);
+                z-index: 31;
+                background-color: red;
                 color: White;
                 width: 100%;
             }
@@ -288,6 +314,7 @@
             var jsonData = {
                 "brenda": {
                     "name": "brenda",
+                    "new_outfits": {"a": [], "b": []},
                     "poses": {
                         "a": {
                             "max_face_height": 261,
@@ -345,7 +372,7 @@
                 },
                 "erica": {
                     "name": "erica",
-                    "new_outfits": {"a": ["uniform/uniform.webp"], "b": ["uniform.webp"], "c": ["uniform_c.webp"]},
+                    "new_outfits": {"a": ["uniform.webp"], "b": ["uniform.webp"], "c": ["uniform_c.webp"]},
                     "poses": {
                         "a": {
                             "max_face_height": 251,
@@ -496,6 +523,7 @@
                 },
                 "iroha": {
                     "name": "iroha",
+                    "new_outfits": {"a": [], "b": []},
                     "poses": {
                         "a": {
                             "max_face_height": 211,
@@ -553,6 +581,7 @@
                 },
                 "izuna": {
                     "name": "izuna",
+                    "new_outfits": {"a": [], "aears": [], "b": [], "bears" :[], "sword": []},
                     "poses": {
                         "a": {
                             "max_face_height": 220,
@@ -671,6 +700,7 @@
                 },
                 "marin": {
                     "name": "marin",
+                    "new_outfits": {"a": [], "b": [], "c":[]},
                     "poses": {
                         "a": {
                             "max_face_height": 456,
@@ -785,6 +815,7 @@
                 },
                 "phila": {
                     "name": "phila",
+                    "new_outfits": {"a": [], "b": []},
                     "poses": {
                         "a": {
                             "max_face_height": 171,
@@ -843,6 +874,7 @@
                 },
                 "sadie": {
                     "name": "sadie",
+                    "new_outfits": {"a": []},
                     "poses": {
                         "a": {
                             "max_face_height": 269,
@@ -909,6 +941,7 @@
                 },
                 "tori": {
                     "name": "tori",
+                    "new_outfits": {"a": [], "b": []},
                     "poses": {
                         "a": {
                             "max_face_height": 236,
@@ -980,6 +1013,7 @@
                 },
                 "watson": {
                     "name": "watson",
+                    "new_outfits": {"a": [], "b": []},
                     "poses": {
                         "a": {
                             "max_face_height": 250,
@@ -1126,7 +1160,11 @@
                                     url2.searchParams.set("pose", pose);
                                     characterDiv =
                                         document.createElement("div");
-                                    characterDiv.classList.add("character");
+                                        if (newCharacterArray.includes(character) || newCharacterArray.includes(character + "_" + pose)){
+                                            characterDiv.classList.add("characterred");
+                                        }  else {
+                                            characterDiv.classList.add("character");
+                                        }
                                     span = document.createElement("span");
                                     span.textContent = character + "_" + pose;
                                     characterDiv.appendChild(span);
@@ -1146,9 +1184,12 @@
                                         );
                                         outerDiv.appendChild(img);
                                         nameDiv = document.createElement("div");
-                                        nameDiv.classList.add(
-                                            "characterposename"
-                                        );
+                                        if (newCharacterArray.includes(character) || characterData.new_outfits[pose].includes(outfit[1]) || newCharacterArray.includes(character + "_" + pose)){
+                                            nameDiv.classList.add("characterposenameredfull");
+                                        }
+                                        else {
+                                            nameDiv.classList.add("characterposename");
+                                        }
                                         nameDiv.textContent =
                                             outfit[1].rsplit(".")[0];
                                         outerDiv.appendChild(nameDiv);
@@ -1159,7 +1200,11 @@
                             $("#imageList").append(charElement);
                         } else {
                             characterDiv = document.createElement("div");
-                            characterDiv.classList.add("character");
+                            if (newCharacterArray.includes(character)){
+                                characterDiv.classList.add("characterred");
+                            }  else {
+                                characterDiv.classList.add("character");
+                            }
                             span = document.createElement("span");
                             span.textContent = character;
                             characterDiv.appendChild(span);
@@ -1182,9 +1227,11 @@
                                     img.classList.add("characterImagesOutfit");
                                     outerDiv.appendChild(img);
                                     nameDiv = document.createElement("div");
-                                    console.log(character + "_" + pose);
                                     if (newCharacterArray.includes(character + "_" + pose)){
                                         nameDiv.classList.add("characterposenamered");
+                                    }
+                                    else if(newCharacterArray.includes(character)){
+                                        nameDiv.classList.add("characterposenameredfull");
                                     }
                                     else {
                                         nameDiv.classList.add("characterposename");
@@ -1218,7 +1265,7 @@
                         var outfitName = outfit.split("/").pop();
                         var char2 = document.createElement("div");
 
-                        if (character.new_outfits[selectedPose].includes(outfit)){
+                        if (character.new_outfits[selectedPose].includes(outfit.split("/").pop())){
                             char2.classList.add("character2red");
                         }
                         else{
