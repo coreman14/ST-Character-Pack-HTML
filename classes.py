@@ -17,12 +17,18 @@ class ImagePath(NamedTuple):
 
     @property
     def clean_path(self):
-        return re.sub("characters/[^/]+/[^/]+/(outfits|faces/face)/", "", self.path)
+        return re.sub(
+            "characters/[^/]+/[^/]+/(outfits|faces/face|faces/mutations)/",
+            "",
+            self.path,
+        )
 
     @property
     def folder_path(self):
         return re.sub(
-            "(characters/[^/]+/[^/]+/(outfits|faces/face)/)(.*)", "\\1", self.path
+            "(characters/[^/]+/[^/]+/(outfits|faces/face|faces/mutations)/)(.*)",
+            "\\1",
+            self.path,
         )
 
     def __repr__(self) -> str:

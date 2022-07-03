@@ -54,11 +54,34 @@ def get_yaml(inputdir, name):
 
 
 def create_character(trim, remove, name, paths):
+    """
+    Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
+    It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
+    1. Reorder method to check for default outfits first, then do faces after.
+    """
     path, inputdir = paths
     faces, outfits = path_functions.get_faces_and_outfits(path, name)
     if None in [faces, outfits]:
         return
+
     char_yml = get_yaml(inputdir, name)
+
+    outfit_tuple = path_functions.get_default_outfit(
+        outfits,
+        char_data=char_yml,
+        trim_images=trim,
+        full_path=inputdir,
+    )
+    if not outfit_tuple:
+        mutation = list(char_yml["mutations"])[0]
+        outfit_tuple = path_functions.get_default_outfit(
+            outfits,
+            char_data=char_yml,
+            trim_images=trim,
+            full_path=inputdir,
+            mutation=mutation,
+        )
+        faces = path_functions.get_mutated_faces(path, name, mutation)
     widths = []
     heights = []
     bboxs = []
@@ -86,12 +109,6 @@ def create_character(trim, remove, name, paths):
         heights.append(height)
         bboxs.append(bbox)
 
-    outfit_tuple = path_functions.get_default_outfit(
-        outfits,
-        char_data=char_yml,
-        trim_images=trim,
-        full_path=inputdir,
-    )
     outfits: list[classes.ImagePath] = list(
         map(
             classes.ImagePath,

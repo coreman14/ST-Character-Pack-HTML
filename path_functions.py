@@ -48,6 +48,20 @@ def get_faces_and_outfits(pose, character_name):
     return faces, outfits
 
 
+def get_mutated_faces(pose, character_name, mutation):
+    faces: list[str] = [
+        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.webp")),
+        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.png")),
+    ]
+    if not faces:
+        print(
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces for mutation "{mutation}". Skipping.'
+        )
+        return None, None
+    faces = remove_path_duplicates_no_ext(faces)
+    return faces
+
+
 def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
     seen = set()
     result = []
@@ -73,7 +87,11 @@ def remove_path(a, full_path):
 
 
 def get_default_outfit(
-    outfit_data: list[str | tuple[str]], char_data: dict, trim_images, full_path
+    outfit_data: list[str | tuple[str]],
+    char_data: dict,
+    trim_images,
+    full_path,
+    mutation="",
 ):
     """Returns best default outfit for headshot.
 
@@ -92,6 +110,8 @@ def get_default_outfit(
     if char_data and "mutations" in char_data:
         char_data = char_data["mutations"]
         for x in char_data:
+            if mutation and x == mutation:
+                continue
             for y in char_data[x]:
                 del_key = [
                     k
@@ -119,7 +139,11 @@ def get_default_outfit(
             nude = key
     outfit = ""
     image_paths_access = []
-    if uniform:
+    if len(outfit_dict) == 1:
+        outfit = list(outfit_dict.values())[0]
+    elif not outfit_dict:
+        return None
+    elif uniform:
         outfit = outfit_dict[uniform]
     elif casual:
         outfit = outfit_dict[casual]
@@ -128,7 +152,7 @@ def get_default_outfit(
     elif nude:
         outfit = outfit_dict[nude]
     else:
-        outfit = outfit_data[0]
+        outfit = list(outfit_dict.values())[0]
     if not isinstance(outfit, str):
         no_blank_access = [x for x in outfit[1] if None not in trim_images(x)]
         image_paths_access = [
