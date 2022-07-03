@@ -6,9 +6,6 @@ scale: 0.9
 poses:
   a:
     facing: right
-mutations:
-  twintails:
-  - gym
   b:
     facing: right
 mutations:
