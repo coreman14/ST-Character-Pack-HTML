@@ -52,6 +52,7 @@ def main_loop(args, yml):
             print(f"Character {count}: {character_name}")
 
         pose_list = []
+        # default_outfit = False
         total_poses = len(
             [
                 path
@@ -88,6 +89,7 @@ def main_loop(args, yml):
                 faces, outfits = path_functions.get_faces_and_outfits(
                     pose_path, character_name
                 )
+                # default_outfit = default_outfit or check_for_default_outfit(outfits)
                 if None in [faces, outfits]:
                     continue
                 chars_with_poses.append([character_name, pose_letter, total_poses])
