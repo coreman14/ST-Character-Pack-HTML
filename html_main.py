@@ -98,6 +98,7 @@ def main_loop(args, yml):
                     remove_path_setup,
                     character_name,
                     (pose_path, args.inputdir),
+                    args.outfitprio,
                 ):
                     pose_list.append(
                         classes.Pose(args.inputdir, pose_letter, *char_pose)

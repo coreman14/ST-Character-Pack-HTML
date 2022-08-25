@@ -53,7 +53,7 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths):
+def create_character(trim, remove, name, paths, outfit_prio):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
@@ -71,6 +71,7 @@ def create_character(trim, remove, name, paths):
         char_data=char_yml,
         trim_images=trim,
         full_path=inputdir,
+        outfit_prio=outfit_prio,
     )
     if not outfit_tuple:
         mutation = list(char_yml["mutations"])[0]
@@ -80,6 +81,7 @@ def create_character(trim, remove, name, paths):
             trim_images=trim,
             full_path=inputdir,
             mutation=mutation,
+            outfit_prio=outfit_prio,
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
     widths = []

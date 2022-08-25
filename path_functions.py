@@ -1,11 +1,18 @@
 import itertools
 import os
+import re
 from argparse import ArgumentTypeError
 from glob import glob
 
 from classes import ImagePath
 
 ACCEPTED_EXT = [".webp", ".png"]
+OUTFIT_PRIO = [
+    "uniform",
+    ("casual", "dress"),
+    "nude",
+    ("under", "underwear"),
+]
 
 
 def find_access(out_path) -> tuple[str, list[str]]:
@@ -91,20 +98,19 @@ def get_default_outfit(
     char_data: dict,
     trim_images,
     full_path,
+    outfit_prio,
     mutation="",
 ):
     """Returns best default outfit for headshot.
 
-    Priority list:
-        uniform
-        casual
-        under
-        nude
 
+    Can take optional priority list to change what outfit is shown on main page
     """
 
-    # Check in tuple for outfit
+    # adjust outfit prio based on pass in
+    outfit_prio = outfit_prio or OUTFIT_PRIO
 
+    # Check in tuple for outfit
     # Return given/list or blank one
     outfit_dict = {str(i): outfit_data[i] for i in range(len(outfit_data))}
     if char_data and "mutations" in char_data:
@@ -121,38 +127,29 @@ def get_default_outfit(
 
                 for i in del_key:
                     del outfit_dict[i]
-    uniform = ""
-    casual = ""
-    nude = ""
-    under = ""
-    for key, outfit in outfit_dict.items():
-        if not isinstance(outfit, str):
-            outfit = outfit[0]
+    # Create true false dict
+    outfit = None
+    for x in outfit_prio:
+        if outfit:
+            break
+        for outfit_loop in outfit_dict.values():
+            if not isinstance(outfit_loop, str):
+                outfit_loop = outfit_loop[0]
+            if isinstance(x, str) and re.search(f"{x}\\.", outfit_loop):
+                outfit = outfit_loop
+                break
+            if isinstance(x, tuple):
+                for y in x:
+                    if re.search(f"{y}\\.", outfit_loop):
+                        outfit = outfit_loop
+                        break
 
-        if "uniform." in outfit:
-            uniform = key
-        elif "casual." in outfit or ("dress." in outfit and not casual):
-            casual = key
-        elif "under." in outfit or "underwear." in outfit:
-            under = key
-        elif "nude." in outfit:
-            nude = key
-    outfit = ""
     image_paths_access = []
-    if len(outfit_dict) == 1:
-        outfit = list(outfit_dict.values())[0]
-    elif not outfit_dict:
+    if not outfit_dict:
         return None
-    elif uniform:
-        outfit = outfit_dict[uniform]
-    elif casual:
-        outfit = outfit_dict[casual]
-    elif under:
-        outfit = outfit_dict[under]
-    elif nude:
-        outfit = outfit_dict[nude]
-    else:
+    elif len(outfit_dict) == 1 or not outfit:
         outfit = list(outfit_dict.values())[0]
+
     if not isinstance(outfit, str):
         no_blank_access = [x for x in outfit[1] if None not in trim_images(x)]
         image_paths_access = [

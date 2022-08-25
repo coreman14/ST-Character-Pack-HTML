@@ -1,4 +1,5 @@
 import argparse
+import ast
 import builtins
 import os
 import re
@@ -82,6 +83,13 @@ def get_args():
         dest="json2yaml",
         help="Skip HTML and instead convert JSON files to yaml. Will walk through the whole directory and convert any found. Requires YAML for this program to work",
         action="store_true",
+    )
+    argroup.add_argument(
+        "-op",
+        "--outfitpriority",
+        dest="outfitprio",
+        help=f"Change the priority in which outfits are chosen. Accepts a python list made of strings and tuples. A tuple means both are wayed the same, but first one found will chosen for it. Current order, from left to right, is: {path_functions.OUTFIT_PRIO}",
+        type=ast.literal_eval,
     )
 
     argroup = parser.add_argument_group("HTML functions")
@@ -168,6 +176,12 @@ def get_args():
 
 
 def setup_args(args):
+    if args.outfitprio and not isinstance(args.outfitprio, list):
+        print(
+            '''ERROR: outfitprio arg must be in a list. Example: "['a', ('b', 'c'), 'd']"'''
+        )
+        sys.exit()
+
     if args.silent:
         builtins.input2 = builtins.input
         builtins.input = lambda x: ""
