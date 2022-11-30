@@ -34,7 +34,7 @@ def get_faces_and_outfits(pose, character_name):
     for ext in ACCEPTED_EXT:
         outfits.extend(glob(os.path.join(pose, "outfits", f"*{ext}")))
         outfits.extend(
-            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
+            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}")) if f"{os.sep}acc_" not in x
         )
 
     faces: list[str] = [
