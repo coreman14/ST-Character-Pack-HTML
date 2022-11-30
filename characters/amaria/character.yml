@@ -1,0 +1,14 @@
+eye_line: 0.02
+name_color: '#c4a571'
+scale: 0.9
+poses:
+  a:
+    excludes:
+      hair:
+        - gym_camera
+        - uniform_camera
+  b:
+    excludes:
+      hair:
+        - gym_camera
+        - uniform_camera
