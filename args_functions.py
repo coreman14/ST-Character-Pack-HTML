@@ -24,9 +24,7 @@ def get_args():
         dest="inputdir",
         help="Give input directory to make HTML File for. In directory, there should be scenario.yml and a characters folder.",
         type=path_functions.dir_path,
-        default=os.path.abspath(os.path.dirname(__file__))
-        if os.path.isdir(os.path.dirname(__file__))
-        else os.path.abspath(os.path.dirname(os.sep.join(__file__.split(os.sep)[:-1]))),
+        default=os.path.abspath(os.curdir),
     )
     parser.add_argument(
         "-s", "--silent", help="Will not ask for input", action="store_true"
