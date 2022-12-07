@@ -34,6 +34,10 @@ def update_html_arg_snip2(args: Namespace, string_to_replace: str):
             ".character{",
             f".character{{ background-color: {args.charactercolor};",
         )
+    if hasattr(args, "splitfiles") and args.splitfiles:
+        string_to_replace = string_to_replace.replace(
+            "<script>", f"<script src='{args.jsname}' ></script><script>"
+        )
     return string_to_replace
 
 

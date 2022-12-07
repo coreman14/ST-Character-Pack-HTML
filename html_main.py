@@ -122,12 +122,31 @@ def main_loop(args, yml):
     print("Creating Html...")
     scenario_title = yml["title"]
 
-    main_functions.create_html_file(
-        args,
-        scenario_title,
-        html_snips,
-        (chars_with_poses, chars),
-    )
+    if args.onlyjson:
+        main_functions.create_js(
+            args,
+            (chars_with_poses, chars),
+        )
+    elif args.splitfiles:
+        main_functions.create_html_file(
+            args,
+            scenario_title,
+            html_snips,
+            (chars_with_poses, chars),
+            split_files=True,
+        )
+        main_functions.create_js(
+            args,
+            (chars_with_poses, chars),
+        )
+
+    else:
+        main_functions.create_html_file(
+            args,
+            scenario_title,
+            html_snips,
+            (chars_with_poses, chars),
+        )
 
 
 def main():

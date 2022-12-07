@@ -1,7 +1,7 @@
 import os
 import re
 import sys
-
+import json
 import yaml
 
 import classes
@@ -125,7 +125,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
     return outfits, faces, *outfit_tuple
 
 
-def create_html_file(args, scenario_title, html_snips, chars_tuple):
+def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
     html_snip1, html_snip2, html_snip3 = html_snips
     html_snip2 = html_arg_functions.update_html_arg_snip2(args, html_snip2)
     html_snip3 = html_arg_functions.update_html_arg_snip3(args, html_snip3)
@@ -135,17 +135,48 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple):
     ) as html_file:
         html_file.write(html_snip1 + scenario_title)
         html_file.write(html_snip2)
-        html_file.write(
-            scenario_title
-            + '"; var characterArray=['
-            + ", ".join(str(x) for x in chars_with_poses)
-            + "]; var jsonData={ "
-            + "".join(str(x) for x in chars)
-            + "};"
-        )
+        html_file.write(scenario_title + '";')
+        if split_files:
+            html_file.write(
+                "var characterArray = data.carray;var jsonData = data.characters;"
+            )
+        else:
+            html_file.write(
+                "var characterArray=["
+                + ", ".join(str(x) for x in chars_with_poses)
+                + "]; var jsonData={ "
+                + "".join(str(x) for x in chars)
+                + "};"
+            )
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
         html_file.write(html_snip3)
-    print(f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}", end="")
+    print(
+        f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}",
+        end="\n" if split_files else "",
+    )
+
+    if not split_files:
+        input(
+            ", press enter to exit...",
+        )
+        print()
+
+
+def create_js(args, chars_tuple):
+    chars_with_poses, chars = chars_tuple
+    formatted_json = yaml.safe_load(
+        '{"carray":['
+        + ", ".join(str(x) for x in chars_with_poses)
+        + '],"characters": { '
+        + "".join(str(x) for x in chars)
+        + "}}"
+    )
+    with open(
+        os.path.join(args.inputdir, args.jsname), "w+", encoding="utf8"
+    ) as json_file:
+        json_file.write(f"var data = {json.dumps(formatted_json)}")
+
+    print(f"Outputted to JSON at {os.path.join(args.inputdir, args.jsname)}", end="")
     input(
         ", press enter to exit...",
     )

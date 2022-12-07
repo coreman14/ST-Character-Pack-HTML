@@ -29,6 +29,11 @@ def test_charactercolor():
     assert html_snip2 != html_arg_functions.update_html_arg_snip2(test_args, html_snip2)
 
 
+def test_script_replace():
+    test_args = Namespace(splitfiles=True, jsname="index.js")
+    assert html_snip2 != html_arg_functions.update_html_arg_snip2(test_args, html_snip2)
+
+
 def test_rectbackgroundcolor():
     test_args = Namespace(rectbackgroundcolor="#123456")
     assert html_snip3 != html_arg_functions.update_html_arg_snip3(test_args, html_snip3)

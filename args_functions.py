@@ -12,6 +12,19 @@ import json2yaml
 import path_functions
 
 
+"""
+Consideration for args
+1. Turn bounds or other output/different functions into word commands rather than switches
+    html_main #Create the HTML
+    html_main create #Same as above
+    html_main bounds #Run bounds instead
+    html_main split #Run the html, but create a seperate json file
+    #The last one is just spitballing
+
+2. Figure out a better way to do the CSS options. While they are included in the Config file, theres got to be a better way
+"""
+
+
 def get_args():
     parser = configargparse.ArgumentParser(
         description="Makes an HTML file to browse a scenarios Characters"
@@ -61,7 +74,33 @@ def get_args():
         help="In bounds, skip output of faces.",
         action="store_false",
     )
+    # Output a JSON File instead of HTML
+    argroup = parser.add_argument_group("Separate files")
+    argroup.add_argument(
+        "--explained",
+        help='This command is just explaination text. It does not change anything. These commands produce a JS file that stores the data. It has to be a JS file or it wont load correctly. The JS file is a json file but with "var data =" added',
+    )
+    argdiff = argroup.add_mutually_exclusive_group()
+    argdiff.add_argument(
+        "-j",
+        "--json",
+        dest="onlyjson",
+        help="Instead of creating an HTML file, output the JS that the HTML uses to display. This is useful if you have made modifications to the HTML code and dont want to remake the HTML file.",
+        action="store_true",
+    )
+    argdiff.add_argument(
+        "-sp",
+        "--splitfiles",
+        help="Creates an HTML and JS file instead of a single HTML file. The HTML file will work the same way, but the JSON will not be embedded.",
+        action="store_true",
+    )
 
+    argroup.add_argument(
+        "-jn",
+        "--jsname",
+        help="Name for the JSON file created if ",
+        default="characters.js",
+    )
     # Normal args
     argroup = parser.add_argument_group("Image functions")
     argroup.add_argument(
@@ -77,7 +116,8 @@ def get_args():
         action="store_true",
     )
     argroup.add_argument(
-        "-j",
+        "-cj",
+        "--convertjson",
         dest="json2yaml",
         help="Skip HTML and instead convert JSON files to yaml. Will walk through the whole directory and convert any found. Requires YAML for this program to work",
         action="store_true",
