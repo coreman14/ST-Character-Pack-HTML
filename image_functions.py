@@ -26,8 +26,8 @@ def return_bb_box(name):
 def trimImage(name, do_trim=False, remove_empty=False):
     name, trim_img = tryOpenImageIter(name)
     tsize = trim_img.size
-    if trim_img.mode != "RGBA":
-        trim_img = trim_img.convert("RGBA")
+    # if trim_img.mode != "RGBA":
+    #     trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
     if not bbox:
         if f"{os.sep}face{os.sep}" in name or "/face/" in name:
