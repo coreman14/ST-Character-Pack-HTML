@@ -1,4 +1,4 @@
-# StHTMLHolyPack
+# [StHTMLHolyPack](https://github.com/coreman14/StHTMLHolyPack)
 
 This repo holds python scripts to create an html file similar to what was including in the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688). Basic demo [here](https://coreman14.github.io/StHTMLHolyPack/).
 
@@ -51,7 +51,7 @@ If you downloaded the release that includes these packages, they will unzip to `
 
 ## Usage
 
-To use this util, clone the repo or download the pyz files from [GitHub](https://github.com/coreman14/StHTMLHolyPack).
+To use this util, clone the repo or download the pyz files from [GitHub Releases](https://github.com/coreman14/StHTMLHolyPack/releases). If you are on windows, the you can download the EXE from [here].(https://github.com/coreman14/StHTMLHolyPack/releases/download/v0.0.3/html_main.exe)
 
 There are 2 versions, one requires that pillow, colorama and pyyaml are installed beforehand, and one that unzips them from inside.
 
