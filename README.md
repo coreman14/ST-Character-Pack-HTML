@@ -2,7 +2,7 @@
 
 This repo holds python scripts to create an html file similar to what was including in the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688). Basic demo [here](https://coreman14.github.io/StHTMLHolyPack/).
 
-I've made a few changes for usability (Keyboard shortcuts, expression sheets are made when the character page is opened rather than needed before hand).
+I have made a few changes for usability (Keyboard shortcuts, expression sheets are made when the character page is opened rather than needed before hand).
 
 I've also added a json2yaml converter and image trim utility which are taken from [Student Transfer Utils](https://utils.student-transfer.com).
 
@@ -36,11 +36,11 @@ Character Page:
 -   Added back button beside character name.
 -   Now says character's name and pose above outfits.
 -   Added backgrounds to expression sheet to be able to differ between faces. These can be disabled or changed to any 2 colors.
--   All expression sheets are generated within the html. You don't have to produce the expression sheets separately for this to work.
+-   All expression sheets are generated within the html. You do not have to produce the expression sheets separately for this to work.
 
 Outfit Page:
 
--   This is a new page that lets you see all of the characters outfits for each pose. Demo [here](https://coreman14.github.io/StHTMLHolyPack/?outfitview=1).
+-   This is a new page that lets you see all the characters outfits for each pose. Demo [here](https://coreman14.github.io/StHTMLHolyPack/?outfitview=1).
 -   This was made so that if someone was looking for an outfit to add to an existing character, I matching the pose and outfit would be easier.
 
 ## Requirements (>=Python 3.8)
@@ -51,11 +51,11 @@ If you downloaded the `STHtml_hasr.pyz`, the requirements will be unzipped to `z
 
 ## PYZ Explainer
 
-pyz files are executable python programs that allow execution in the same way a python script would. These are meant for Mac and Linuz users who cannot run the EXE created for windows.
+pyz files are executable python programs that allow execution in the same way a python script would. These are meant for Mac and Linux users who cannot run the EXE created for windows.
 
 In this case there are 2 files.
 
-`STHtml_hasr.pyz` has any dependecies that need to be installed. At start time, it extracts them. You only have to install python for this file
+`STHtml_hasr.pyz` has any dependencies that need to be installed before running. At start time, it extracts them. Python must still be install before.
 
 `STHtml_nor.pyz` is just the python scripts. It requires any python packages to be installed on the local machine.
 
@@ -65,7 +65,7 @@ To use this util, download the pyz files from [GitHub Releases](https://github.c
 
 Place whatever was downloaded next to the scenario.yml file of the pack you want to generate the HTML for. Then you can double click the EXE or the pyz files (You may have to right click -> Open with... to run it if the default application is not set to Python for pyz files) to run it.
 
-If you do want to to place in it the folder, add `-i <PathToFolder>` to the command and replace PathToFolder with the actual path to where the yml file is.
+If you do want to place in it the folder, add `-i <PathToFolder>` to the command and replace PathToFolder with the actual path to where the yml file is.
 
 ## Usage of the Cloned repo or PYZ files
 
@@ -85,7 +85,7 @@ You can also run this by doing -j on start. You will have to run it again withou
 
 ## Arguments
 
-This program includes many customizations you can make to the look of the html file. From changing the title, adding a background image or changing any number of colors, you can make it look as you want without touching the code.
+This program includes many customizations you can make to the look of the html file. From changing the title, adding a background image, or changing any number of colors, you can make it look as you want without touching the code.
 
 You can also use a config file to avoid having to add the options each time.
 
@@ -93,7 +93,7 @@ For a full up to date list run the file with `-h` which will print all options. 
 
 To use a config file instead, download the [Example.ini](Example.ini) from the repo. This has all currently available options so you can uncomment and start changing.
 
-To use the file, add `-c <REPLACE_WITH_FILENAME>` to your the command line and it will read your settings from it.
+To use the file, add `-c <REPLACE_WITH_FILENAME>` to the command line and it will read your settings from it.
 
 ## Other features (Using these disables the HTML output)
 
@@ -113,7 +113,7 @@ There are some files that pillow does not like read. When this happens, it shoul
 Error: cannot identify image file "C:\\StudentTransfer\\A deal with the devil\\characters\\corneliasaya\\a\\faces\\face\\0.png". Please convert the file to png or webp.
 ```
 
-When this happens, bring image into a photo editor and save it. Or if there is more than one, run the files through a converter.
+When this happens, bring image into a photo editor, and save it. Or if there is more than one, run the files through a converter.
 
 I use [XNConvert](https://www.xnview.com/en/xnconvert/link), but there are many options. If you happen to do this, you can also convert the files to WEBP as they take up less space. Google has [utilities](https://developers.google.com/speed/webp/docs/precompiled) for doing from the command line.
 
