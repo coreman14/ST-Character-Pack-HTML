@@ -45,22 +45,36 @@ Outfit Page:
 
 ## Requirements (>=Python 3.8)
 
-For the script to run, it requires both pillow, colorama and pyyaml. You can use `python -m pip install -r requirements` if you cloned the repository, or `python -m pip install pyyaml pillow colorama`.
+For the script to run, it requires pillow, colorama and pyyaml. You can use `python -m pip install -r requirements` if you cloned the repository, or `python -m pip install pyyaml pillow colorama`.
 
-If you downloaded the release that includes these packages, they will unzip to `zipapps_cache` when the script is called. They do not self remove but will be extracted from the file whenever ran.
+If you downloaded the `STHtml_hasr.pyz`, the requirements will be unzipped to `zipapps_cache` when the script is called. They do not self remove but will be extracted from the file whenever ran.
 
-## Usage
+## PYZ Explainer
 
-To use this util, clone the repo or download the pyz files from [GitHub Releases](https://github.com/coreman14/StHTMLHolyPack/releases). If you are on windows, the you can download the EXE from [here].(https://github.com/coreman14/StHTMLHolyPack/releases/download/v0.0.3/html_main.exe)
+pyz files are executable python programs that allow execution in the same way a python script would. These are meant for Mac and Linuz users who cannot run the EXE created for windows.
 
-There are 2 versions, one requires that pillow, colorama and pyyaml are installed beforehand, and one that unzips them from inside.
+In this case there are 2 files.
+
+`STHtml_hasr.pyz` has any dependecies that need to be installed. At start time, it extracts them. You only have to install python for this file
+
+`STHtml_nor.pyz` is just the python scripts. It requires any python packages to be installed on the local machine.
+
+## Usage of EXE or prepacked versions on Windows
+
+To use this util, download the pyz files from [GitHub Releases](https://github.com/coreman14/StHTMLHolyPack/releases) or the EXE from [here](https://github.com/coreman14/StHTMLHolyPack/releases/download/v0.0.3/html_main.exe).
+
+Place whatever was downloaded next to the scenario.yml file of the pack you want to generate the HTML for. Then you can double click the EXE or the pyz files (You may have to right click -> Open with... to run it if the default application is not set to Python for pyz files) to run it.
+
+If you do want to to place in it the folder, add `-i <PathToFolder>` to the command and replace PathToFolder with the actual path to where the yml file is.
+
+## Usage of the Cloned repo or PYZ files
 
 To run the script:
 
 ```bash
-python STHtml_[nor|hasr].pyz
+python3 STHtml_[nor|hasr].pyz
 #Or if using the cloned version
-python html_main.py
+python3 html_main.py 
 ```
 
 You can also change the input directory using -i so you don't have to move the script.
