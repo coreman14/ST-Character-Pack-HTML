@@ -77,7 +77,7 @@ class Pose:
     outfits: tuple[ImagePath]
     faces: tuple[ImagePath]
     default_outfit: ImagePath
-    default_accessories: list[ImagePath]
+    default_accessories: list[(ImagePath, str)] #The STR is the layering, [+-][0-9] or 0
     face_height: int = None
 
     @property
@@ -98,7 +98,7 @@ class Pose:
 
     @property
     def full_accessories_list(self):
-        return [os.path.join(self.path, x.path) for x in self.default_accessories]
+        return [(os.path.join(self.path, x.path), y) for x,y in self.default_accessories]
 
     @property
     def get_imagebox_faces(self) -> CropBox:
@@ -125,7 +125,7 @@ class Pose:
         c_bbox = crop_image.getbbox()
         if c_bbox is not None:
             boundary_boxes.append(c_bbox)
-        for accessory in self.full_accessories_list:
+        for accessory, _ in self.full_accessories_list:
             accessory_image = Image.open(accessory).convert("RGBA").split()[-1]
             accessory_image = accessory_image.crop(
                 (0, 0, accessory_image.width, int(face_height))
@@ -156,7 +156,7 @@ class Character(NamedTuple):
                 if pose.face_height != 0
                 else boundsBox.bottom
             )
-            acc = "".join(f"{str(x)}, " for x in pose.default_accessories)
+            acc = "".join(f'[{str(x)}, "{y}"], ' for x,y in pose.default_accessories)
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : {pose.default_outfit}, '
             builder += f'"default_accessories" : [ {acc}  ], '

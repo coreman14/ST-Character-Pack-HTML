@@ -157,6 +157,8 @@ def get_default_outfit(
             ImagePath(remove_path(x, full_path), *trim_images(x))
             for x in no_blank_access
         ]
+        #get Layering for default accessories
+        image_paths_access = [(x, get_layering_for_accessory(x)) for x in image_paths_access]
 
     return (
         ImagePath(remove_path(outfit, full_path), *trim_images(outfit)),
@@ -169,3 +171,11 @@ def dir_path(path: str) -> str:
     if os.path.exists(path):
         return os.path.abspath(path)
     raise ArgumentTypeError(f'Output directory "{path}" is not a valid path')
+
+
+def get_layering_for_accessory(image: ImagePath):
+    if image.clean_path.startswith("acc_"):
+        acc_folder = image.clean_path.split("/")[0]
+    else:
+        acc_folder = image.clean_path.split("/")[-2]
+    return acc_folder[-2:] if acc_folder[-2] in ("+", "-") else "0"
