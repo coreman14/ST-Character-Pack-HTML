@@ -133,15 +133,16 @@ def get_default_outfit(
         if outfit:
             break
         for outfit_loop in outfit_dict.values():
+            og_outfit = outfit_loop
             if not isinstance(outfit_loop, str):
                 outfit_loop = outfit_loop[0]
             if isinstance(x, str) and re.search(f"{x}\\.", outfit_loop):
-                outfit = outfit_loop
+                outfit = og_outfit
                 break
             if isinstance(x, tuple):
                 for y in x:
                     if re.search(f"{y}\\.", outfit_loop):
-                        outfit = outfit_loop
+                        outfit = og_outfit
                         break
 
     image_paths_access = []
