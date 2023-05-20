@@ -3,7 +3,7 @@ import os
 import re
 from argparse import ArgumentTypeError
 from glob import glob
-
+from typing import Tuple
 from classes import ImagePath
 
 ACCEPTED_EXT = [".webp", ".png"]
@@ -18,11 +18,10 @@ OUTFIT_PRIO = [
 def find_access(out_path) -> tuple[str, list[str]]:
     outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
     return_acc = []
-    if len(outfit_access) == 0:
+    if not outfit_access:
         return out_path, return_acc
     for direct, ext in itertools.product(outfit_access, ACCEPTED_EXT):
-        acc_list = glob(os.path.join(direct, f"*{ext}"))
-        if len(acc_list) > 0:
+        if acc_list := glob(os.path.join(direct, f"*{ext}")):
             acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
             if f"off{ext}" in acc_dict:
                 return_acc.append(acc_dict[f"off{ext}"])
@@ -42,9 +41,7 @@ def get_faces_and_outfits(pose, character_name):
         *glob(os.path.join(pose, "faces", "face", "*.png")),
     ]
     if not outfits or not faces:
-        out_str = ("" if outfits else "outfits") + (
-            "faces" if not faces and outfits else "" if faces else " and faces"
-        )
+        out_str = ("" if outfits else "outfits") + ("faces" if not faces and outfits else "" if faces else " and faces")
 
         print(
             f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain {out_str}. Skipping.'
@@ -100,7 +97,8 @@ def get_default_outfit(
     full_path,
     outfit_prio,
     mutation="",
-):
+    main_page_height=200,
+) -> Tuple[ImagePath, list[ImagePath, str, int]]:
     """Returns best default outfit for headshot.
 
 
@@ -120,9 +118,7 @@ def get_default_outfit(
                 continue
             for y in char_data[x]:
                 del_key = [
-                    k
-                    for k, v in outfit_dict.items()
-                    if f"{y}." in v or not isinstance(v, str) and f"{y}." in v[0]
+                    k for k, v in outfit_dict.items() if f"{y}." in v or not isinstance(v, str) and f"{y}." in v[0]
                 ]
 
                 for i in del_key:
@@ -148,20 +144,25 @@ def get_default_outfit(
     image_paths_access = []
     if not outfit_dict:
         return None
-    elif len(outfit_dict) == 1 or not outfit:
+    if len(outfit_dict) == 1 or not outfit:
         outfit = list(outfit_dict.values())[0]
 
+    outfit_image = ImagePath(remove_path(outfit, full_path), *trim_images(outfit))
     if not isinstance(outfit, str):
         no_blank_access = [x for x in outfit[1] if None not in trim_images(x)]
+        image_paths_access = [ImagePath(remove_path(x, full_path), *trim_images(x)) for x in no_blank_access]
+        # get Layering for default accessories
         image_paths_access = [
-            ImagePath(remove_path(x, full_path), *trim_images(x))
-            for x in no_blank_access
+            (
+                x,
+                get_layering_for_accessory(x),
+                get_main_page_height_for_accessory(outfit_image, x, main_page_height),
+            )
+            for x in image_paths_access
         ]
-        #get Layering for default accessories
-        image_paths_access = [(x, get_layering_for_accessory(x)) for x in image_paths_access]
 
     return (
-        ImagePath(remove_path(outfit, full_path), *trim_images(outfit)),
+        outfit_image,
         image_paths_access,
     )
 
@@ -173,9 +174,13 @@ def dir_path(path: str) -> str:
     raise ArgumentTypeError(f'Output directory "{path}" is not a valid path')
 
 
-def get_layering_for_accessory(image: ImagePath):
+def get_layering_for_accessory(image: ImagePath) -> str:
     if image.clean_path.startswith("acc_"):
         acc_folder = image.clean_path.split("/")[0]
     else:
         acc_folder = image.clean_path.split("/")[-2]
     return acc_folder[-2:] if acc_folder[-2] in ("+", "-") else "0"
+
+
+def get_main_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
+    return round((accessory.height / outfit.height) * main_page_height)
