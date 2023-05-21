@@ -70,7 +70,7 @@ class Pose:
 
     path: str
     name: str
-    outfits: tuple[ImagePath]
+    outfits: tuple[list[(ImagePath, str, int)]]
     faces: tuple[ImagePath]
     default_outfit: ImagePath
     default_accessories: list[
