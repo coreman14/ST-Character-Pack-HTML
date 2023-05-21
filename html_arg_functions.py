@@ -35,9 +35,7 @@ def update_html_arg_snip2(args: Namespace, string_to_replace: str):
             f".character{{ background-color: {args.charactercolor};",
         )
     if hasattr(args, "splitfiles") and args.splitfiles:
-        string_to_replace = string_to_replace.replace(
-            "<script>", f"<script src='{args.jsname}' ></script><script>"
-        )
+        string_to_replace = string_to_replace.replace("<script>", f"<script src='{args.jsname}' ></script><script>")
     return string_to_replace
 
 
@@ -60,12 +58,12 @@ def update_html_arg_snip3(args: Namespace, string_to_replace: str):
 
     if hasattr(args, "rectbackgroundcolor") and args.rectbackgroundcolor:
         string_to_replace = string_to_replace.replace(
-            'context.fillStyle="White"; /*rect color*/',
+            'context.fillStyle="White";  /*rect color*/',
             f'context.fillStyle="{args.rectbackgroundcolor}"; /*rect color*/',
         )
     if hasattr(args, "textcolor") and args.textcolor:
         string_to_replace = string_to_replace.replace(
-            'context.fillStyle="Black"; /*text color*/',
+            'context.fillStyle="Black";  /*text color*/',
             f'context.fillStyle="{args.textcolor}"; /*text color*/',
         )
 
