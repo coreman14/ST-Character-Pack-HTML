@@ -24,6 +24,8 @@ General:
 -   Added popup for shortcuts when hovering over the scenario name on any page.
 -   Change how the default outfit was selected. It follows how expression sheets are made, but dress has the same priority as casual and it looks for underwear before nude.
 -   On the main menu, if you were to change the filename from index.html to anything else, all the links would stop working. This is fixed.
+-   Hovering over an outfit will display the path. This is important because if 2 folders are named different but pngs inside are the same, it can become hard to identify. Applies to the Outfit page and character page
+-   Default accessories (Anything named off.(webp|png)) is now added to wherever outfits are shown. Due to HTML limitations, it may look like the 2 are not connected. This is not the case and will look fine in the actual game
 
 Main Page:
 
@@ -74,7 +76,7 @@ To run the script:
 ```bash
 python3 STHtml_[nor|hasr].pyz
 #Or if using the cloned version
-python3 html_main.py 
+python3 html_main.py
 ```
 
 You can also change the input directory using -i so you don't have to move the script.
