@@ -15,7 +15,7 @@ OUTFIT_PRIO = [
 ]
 
 
-def find_access(out_path) -> tuple[str, list[str]]:
+def find_access(out_path, accessories_to_add=None) -> tuple[str, list[str]]:
     outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
     return_acc = []
     if not outfit_access:
@@ -25,15 +25,22 @@ def find_access(out_path) -> tuple[str, list[str]]:
             acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
             if f"off{ext}" in acc_dict:
                 return_acc.append(acc_dict[f"off{ext}"])
+    return_acc.extend(accessories_to_add or ())
     return out_path, return_acc
 
 
 def get_faces_and_outfits(pose, character_name):
     outfits: list[str] = []
+    off_pose_level_accessories = []
+    # Scan for off accessories in the
+    for ext in ACCEPTED_EXT:
+        off_pose_level_accessories.extend(glob(os.path.join(pose, "outfits", "acc_*", f"off{ext}")))
     for ext in ACCEPTED_EXT:
         outfits.extend(glob(os.path.join(pose, "outfits", f"*{ext}")))
         outfits.extend(
-            find_access(x) for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}")) if f"{os.sep}acc_" not in x
+            find_access(x, off_pose_level_accessories)
+            for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
+            if f"{os.sep}acc_" not in x
         )
 
     faces: list[str] = [
@@ -49,6 +56,7 @@ def get_faces_and_outfits(pose, character_name):
         return None, None
     faces = remove_path_duplicates_no_ext(faces)
     outfits = remove_path_duplicates_no_ext(outfits)
+    # outfits = [(x, []) for x in outfits]
     return faces, outfits
 
 

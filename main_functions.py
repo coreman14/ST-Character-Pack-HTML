@@ -53,7 +53,7 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths, outfit_prio):
+def create_character(trim, remove, name, paths, outfit_prio, main_page_height=200):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
@@ -72,6 +72,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
         trim_images=trim,
         full_path=inputdir,
         outfit_prio=outfit_prio,
+        main_page_height=main_page_height,
     )
     if not outfit_tuple:
         mutation = list(char_yml["mutations"])[0]
@@ -82,6 +83,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
             full_path=inputdir,
             mutation=mutation,
             outfit_prio=outfit_prio,
+            main_page_height=main_page_height,
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
     widths = []
@@ -111,18 +113,30 @@ def create_character(trim, remove, name, paths, outfit_prio):
         heights.append(height)
         bboxs.append(bbox)
 
-    outfits: list[classes.ImagePath] = list(
-        map(
-            classes.ImagePath,
-            map(remove, outfits),
-            widths,
-            heights,
-            bboxs,
-        )
-    )
+    new_outfits: list[classes.ImagePath, list[(classes.ImagePath, str, int)]] = []
+    outfit_obj: list[str, list[str]]
+    for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
+        if isinstance(outfit_obj, str):
+            new_obj = [classes.ImagePath(remove(outfit_obj), width, height, box), []]
+        else:
+            new_obj = [classes.ImagePath(remove(outfit_obj[0]), width, height, box)]
 
-    outfits.sort(key=lambda x: x.path.split(os.sep)[-1].split(".")[0])
-    return outfits, faces, *outfit_tuple
+            no_blank_access = [x for x in outfit_obj[1] if None not in trim(x)]
+            image_paths_access = [classes.ImagePath(remove(x), *trim(x)) for x in no_blank_access]
+            # get Layering for default accessories
+            image_paths_access = [
+                (
+                    x,
+                    path_functions.get_layering_for_accessory(x),
+                    path_functions.get_main_page_height_for_accessory(new_obj[0], x, main_page_height),
+                )
+                for x in image_paths_access
+            ]
+            new_obj.append(image_paths_access)
+        new_outfits.append(new_obj)
+
+    new_outfits.sort(key=lambda x: x[0].path.split(os.sep)[-1].split(".")[0])
+    return new_outfits, faces, *outfit_tuple
 
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
@@ -130,16 +144,12 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=
     html_snip2 = html_arg_functions.update_html_arg_snip2(args, html_snip2)
     html_snip3 = html_arg_functions.update_html_arg_snip3(args, html_snip3)
     chars_with_poses, chars = chars_tuple
-    with open(
-        os.path.join(args.inputdir, args.name), "w+", encoding="utf8"
-    ) as html_file:
+    with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
         html_file.write(html_snip1 + scenario_title)
         html_file.write(html_snip2)
-        html_file.write(scenario_title + '";')
+        html_file.write(f'{scenario_title}";')
         if split_files:
-            html_file.write(
-                "var characterArray = data.carray;var jsonData = data.characters;"
-            )
+            html_file.write("var characterArray = data.carray;var jsonData = data.characters;")
         else:
             html_file.write(
                 "var characterArray=["
@@ -171,9 +181,7 @@ def create_js(args, chars_tuple):
         + "".join(str(x) for x in chars)
         + "}}"
     )
-    with open(
-        os.path.join(args.inputdir, args.jsname), "w+", encoding="utf8"
-    ) as json_file:
+    with open(os.path.join(args.inputdir, args.jsname), "w+", encoding="utf8") as json_file:
         json_file.write(f"var data = {json.dumps(formatted_json)}")
 
     print(f"Outputted to JSON at {os.path.join(args.inputdir, args.jsname)}", end="")

@@ -34,6 +34,9 @@ class ImagePath(NamedTuple):
     def __repr__(self) -> str:
         return f'"{self.clean_path}"'
 
+    def __str__(self) -> str:
+        return f'"{self.clean_path}"'
+
 
 class CropBox(NamedTuple):
     left: int
@@ -70,13 +73,23 @@ class Pose:
 
     path: str
     name: str
-    outfits: tuple[list[(ImagePath, str, int)]]
+    outfits: list[(ImagePath, list[(ImagePath, str, int)])]
     faces: tuple[ImagePath]
     default_outfit: ImagePath
     default_accessories: list[
         (ImagePath, str, int)
     ]  # The STR is the layering, [+-][0-9] or 0. The int is the height to use on the main page
     face_height: int = None
+
+    @property
+    def formatted_outfit_output(self):
+        accessory_strings = []
+        outfit_strings = []
+        for x in self.outfits:
+            accessory_strings.extend(f'["{y[0].clean_path}", "{y[1]}", {y[2]}]' for y in x[1])
+            outfit_strings.append(f'["{x[0].clean_path}", [{",".join(accessory_strings)}]]')
+            accessory_strings.clear()
+        return f"[{','.join(outfit_strings)}]"
 
     @property
     def faces_escaped(self):
@@ -88,7 +101,7 @@ class Pose:
 
     @property
     def outfit_path(self):
-        return self.outfits[0].folder_path
+        return self.outfits[0][0].folder_path
 
     @property
     def full_default_outfit(self):
@@ -152,5 +165,5 @@ class Character(NamedTuple):
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : {pose.default_outfit}, '
             builder += f'"default_accessories" : [ {acc}  ], '
-            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.outfits}}}, '
+            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.formatted_outfit_output}}}, '
         return builder + "}},"
