@@ -78,10 +78,10 @@ def main():
     with open("html_main.py", "w", encoding="utf8") as f:
         f.writelines(all_lines)
 
-    with open("test_file.py", "w+", encoding="utf8") as f:
-        for index, line in enumerate(html_snips[1:], start=1):
-            quote_to_use = "'" if line.endswith('"') or line.startswith('"') else '"'
-            f.write(f"html_snip{index} = r{quote_to_use * 3}{line}{quote_to_use * 3}\n")
+    # with open("test_file.py", "w+", encoding="utf8") as f:
+    #     for index, line in enumerate(html_snips[1:], start=1):
+    #         quote_to_use = "'" if line.endswith('"') or line.startswith('"') else '"'
+    #         f.write(f"html_snip{index} = r{quote_to_use * 3}{line}{quote_to_use * 3}\n")
 
 
 if __name__ == "__main__":
