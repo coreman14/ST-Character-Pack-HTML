@@ -2,6 +2,8 @@ import os
 
 from PIL import Image, UnidentifiedImageError
 
+OFF_IMAGES_TO_REMOVE = set()
+
 
 def tryOpenImageIter(name, index=0):
     try:
@@ -32,7 +34,9 @@ def trimImage(name, do_trim=False, remove_empty=False):
     if not bbox:
         if f"{os.sep}face{os.sep}" in name or "/face/" in name:
             return (*tsize, None)
-        print(f"{name} is empty, it can be removed")
+        if name not in OFF_IMAGES_TO_REMOVE:
+            print(f"{name} is empty, it can be removed")
+            OFF_IMAGES_TO_REMOVE.add(name)
         if remove_empty:
             os.remove(name)
         return (*tsize, None)
