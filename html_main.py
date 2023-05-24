@@ -49,6 +49,8 @@ def main_loop(args, yml):
         ),
         start=1,
     ):
+        if character_name != "amaria":
+            continue
         if not args.bounds:
             print(f"Character {count}: {character_name}")
 
