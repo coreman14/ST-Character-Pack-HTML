@@ -5,6 +5,7 @@ from argparse import ArgumentTypeError
 from glob import glob
 from typing import Tuple
 from classes import ImagePath
+from collections import defaultdict
 
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
@@ -42,11 +43,21 @@ def get_faces_and_outfits(pose, character_name):
             for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
             if f"{os.sep}acc_" not in x
         )
+    faces: dict[str : list[str]]
 
-    faces: list[str] = [
-        *glob(os.path.join(pose, "faces", "face", "*.webp")),
-        *glob(os.path.join(pose, "faces", "face", "*.png")),
-    ]
+    faces = defaultdict(list)
+    for ext in ACCEPTED_EXT:  # Add default outfits
+        faces["face"].extend(glob(os.path.join(pose, "faces", "face", f"*{ext}")))
+        faces["blush"].extend(glob(os.path.join(pose, "faces", "blush", f"*{ext}")))
+    faces |= get_accessory_faces(pose, "faces/face")
+    faces |= get_accessory_faces(pose, "faces/blush")
+    print(faces)
+    # Detect face_accessories
+
+    faces: list[str] = []
+
+    for ext in ACCEPTED_EXT:
+        faces.extend(glob(os.path.join(pose, "faces", "face", f"*{ext}")))
     if not outfits or not faces:
         out_str = ("" if outfits else "outfits") + ("faces" if not faces and outfits else "" if faces else " and faces")
 
@@ -61,17 +72,16 @@ def get_faces_and_outfits(pose, character_name):
 
 
 def get_mutated_faces(pose, character_name, mutation):
-    faces: list[str] = [
-        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.webp")),
-        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.png")),
-    ]
+    faces: list[str] = []
+
+    for ext in ACCEPTED_EXT:
+        faces.extend(glob(os.path.join(pose, "faces", "face", f"*{ext}")))
     if not faces:
         print(
             f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces for mutation "{mutation}". Skipping.'
         )
         return None, None
-    faces = remove_path_duplicates_no_ext(faces)
-    return faces
+    return remove_path_duplicates_no_ext(faces)
 
 
 def remove_path_duplicates_no_ext(a: list[str | tuple[str]]):
@@ -192,3 +202,21 @@ def get_layering_for_accessory(image: ImagePath) -> str:
 
 def get_main_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
     return round((accessory.height / outfit.height) * main_page_height)
+
+
+def get_accessory_faces(pose, directory):
+    face_dict: dict[str : list[str]] = defaultdict(list)
+    for accessory in glob("*/", root_dir=os.path.join(pose, directory)):
+        accessory = accessory.replace("\\", "").replace("/", "")
+        for ext in ACCEPTED_EXT:
+            face_dict[f"{directory}/{accessory}"].extend(
+                glob(
+                    os.path.join(
+                        pose,
+                        directory,
+                        accessory,
+                        f"*{ext}",
+                    )
+                )
+            )
+    return face_dict

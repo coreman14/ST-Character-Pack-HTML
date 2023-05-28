@@ -9,6 +9,7 @@ var data = {
             "poses": {
                 "a": {
                     "default_outfit": "uniform/uniform.png",
+                    "default_faces": "face", //To assign the correct faces to the default
                     "default_accessories": [
                         ["uniform/hair+1/off.png", "+1", 111],
                         ["acc_bracelets/off.png", "0", 160],
@@ -30,7 +31,11 @@ var data = {
                         "mutations/twintails/blush/makeup": [],
                     },
                     //List of accessory names for sprite viewer
-                    "accessories": ["hair", "bracelets", "makeup"],
+                    "accessories": [
+                        ["hair", "acc"],
+                        ["bracelets", "acc"],
+                        ["makeup", "face"],
+                    ],
                     //Failure procedure:
                     /*
                     Go down list until an matching path is found

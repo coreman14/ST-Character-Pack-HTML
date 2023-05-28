@@ -49,7 +49,7 @@ def main_loop(args, yml):
         ),
         start=1,
     ):
-        if character_name != "amaria":
+        if character_name not in ("amaria", "cornelia"):
             continue
         if not args.bounds:
             print(f"Character {count}: {character_name}")

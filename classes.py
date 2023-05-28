@@ -2,9 +2,17 @@ import html
 import os
 import re
 from dataclasses import dataclass
-from typing import NamedTuple
+from typing import NamedTuple, Tuple, Iterable
 
 from PIL import Image
+
+
+def clean_start_end_string(cleaning_string: str, chars_to_clean: Iterable[str] = ("/", "\\")):
+    for x in chars_to_clean:
+        cleaning_string = cleaning_string.strip(x)
+    for x in reversed(chars_to_clean):
+        cleaning_string = cleaning_string.strip(x)
+    return cleaning_string
 
 
 class ImagePath(NamedTuple):
@@ -30,6 +38,16 @@ class ImagePath(NamedTuple):
             "\\1",
             self.path,
         )
+
+    @property
+    def face_folder_path(self):
+        return re.sub(
+            "(characters/[^/]+/[^/]+/faces/)(.*)",
+            "\\2",
+            self.path,
+        ).rsplit(
+            "/", maxsplit=1
+        )[0]
 
     def __repr__(self) -> str:
         return f'"{self.clean_path}"'
@@ -67,14 +85,15 @@ class CropBox(NamedTuple):
         return f"Actual Image Size {self.right}x{self.bottom}"
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Pose:
     """Holds a pose's name, outfits and faces"""
 
-    path: str
-    name: str
-    outfits: list[(ImagePath, list[(ImagePath, str, int)])]
-    faces: tuple[ImagePath]
+    drive_path: str
+    pose_name: str
+    outfits: list[Tuple[ImagePath, list[(ImagePath, str, int)]]]
+    faces: dict[str : list[ImagePath]]
+    # default_faces: str # Blanked out until I can make the changes to face
     default_outfit: ImagePath
     default_accessories: list[
         (ImagePath, str, int)
@@ -97,19 +116,19 @@ class Pose:
 
     @property
     def face_path(self):
-        return self.faces[0].folder_path
+        return clean_start_end_string(self.faces[0].face_folder_path)
 
     @property
     def outfit_path(self):
-        return self.outfits[0][0].folder_path
+        return clean_start_end_string(self.outfits[0][0].folder_path.split("outfits")[-1])
 
     @property
     def full_default_outfit(self):
-        return os.path.join(self.path, self.default_outfit.path)
+        return self.default_outfit.path
 
     @property
     def full_accessories_list(self):
-        return [(os.path.join(self.path, x.path), y, z) for x, y, z in self.default_accessories]
+        return [(os.path.join(self.drive_path, x.path), y, z) for x, y, z in self.default_accessories]
 
     @property
     def get_imagebox_faces(self) -> CropBox:
@@ -153,16 +172,19 @@ class Character(NamedTuple):
     poses: list[Pose]
     max_height_multiplier: float
 
+    def build_pose_path(self, pose: str):
+        return "/".join(["characters", self.name, pose, ""])
+
     def __repr__(self):
         builder = f'"{self.name}": {{"name": "{self.name}", "poses" :{{'
         for pose in self.poses:
-            print(f"Creating: {self.name} {pose.name}")
+            print(f"Creating: {self.name} {pose.pose_name}")
             boundsBox = pose.outfit_bbox
             faceBoundsBox = (
                 int(pose.face_height * self.max_height_multiplier) if pose.face_height != 0 else boundsBox.bottom
             )
             acc = "".join(f'[{str(x)}, "{y}", {z}], ' for x, y, z in pose.default_accessories)
-            builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
+            builder += f'"{pose.pose_name}" : {{"pose_path": "{self.build_pose_path(pose.pose_name)}", "max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : {pose.default_outfit}, '
             builder += f'"default_accessories" : [ {acc}  ], '
             builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.formatted_outfit_output}}}, '
