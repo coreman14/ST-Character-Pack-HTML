@@ -11,6 +11,8 @@ def clean_line(line: str):
         line = line.replace("<br/>", "<br>")
     if "<br />" in line:
         line = line.replace("<br />", "<br>")
+    if re.search(r"<br .*\/>", line):
+        line = re.sub(r"<br (.*)/>", r"<br \1>", line)
     if re.search("<meta.*/>", line):
         line = line.replace("/>", ">")
     line = re.sub("([\\.#]\\w*) {", "\\1{", line)
