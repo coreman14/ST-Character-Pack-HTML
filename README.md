@@ -1,4 +1,4 @@
-# [StHTMLHolyPack](https://github.com/coreman14/StHTMLHolyPack)
+# [ST-Character-Pack-HTML](https://github.com/coreman14/StHTMLHolyPack)
 
 This repo holds python scripts to create an html file similar to what was including in the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688). Basic demo [here](https://coreman14.github.io/StHTMLHolyPack/).
 
