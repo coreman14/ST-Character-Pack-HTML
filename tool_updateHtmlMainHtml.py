@@ -46,6 +46,7 @@ def main():
                 line = line.replace("\n", "").replace("\r", "").strip()
                 line = f" {line} "
                 line_to_add += line if full_extract else line[line.index(START_POINTS[snip_index][0]) :]
+                line_to_add = clean_line(line_to_add)
                 if not STOP_POINTS[snip_index][0] or STOP_POINTS[snip_index][0] not in line:
                     # If blank, we continue to add to add until the end of the file
                     break
