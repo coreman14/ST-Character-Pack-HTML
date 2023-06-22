@@ -72,7 +72,7 @@ class Accessory:
 
     @property
     def accessory_string(self):
-        return f'[{self.image.clean_path}, "{self.layering_number}", {self.main_page_height}], '
+        return f'["{self.image.clean_path}", "{self.layering_number}", {self.main_page_height}], '
 
 
 @dataclass
@@ -172,7 +172,7 @@ class Character(NamedTuple):
             )
             acc = "".join(x.accessory_string for x in pose.default_accessories)
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
-            builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : {pose.default_outfit.clean_path}, '
+            builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
             builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.formatted_outfit_output}}}, '
         return builder + "}},"
