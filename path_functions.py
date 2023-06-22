@@ -4,7 +4,7 @@ import re
 from argparse import ArgumentTypeError
 from glob import glob
 from typing import Tuple
-from classes import ImagePath
+from classes import ImagePath, Accessory
 
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
@@ -161,10 +161,12 @@ def get_default_outfit(
         image_paths_access = [ImagePath(remove_path(x, full_path), *trim_images(x)) for x in no_blank_access]
         # get Layering for default accessories
         image_paths_access = [
-            (
+            Accessory(
+                "",
+                "",
                 x,
                 get_layering_for_accessory(x),
-                get_main_page_height_for_accessory(outfit_image, x, main_page_height),
+                get_page_height_for_accessory(outfit_image, x, main_page_height),
             )
             for x in image_paths_access
         ]
@@ -190,5 +192,5 @@ def get_layering_for_accessory(image: ImagePath) -> str:
     return acc_folder[-2:] if acc_folder[-2] in ("+", "-") else "0"
 
 
-def get_main_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
+def get_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
     return round((accessory.height / outfit.height) * main_page_height)

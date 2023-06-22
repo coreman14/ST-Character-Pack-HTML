@@ -4,7 +4,7 @@ import sys
 import json
 import yaml
 
-import classes
+from classes import ImagePath, Accessory
 import html_arg_functions
 import path_functions
 import sort_functions
@@ -53,7 +53,7 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths, outfit_prio, main_page_height=200):
+def create_character(trim, remove, name, paths, outfit_prio, main_page_height=200, accessory_page_height=400):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
@@ -94,9 +94,9 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
         heights.append(height)
         bboxs.append(bbox)
 
-    faces: list[classes.ImagePath] = list(
+    faces: list[ImagePath] = list(
         map(
-            classes.ImagePath,
+            ImagePath,
             map(remove, faces),
             widths,
             heights,
@@ -113,22 +113,25 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
         heights.append(height)
         bboxs.append(bbox)
 
-    new_outfits: list[classes.ImagePath, list[(classes.ImagePath, str, int)]] = []
-    outfit_obj: list[str, list[str]]
+    new_outfits: list[tuple[ImagePath, list[Accessory]]] = []
+    outfit_obj: list[str | list[str]]
     for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
         if isinstance(outfit_obj, str):
-            new_obj = [classes.ImagePath(remove(outfit_obj), width, height, box), []]
+            new_obj = [ImagePath(remove(outfit_obj), width, height, box), []]
         else:
-            new_obj = [classes.ImagePath(remove(outfit_obj[0]), width, height, box)]
+            new_obj = [ImagePath(remove(outfit_obj[0]), width, height, box)]
 
             no_blank_access = [x for x in outfit_obj[1] if None not in trim(x)]
-            image_paths_access = [classes.ImagePath(remove(x), *trim(x)) for x in no_blank_access]
+            image_paths_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_access]
             # get Layering for default accessories
             image_paths_access = [
-                (
+                Accessory(
+                    "",
+                    "",
                     x,
                     path_functions.get_layering_for_accessory(x),
-                    path_functions.get_main_page_height_for_accessory(new_obj[0], x, main_page_height),
+                    path_functions.get_page_height_for_accessory(new_obj[0], x, main_page_height),
+                    path_functions.get_page_height_for_accessory(new_obj[0], x, accessory_page_height),
                 )
                 for x in image_paths_access
             ]
