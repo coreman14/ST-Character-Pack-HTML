@@ -72,7 +72,11 @@ class Accessory:
 
     @property
     def accessory_string(self):
-        return f'["{self.image.clean_path}", "{self.layering_number}", {self.main_page_height}], '
+        return f'{{"name" : "{self.name}", "group" : "{self.group}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}}}, '
+
+    @property
+    def bare_accessory_string(self):
+        return f'{{"path" : "{self.image.clean_path}","layer" :  "{self.layering_number}","main_height" :  {self.main_page_height}}}, '
 
 
 @dataclass
@@ -170,7 +174,7 @@ class Character(NamedTuple):
             faceBoundsBox = (
                 int(pose.face_height * self.max_height_multiplier) if pose.face_height != 0 else boundsBox.bottom
             )
-            acc = "".join(x.accessory_string for x in pose.default_accessories)
+            acc = "".join(x.bare_accessory_string for x in pose.default_accessories)
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
