@@ -101,7 +101,9 @@ class Pose:
         outfit_strings = []
         for x in self.outfits:
             accessory_strings.extend(y.accessory_string for y in x[1])
-            outfit_strings.append(f'["{x[0].clean_path}", [{",".join(accessory_strings)}]]')
+            outfit_strings.append(
+                f'{{"path" : "{x[0].clean_path}", "off_accessories" : [{",".join(accessory_strings)}]}}'
+            )
             accessory_strings.clear()
         return f"[{','.join(outfit_strings)}]"
 

@@ -42,9 +42,9 @@ var data = {
                     "default_right_crop": 446,
                     "default_top_crop": 28,
                     "outfits": [
-                        [
-                            "casual/casual.png",
-                            [
+                        {
+                            "path": "casual/casual.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -54,10 +54,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "casual/casual2.png",
-                            [
+                        },
+                        {
+                            "path": "casual/casual2.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -67,10 +67,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "gym/gym.png",
-                            [
+                        },
+                        {
+                            "path": "gym/gym.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -80,10 +80,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "nude/nude.png",
-                            [
+                        },
+                        {
+                            "path": "nude/nude.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -93,10 +93,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "uniform/uniform.png",
-                            [
+                        },
+                        {
+                            "path": "uniform/uniform.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -106,7 +106,7 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
+                        },
                     ],
                 },
                 "b": {
@@ -120,9 +120,9 @@ var data = {
                     "default_right_crop": 446,
                     "default_top_crop": 28,
                     "outfits": [
-                        [
-                            "casual/casual.png",
-                            [
+                        {
+                            "path": "casual/casual.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -132,10 +132,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "casual_book/casual_book.png",
-                            [
+                        },
+                        {
+                            "path": "casual_book/casual_book.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -145,10 +145,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "gym/gym.png",
-                            [
+                        },
+                        {
+                            "path": "gym/gym.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -158,10 +158,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "nude/nude.png",
-                            [
+                        },
+                        {
+                            "path": "nude/nude.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -171,10 +171,10 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
-                        [
-                            "uniform/uniform.png",
-                            [
+                        },
+                        {
+                            "path": "uniform/uniform.png",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -184,7 +184,7 @@ var data = {
                                     "access_height": 223,
                                 },
                             ],
-                        ],
+                        },
                     ],
                 },
             },
@@ -203,10 +203,10 @@ var data = {
                     "default_right_crop": 389,
                     "default_top_crop": 54,
                     "outfits": [
-                        ["dress.webp", []],
-                        ["gothloli.webp", []],
-                        ["suit.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "dress.webp", "off_accessories": [] },
+                        { "path": "gothloli.webp", "off_accessories": [] },
+                        { "path": "suit.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -220,10 +220,10 @@ var data = {
                     "default_right_crop": 439,
                     "default_top_crop": 62,
                     "outfits": [
-                        ["dress.webp", []],
-                        ["gothloli.webp", []],
-                        ["suit.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "dress.webp", "off_accessories": [] },
+                        { "path": "gothloli.webp", "off_accessories": [] },
+                        { "path": "suit.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -266,8 +266,8 @@ var data = {
                     "default_right_crop": 363,
                     "default_top_crop": 6,
                     "outfits": [
-                        ["gym.webp", []],
-                        ["gym2.webp", []],
+                        { "path": "gym.webp", "off_accessories": [] },
+                        { "path": "gym2.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -317,9 +317,9 @@ var data = {
                     "default_right_crop": 425,
                     "default_top_crop": 14,
                     "outfits": [
-                        [
-                            "uniform/uniform.webp",
-                            [
+                        {
+                            "path": "uniform/uniform.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -329,7 +329,7 @@ var data = {
                                     "access_height": 400,
                                 },
                             ],
-                        ],
+                        },
                     ],
                 },
             },
@@ -348,13 +348,13 @@ var data = {
                     "default_right_crop": 329,
                     "default_top_crop": 0,
                     "outfits": [
-                        ["casual/casual.webp", []],
-                        ["gown/gown.webp", []],
-                        ["kimono/kimono.webp", []],
-                        ["traditional/traditional.webp", []],
-                        ["uniform/uniform.webp", []],
-                        ["uniform_b/uniform_b.webp", []],
-                        ["uniform_c/uniform_c.webp", []],
+                        { "path": "casual/casual.webp", "off_accessories": [] },
+                        { "path": "gown/gown.webp", "off_accessories": [] },
+                        { "path": "kimono/kimono.webp", "off_accessories": [] },
+                        { "path": "traditional/traditional.webp", "off_accessories": [] },
+                        { "path": "uniform/uniform.webp", "off_accessories": [] },
+                        { "path": "uniform_b/uniform_b.webp", "off_accessories": [] },
+                        { "path": "uniform_c/uniform_c.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -368,13 +368,13 @@ var data = {
                     "default_right_crop": 326,
                     "default_top_crop": 0,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["gown.webp", []],
-                        ["kimono.webp", []],
-                        ["traditional.webp", []],
-                        ["uniform.webp", []],
-                        ["uniform_b.webp", []],
-                        ["uniform_c.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "gown.webp", "off_accessories": [] },
+                        { "path": "kimono.webp", "off_accessories": [] },
+                        { "path": "traditional.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
+                        { "path": "uniform_b.webp", "off_accessories": [] },
+                        { "path": "uniform_c.webp", "off_accessories": [] },
                     ],
                 },
                 "c": {
@@ -388,11 +388,11 @@ var data = {
                     "default_right_crop": 431,
                     "default_top_crop": 6,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["gown.webp", []],
-                        ["kimono.webp", []],
-                        ["traditional.webp", []],
-                        ["uniform_c.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "gown.webp", "off_accessories": [] },
+                        { "path": "kimono.webp", "off_accessories": [] },
+                        { "path": "traditional.webp", "off_accessories": [] },
+                        { "path": "uniform_c.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -411,10 +411,10 @@ var data = {
                     "default_right_crop": 327,
                     "default_top_crop": 31,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["maid.webp", []],
-                        ["uniform.webp", []],
-                        ["uniform_b.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "maid.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
+                        { "path": "uniform_b.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -428,10 +428,10 @@ var data = {
                     "default_right_crop": 407,
                     "default_top_crop": 28,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["maid.webp", []],
-                        ["uniform.webp", []],
-                        ["uniform_b.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "maid.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
+                        { "path": "uniform_b.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -450,13 +450,13 @@ var data = {
                     "default_right_crop": 482,
                     "default_top_crop": 26,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["casualb.webp", []],
-                        ["casualbb.webp", []],
-                        ["gym.webp", []],
-                        ["uniform.webp", []],
-                        ["uniforms.webp", []],
-                        ["uniformsnoband.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "casualb.webp", "off_accessories": [] },
+                        { "path": "casualbb.webp", "off_accessories": [] },
+                        { "path": "gym.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
+                        { "path": "uniforms.webp", "off_accessories": [] },
+                        { "path": "uniformsnoband.webp", "off_accessories": [] },
                     ],
                 },
                 "aears": {
@@ -470,8 +470,8 @@ var data = {
                     "default_right_crop": 483,
                     "default_top_crop": 15,
                     "outfits": [
-                        ["casualb.webp", []],
-                        ["casualbb.webp", []],
+                        { "path": "casualb.webp", "off_accessories": [] },
+                        { "path": "casualbb.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -485,9 +485,9 @@ var data = {
                     "default_right_crop": 461,
                     "default_top_crop": 14,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["casualb.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "casualb.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
                 "bears": {
@@ -500,7 +500,7 @@ var data = {
                     "default_left_crop": 204,
                     "default_right_crop": 461,
                     "default_top_crop": 14,
-                    "outfits": [["casualb.webp", []]],
+                    "outfits": [{ "path": "casualb.webp", "off_accessories": [] }],
                 },
                 "sword": {
                     "max_face_height": 220,
@@ -512,7 +512,7 @@ var data = {
                     "default_left_crop": 210,
                     "default_right_crop": 483,
                     "default_top_crop": 15,
-                    "outfits": [["uniform.webp", []]],
+                    "outfits": [{ "path": "uniform.webp", "off_accessories": [] }],
                 },
             },
         },
@@ -530,12 +530,12 @@ var data = {
                     "default_right_crop": 543,
                     "default_top_crop": 126,
                     "outfits": [
-                        ["bathrobe.webp", []],
-                        ["casual.webp", []],
-                        ["fashion.webp", []],
-                        ["magical.webp", []],
-                        ["pj.webp", []],
-                        ["swimsuit2.webp", []],
+                        { "path": "bathrobe.webp", "off_accessories": [] },
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "fashion.webp", "off_accessories": [] },
+                        { "path": "magical.webp", "off_accessories": [] },
+                        { "path": "pj.webp", "off_accessories": [] },
+                        { "path": "swimsuit2.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -549,11 +549,11 @@ var data = {
                     "default_right_crop": 543,
                     "default_top_crop": 126,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["fashion.webp", []],
-                        ["magical.webp", []],
-                        ["pj.webp", []],
-                        ["swimsuit2.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "fashion.webp", "off_accessories": [] },
+                        { "path": "magical.webp", "off_accessories": [] },
+                        { "path": "pj.webp", "off_accessories": [] },
+                        { "path": "swimsuit2.webp", "off_accessories": [] },
                     ],
                 },
                 "c": {
@@ -567,11 +567,11 @@ var data = {
                     "default_right_crop": 543,
                     "default_top_crop": 126,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["fashion.webp", []],
-                        ["magical.webp", []],
-                        ["pj.webp", []],
-                        ["swimsuit2.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "fashion.webp", "off_accessories": [] },
+                        { "path": "magical.webp", "off_accessories": [] },
+                        { "path": "pj.webp", "off_accessories": [] },
+                        { "path": "swimsuit2.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -601,9 +601,9 @@ var data = {
                     "default_right_crop": 292,
                     "default_top_crop": 0,
                     "outfits": [
-                        ["dress.webp", []],
-                        ["swimsuit.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "dress.webp", "off_accessories": [] },
+                        { "path": "swimsuit.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -617,9 +617,9 @@ var data = {
                     "default_right_crop": 306,
                     "default_top_crop": 5,
                     "outfits": [
-                        ["dress.webp", []],
-                        ["gym.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "dress.webp", "off_accessories": [] },
+                        { "path": "gym.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -638,9 +638,9 @@ var data = {
                     "default_right_crop": 428,
                     "default_top_crop": 21,
                     "outfits": [
-                        [
-                            "casual/casual.webp",
-                            [
+                        {
+                            "path": "casual/casual.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -650,10 +650,10 @@ var data = {
                                     "access_height": 229,
                                 },
                             ],
-                        ],
-                        [
-                            "casual_b/casual_b.webp",
-                            [
+                        },
+                        {
+                            "path": "casual_b/casual_b.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -663,10 +663,10 @@ var data = {
                                     "access_height": 229,
                                 },
                             ],
-                        ],
-                        [
-                            "casual_madie/casual.webp",
-                            [
+                        },
+                        {
+                            "path": "casual_madie/casual.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -676,10 +676,10 @@ var data = {
                                     "access_height": 229,
                                 },
                             ],
-                        ],
-                        [
-                            "casual_madie_b/casual_b.webp",
-                            [
+                        },
+                        {
+                            "path": "casual_madie_b/casual_b.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -689,14 +689,14 @@ var data = {
                                     "access_height": 229,
                                 },
                             ],
-                        ],
-                        ["cheer.webp", []],
-                        ["cheer_inverted.webp", []],
-                        ["cheer_madie.webp", []],
-                        ["cheer_madie_inverted.webp", []],
-                        [
-                            "sleepwear/sleepwear.webp",
-                            [
+                        },
+                        { "path": "cheer.webp", "off_accessories": [] },
+                        { "path": "cheer_inverted.webp", "off_accessories": [] },
+                        { "path": "cheer_madie.webp", "off_accessories": [] },
+                        { "path": "cheer_madie_inverted.webp", "off_accessories": [] },
+                        {
+                            "path": "sleepwear/sleepwear.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -706,10 +706,10 @@ var data = {
                                     "access_height": 400,
                                 },
                             ],
-                        ],
-                        [
-                            "sleepwear_madie/sleepwear.webp",
-                            [
+                        },
+                        {
+                            "path": "sleepwear_madie/sleepwear.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -719,10 +719,10 @@ var data = {
                                     "access_height": 229,
                                 },
                             ],
-                        ],
-                        [
-                            "uniform/uniform.webp",
-                            [
+                        },
+                        {
+                            "path": "uniform/uniform.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -732,10 +732,10 @@ var data = {
                                     "access_height": 400,
                                 },
                             ],
-                        ],
-                        [
-                            "uniform_madie/uniform_madie.webp",
-                            [
+                        },
+                        {
+                            "path": "uniform_madie/uniform_madie.webp",
+                            "off_accessories": [
                                 {
                                     "name": "",
                                     "group": "",
@@ -745,7 +745,7 @@ var data = {
                                     "access_height": 400,
                                 },
                             ],
-                        ],
+                        },
                     ],
                 },
             },
@@ -764,10 +764,10 @@ var data = {
                     "default_right_crop": 306,
                     "default_top_crop": 0,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["fancy.webp", []],
-                        ["gym.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "fancy.webp", "off_accessories": [] },
+                        { "path": "gym.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -781,10 +781,10 @@ var data = {
                     "default_right_crop": 417,
                     "default_top_crop": 17,
                     "outfits": [
-                        ["casual.webp", []],
-                        ["formal.webp", []],
-                        ["swimsuit.webp", []],
-                        ["uniform.webp", []],
+                        { "path": "casual.webp", "off_accessories": [] },
+                        { "path": "formal.webp", "off_accessories": [] },
+                        { "path": "swimsuit.webp", "off_accessories": [] },
+                        { "path": "uniform.webp", "off_accessories": [] },
                     ],
                 },
             },
@@ -803,8 +803,8 @@ var data = {
                     "default_right_crop": 373,
                     "default_top_crop": 2,
                     "outfits": [
-                        ["coat.webp", []],
-                        ["coat_glasses.webp", []],
+                        { "path": "coat.webp", "off_accessories": [] },
+                        { "path": "coat_glasses.webp", "off_accessories": [] },
                     ],
                 },
                 "b": {
@@ -817,7 +817,7 @@ var data = {
                     "default_left_crop": 77,
                     "default_right_crop": 609,
                     "default_top_crop": 1,
-                    "outfits": [["mask.webp", []]],
+                    "outfits": [{ "path": "mask.webp", "off_accessories": [] }],
                 },
             },
         },
