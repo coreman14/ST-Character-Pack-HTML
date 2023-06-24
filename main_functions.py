@@ -4,7 +4,7 @@ import sys
 import json
 import yaml
 
-from classes import ImagePath, Accessory
+from classes import ImagePath, Accessory, Outfit
 import html_arg_functions
 import path_functions
 import sort_functions
@@ -113,13 +113,14 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
         heights.append(height)
         bboxs.append(bbox)
 
-    new_outfits: list[tuple[ImagePath, list[Accessory]]] = []
+    new_outfits: list[Outfit] = []
     outfit_obj: list[str | list[str]]
     for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
         if isinstance(outfit_obj, str):
+            new_outfits.append(Outfit(ImagePath(remove(outfit_obj), width, height, box)))
             new_obj = [ImagePath(remove(outfit_obj), width, height, box), []]
         else:
-            new_obj = [ImagePath(remove(outfit_obj[0]), width, height, box)]
+            outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
 
             no_blank_access = [x for x in outfit_obj[1] if None not in trim(x)]
             image_paths_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_access]
@@ -130,15 +131,14 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
                     "",
                     x,
                     path_functions.get_layering_for_accessory(x),
-                    path_functions.get_page_height_for_accessory(new_obj[0], x, main_page_height),
-                    path_functions.get_page_height_for_accessory(new_obj[0], x, accessory_page_height),
+                    path_functions.get_page_height_for_accessory(outfit_path, x, main_page_height),
+                    path_functions.get_page_height_for_accessory(outfit_path, x, accessory_page_height),
                 )
                 for x in image_paths_access
             ]
-            new_obj.append(image_paths_access)
-        new_outfits.append(new_obj)
+            new_outfits.append(Outfit(outfit_path, image_paths_access))
 
-    new_outfits.sort(key=lambda x: x[0].path.split(os.sep)[-1].split(".")[0])
+    new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])
     return new_outfits, faces, *outfit_tuple
 
 

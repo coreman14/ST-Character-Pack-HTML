@@ -1,7 +1,7 @@
 import html
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import NamedTuple
 
 from PIL import Image
@@ -39,7 +39,7 @@ class CropBox(NamedTuple):
     bottom: int
 
     @classmethod
-    def bbox_from_multiple_pil(cls, bounds_boxes: list[tuple[int]]):
+    def bbox_from_multiple_pil(cls, bounds_boxes: list[tuple[int, int, int, int]]):
         q = list(bounds_boxes)
         while None in q:
             q.remove(None)
@@ -80,14 +80,23 @@ class Accessory:
 
 
 @dataclass
+class Outfit:
+    path: ImagePath
+    off_accessories: list[Accessory] = field(default_factory=list)
+    on_accessories: list[Accessory] = field(default_factory=list)
+
+    @property
+    def outfit_string(self):
+        return f'{{"path" : "{self.path.clean_path}", "off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], "on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
+
+
+@dataclass
 class Pose:
     """Holds a pose's name, outfits and faces"""
 
     path: str
     name: str
-    outfits: list[
-        tuple[ImagePath, list[Accessory]]  # This will probably need another list of accessories for the on stuff
-    ]  # Group, image, layering, outfit view height, accessory view height
+    outfits: list[Outfit]  # Group, image, layering, outfit view height, accessory view height
     faces: tuple[ImagePath]
     # accessories_name: list[str]
     # outfit_accessories: dict[str, list[Accessory]]
@@ -97,15 +106,7 @@ class Pose:
 
     @property
     def formatted_outfit_output(self):
-        accessory_strings = []
-        outfit_strings = []
-        for x in self.outfits:
-            accessory_strings.extend(y.accessory_string for y in x[1])
-            outfit_strings.append(
-                f'{{"path" : "{x[0].clean_path}", "off_accessories" : [{",".join(accessory_strings)}]}}'
-            )
-            accessory_strings.clear()
-        return f"[{','.join(outfit_strings)}]"
+        return f"[{','.join(x.outfit_string for x in self.outfits)}]"
 
     @property
     def faces_escaped(self):
@@ -117,7 +118,7 @@ class Pose:
 
     @property
     def outfit_path(self):
-        return self.outfits[0][0].folder_path
+        return self.outfits[0].path.folder_path
 
     @property
     def full_default_outfit(self):
