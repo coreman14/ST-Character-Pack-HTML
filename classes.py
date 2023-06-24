@@ -64,7 +64,7 @@ class CropBox(NamedTuple):
 @dataclass
 class Accessory:
     name: str
-    group: str | None  # Can be None
+    state: str | None  # Can be None
     image: ImagePath
     layering_number: str  # [+-][0-9] or 0
     main_page_height: int  # This is the height used on the accessory page based on the height we declare to be. I dont think we'll need a main page height
@@ -72,7 +72,7 @@ class Accessory:
 
     @property
     def accessory_string(self):
-        return f'{{"name" : "{self.name}", "group" : "{self.group}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}}}, '
+        return f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}}}'
 
     @property
     def bare_accessory_string(self):
@@ -96,7 +96,7 @@ class Pose:
 
     path: str
     name: str
-    outfits: list[Outfit]  # Group, image, layering, outfit view height, accessory view height
+    outfits: list[Outfit]
     faces: tuple[ImagePath]
     # accessories_name: list[str]
     # outfit_accessories: dict[str, list[Accessory]]

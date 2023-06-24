@@ -15,30 +15,36 @@ OUTFIT_PRIO = [
 ]
 
 
-def find_access(out_path, accessories_to_add=None) -> tuple[str, list[str]]:
+def find_access(out_path, off_accessories_to_add=None, on_accessories_to_add=None) -> tuple[str, list[str]]:
     outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
-    return_acc = []
+    off_acc = []
+    on_acc = []
     if not outfit_access:
-        return out_path, return_acc
+        return out_path, off_acc
     for direct, ext in itertools.product(outfit_access, ACCEPTED_EXT):
         if acc_list := glob(os.path.join(direct, f"*{ext}")):
             acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
-            if f"off{ext}" in acc_dict:
-                return_acc.append(acc_dict[f"off{ext}"])
-    return_acc.extend(accessories_to_add or ())
-    return out_path, return_acc
+            for key, value in acc_dict.items():
+                if key == f"off{ext}":
+                    off_acc.append(value)
+                else:
+                    on_acc.append(value)
+    off_acc.extend(off_accessories_to_add or ())
+    on_acc.extend(on_accessories_to_add or ())
+    return out_path, off_acc, on_acc
 
 
 def get_faces_and_outfits(pose, character_name):
     outfits: list[str] = []
     off_pose_level_accessories = []
-    # Scan for off accessories in the
+    on_pose_level_accessories = []
+    # Scan for off accessories
     for ext in ACCEPTED_EXT:
         off_pose_level_accessories.extend(glob(os.path.join(pose, "outfits", "acc_*", f"off{ext}")))
-    for ext in ACCEPTED_EXT:
+        on_pose_level_accessories.extend(glob(os.path.join(pose, "outfits", "acc_*", f"on*{ext}")))
         outfits.extend(glob(os.path.join(pose, "outfits", f"*{ext}")))
         outfits.extend(
-            find_access(x, off_pose_level_accessories)
+            find_access(x, off_pose_level_accessories, on_pose_level_accessories)
             for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
             if f"{os.sep}acc_" not in x
         )
@@ -190,6 +196,26 @@ def get_layering_for_accessory(image: ImagePath) -> str:
     else:
         acc_folder = image.clean_path.split("/")[-2]
     return acc_folder[-2:] if acc_folder[-2] in ("+", "-") else "0"
+
+
+def get_name_for_accessory(image: ImagePath) -> str:
+    "The name of the accessory. Bracelet, hair, etc"
+    if image.clean_path.startswith("acc_"):
+        acc_folder = image.clean_path.split("/")[0].replace("acc_", "")
+    else:
+        acc_folder = image.clean_path.split("/")[-2]
+    return re.split("[+-]", acc_folder)[0]
+
+
+def get_state_for_accessory(image: ImagePath) -> str:
+    "The state for the accessory. The bracelets in the blue state (Filename on_blue)"
+
+    acc_file = image.clean_path.split("/")[-1]
+    if not acc_file.startswith("on"):
+        return ""
+    if "on." in acc_file:
+        return ""
+    return acc_file.split("_", maxsplit=1)[1].rsplit(".", 1)[0]
 
 
 def get_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
