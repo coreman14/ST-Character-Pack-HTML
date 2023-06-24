@@ -118,7 +118,6 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
     for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
         if isinstance(outfit_obj, str):
             new_outfits.append(Outfit(ImagePath(remove(outfit_obj), width, height, box)))
-            new_obj = [ImagePath(remove(outfit_obj), width, height, box), []]
         else:
             outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
 
