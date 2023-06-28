@@ -78,6 +78,10 @@ class Accessory:
     def bare_accessory_string(self):
         return f'{{"path" : "{self.image.clean_path}","layer" :  "{self.layering_number}","main_height" :  {self.main_page_height}}}, '
 
+    @property
+    def proper_name(self):
+        return f"{self.name}_{self.state}" if self.state else self.name
+
 
 @dataclass
 class Outfit:
@@ -86,8 +90,12 @@ class Outfit:
     on_accessories: list[Accessory] = field(default_factory=list)
 
     @property
-    def outfit_string(self):
-        return f'{{"path" : "{self.path.clean_path}", "off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], "on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
+    def accessory_names(self):
+        return [accessory.proper_name for accessory in self.on_accessories]
+
+    @property
+    def outfit_string(self):  # Escape # for outfits
+        return f'{{"path" : "{html.escape(self.path.clean_path.replace("#", "%23"))}", "off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], "on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
 
 
 @dataclass
@@ -98,11 +106,14 @@ class Pose:
     name: str
     outfits: list[Outfit]
     faces: tuple[ImagePath]
-    # accessories_name: list[str]
     # outfit_accessories: dict[str, list[Accessory]]
     default_outfit: ImagePath
     default_accessories: list[Accessory]
     face_height: int = None
+    accessories_name: list[str] = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.accessories_name = [outfit.accessory_names for outfit in self.outfits]
 
     @property
     def formatted_outfit_output(self):
@@ -181,5 +192,5 @@ class Character(NamedTuple):
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
-            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top}, "outfits": {pose.formatted_outfit_output}}}, '
+            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top},"accessory_names" : {pose.accessories_name}, "outfits": {pose.formatted_outfit_output}}}, '
         return builder + "}},"

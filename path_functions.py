@@ -20,7 +20,7 @@ def find_access(out_path, off_accessories_to_add=None, on_accessories_to_add=Non
     off_acc = []
     on_acc = []
     if not outfit_access:
-        return out_path, off_acc
+        return out_path, off_acc, on_acc
     for direct, ext in itertools.product(outfit_access, ACCEPTED_EXT):
         if acc_list := glob(os.path.join(direct, f"*{ext}")):
             acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
