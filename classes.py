@@ -91,7 +91,7 @@ class Outfit:
 
     @property
     def accessory_names(self):
-        return [accessory.proper_name for accessory in self.on_accessories]
+        return {accessory.proper_name for accessory in self.on_accessories}
 
     @property
     def outfit_string(self):  # Escape # for outfits
@@ -113,7 +113,10 @@ class Pose:
     accessories_name: list[str] = field(init=False, repr=False)
 
     def __post_init__(self):
-        self.accessories_name = [outfit.accessory_names for outfit in self.outfits]
+        self.accessories_name = []
+        for outfit in self.outfits:
+            self.accessories_name.extend(outfit.accessory_names)
+        self.accessories_name = sorted(set(self.accessories_name))
 
     @property
     def formatted_outfit_output(self):
@@ -121,7 +124,7 @@ class Pose:
 
     @property
     def faces_escaped(self):
-        return [html.escape(x.clean_path.replace("#", "%23")) for x in self.faces]
+        return [x.clean_path for x in self.faces]
 
     @property
     def face_path(self):
