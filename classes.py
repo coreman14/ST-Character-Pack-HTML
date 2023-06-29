@@ -95,7 +95,7 @@ class Outfit:
 
     @property
     def outfit_string(self):  # Escape # for outfits
-        return f'{{"path" : "{html.escape(self.path.clean_path.replace("#", "%23"))}", "off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], "on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
+        return f'{{"path" : "{html.escape(self.path.clean_path)}", "off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], "on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
 
 
 @dataclass
