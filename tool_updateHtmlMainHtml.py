@@ -3,7 +3,7 @@ import re
 
 # 1 Means extract from the start of the finding. So if a line is "xxxyyyxxx" and we are given ("yyxxx", 1), we only take the line from yyxxx
 START_POINTS = [("", 0), (" Viewer</title>", 1), ('/*Start*/ titleExtra.textContent="";', 0)]
-STOP_POINTS = [("<title>", 1), ('var scenario="', 1), ("", 0)]
+STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 
 
 def clean_line(line: str):
