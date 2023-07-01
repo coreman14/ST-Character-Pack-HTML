@@ -195,5 +195,5 @@ class Character(NamedTuple):
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
-            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top},"accessory_names" : {pose.accessories_name}, "outfits": {pose.formatted_outfit_output}}}, '
+            builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top},"accessory_names" : [{"".join(pose.accessories_name)}], "outfits": {pose.formatted_outfit_output}}}, '
         return builder + "}},"
