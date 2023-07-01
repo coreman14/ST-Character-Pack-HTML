@@ -80,7 +80,7 @@ class Accessory:
 
     @property
     def proper_name(self):
-        return f"{self.name}_{self.state}" if self.state else self.name
+        return f'{{"name" : "{self.name}", "state" : "{self.state}"}}, '
 
 
 @dataclass
