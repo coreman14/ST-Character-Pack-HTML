@@ -1,6 +1,7 @@
 import itertools
 import os
 import re
+import sys
 from argparse import ArgumentTypeError
 from glob import glob
 from typing import Tuple
@@ -48,7 +49,24 @@ def get_faces_and_outfits(pose, character_name):
             for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
             if f"{os.sep}acc_" not in x
         )
-
+        outfits_in_folders = [
+            x[0] for x in outfits if isinstance(x, tuple) and (x[1] or x[2])
+        ]  # Get folders that have outfits and an off or on accessory
+        outfit_folders = [x.rsplit(os.sep, 1)[0] for x in outfits_in_folders]
+        if len(set(outfit_folders)) != len(outfit_folders):
+            dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
+            print(
+                f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" contains more than one outfit with an accessory in single folder.'
+            )
+            print(
+                "Doing this will result in the second outfit in the folder not being able to access any accessories from the folder."
+            )
+            print("Consider making a second folder for this outfit.")
+            print("Folder names: ")
+            char_folder_path = os.sep.join(pose.rsplit(os.sep, 2)[1:])
+            for x in dup:
+                print("\t" + (char_folder_path + x.replace(pose, "")).replace(os.sep, "/"))
+            sys.exit(1)
     faces: list[str] = [
         *glob(os.path.join(pose, "faces", "face", "*.webp")),
         *glob(os.path.join(pose, "faces", "face", "*.png")),
