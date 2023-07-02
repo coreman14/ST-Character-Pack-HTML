@@ -53,6 +53,12 @@ def get_faces_and_outfits(pose, character_name):
             x[0] for x in outfits if isinstance(x, tuple) and (x[1] or x[2])
         ]  # Get folders that have outfits and an off or on accessory
         outfit_folders = [x.rsplit(os.sep, 1)[0] for x in outfits_in_folders]
+        outfits = [
+            x
+            for x in outfits
+            if (isinstance(x, str) and not x.endswith(f"_inverted{ext}"))
+            or (isinstance(x, tuple) and not x[0].endswith(f"_inverted{ext}"))
+        ]
         if len(set(outfit_folders)) != len(outfit_folders):
             dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
             print(
