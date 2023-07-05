@@ -5,7 +5,7 @@ import sys
 from argparse import ArgumentTypeError
 from glob import glob
 from typing import Tuple
-from classes import ImagePath, Accessory
+from classes import ImagePath, Accessory, HEIGHT_OF_MAIN_PAGE
 
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
@@ -135,7 +135,6 @@ def get_default_outfit(
     full_path,
     outfit_prio,
     mutation="",
-    main_page_height=200,
 ) -> Tuple[ImagePath, list[ImagePath, str, int]]:
     """Returns best default outfit for headshot.
 
@@ -196,7 +195,7 @@ def get_default_outfit(
                 "",
                 x,
                 get_layering_for_accessory(x),
-                get_page_height_for_accessory(outfit_image, x, main_page_height),
+                get_scaled_image_height(outfit_image, x, HEIGHT_OF_MAIN_PAGE),
             )
             for x in image_paths_access
         ]
@@ -242,5 +241,5 @@ def get_state_for_accessory(image: ImagePath) -> str:
     return acc_file.split("_", maxsplit=1)[1].rsplit(".", 1)[0]
 
 
-def get_page_height_for_accessory(outfit: ImagePath, accessory: ImagePath, main_page_height: int) -> int:
-    return round((accessory.height / outfit.height) * main_page_height)
+def get_scaled_image_height(outfit: ImagePath, accessory: ImagePath, page_height: int) -> int:
+    return round((accessory.height / outfit.height) * page_height)

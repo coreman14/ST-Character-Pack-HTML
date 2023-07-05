@@ -7,6 +7,7 @@ import sys
 
 import configargparse
 import yaml
+import classes
 
 import json2yaml
 import path_functions
@@ -131,6 +132,20 @@ def get_args():
         type=float,
         default=1.07,
     )
+    argroup.add_argument(
+        "-oh",
+        "--outfitheight",
+        help="Change the height of the outfits that are displayed on the main page and top of the character page. Default is 200",
+        type=int,
+        default=200,
+    )
+    argroup.add_argument(
+        "-ah",
+        "--accessoryheight",
+        help="Change the height of the accessory picker that is . Default is 400",
+        type=int,
+        default=400,
+    )
     return parser.parse_args()
 
 
@@ -173,6 +188,12 @@ def setup_args(args):
 
         if args.titlename:
             yml_data["title"] = args.titlename
+
+    if args.outfitheight:
+        classes.HEIGHT_OF_MAIN_PAGE = args.outfitheight
+
+    if args.accessoryheight:
+        classes.HEIGHT_OF_ACCESSORY_PAGE = args.accessoryheight
 
     if "characters" not in os.listdir(args.inputdir):
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")

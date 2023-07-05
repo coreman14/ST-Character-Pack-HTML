@@ -4,7 +4,9 @@ import sys
 import json
 import yaml
 
+import classes
 from classes import ImagePath, Accessory, Outfit
+from html_arg_functions import update_html
 import path_functions
 import sort_functions
 from print_functions import bounds_print
@@ -52,7 +54,7 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths, outfit_prio, main_page_height=200, accessory_page_height=400):
+def create_character(trim, remove, name, paths, outfit_prio):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
@@ -71,7 +73,6 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
         trim_images=trim,
         full_path=inputdir,
         outfit_prio=outfit_prio,
-        main_page_height=main_page_height,
     )
     if not outfit_tuple:
         mutation = list(char_yml["mutations"])[0]
@@ -82,7 +83,6 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
             full_path=inputdir,
             mutation=mutation,
             outfit_prio=outfit_prio,
-            main_page_height=main_page_height,
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
     widths = []
@@ -131,8 +131,8 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
                         "",
                         x,
                         path_functions.get_layering_for_accessory(x),
-                        path_functions.get_page_height_for_accessory(outfit_path, x, main_page_height),
-                        path_functions.get_page_height_for_accessory(outfit_path, x, accessory_page_height),
+                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
+                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
                     )
                     for x in image_paths_off_access
                 ]
@@ -146,8 +146,8 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
                         path_functions.get_state_for_accessory(x),
                         x,
                         path_functions.get_layering_for_accessory(x),
-                        path_functions.get_page_height_for_accessory(outfit_path, x, main_page_height),
-                        path_functions.get_page_height_for_accessory(outfit_path, x, accessory_page_height),
+                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
+                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
                     )
                     for x in image_paths_on_access
                 ]
@@ -159,6 +159,7 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
     html_snip1, html_snip2, html_snip3 = html_snips
+    html_snip2 = update_html(args, html_snip2)
     chars_with_poses, chars = chars_tuple
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
         html_file.write(html_snip1 + scenario_title)

@@ -7,6 +7,10 @@ from typing import NamedTuple
 from PIL import Image
 
 
+HEIGHT_OF_MAIN_PAGE = 200
+HEIGHT_OF_ACCESSORY_PAGE = 400
+
+
 class ImagePath(NamedTuple):
     """Hold an images location, width and height"""
 
