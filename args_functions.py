@@ -124,6 +124,13 @@ def get_args():
         "--titlename",
         help="Use given name as Title (On main page) instead of the one from scenario.yaml.",
     )
+    argroup.add_argument(
+        "-mhm",
+        "--maxheightmultiplier",
+        help="Change the max face height multiplier. The bigger the number the more it will show of the outfit. Default is 1.07",
+        type=float,
+        default=1.07,
+    )
     return parser.parse_args()
 
 
