@@ -1,7 +1,7 @@
 from argparse import Namespace
 
 import html_arg_functions
-from html_main import html_snip1, html_snip2, html_snip3
+from html_main import html_snip2, html_snip3
 
 
 def test_backgroundimage():
