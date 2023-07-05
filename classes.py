@@ -181,7 +181,7 @@ class Character(NamedTuple):
 
     name: str
     poses: list[Pose]
-    max_height_multiplier: float
+    max_height_multiplier: float = 1.07
 
     def __repr__(self):
         builder = f'"{self.name}": {{"name": "{self.name}", "poses" :{{'

@@ -5,7 +5,6 @@ import json
 import yaml
 
 from classes import ImagePath, Accessory, Outfit
-import html_arg_functions
 import path_functions
 import sort_functions
 from print_functions import bounds_print
@@ -160,8 +159,6 @@ def create_character(trim, remove, name, paths, outfit_prio, main_page_height=20
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
     html_snip1, html_snip2, html_snip3 = html_snips
-    html_snip2 = html_arg_functions.update_html_arg_snip2(args, html_snip2)
-    html_snip3 = html_arg_functions.update_html_arg_snip3(args, html_snip3)
     chars_with_poses, chars = chars_tuple
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
         html_file.write(html_snip1 + scenario_title)

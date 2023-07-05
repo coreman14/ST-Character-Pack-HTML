@@ -94,7 +94,7 @@ def main_loop(args, yml):
                     pose_list.append(classes.Pose(args.inputdir, pose_letter, *char_pose))
 
         if pose_list:
-            chars.append(classes.Character(character_name, pose_list, args.maxheightmultiplier))
+            chars.append(classes.Character(character_name, pose_list))
 
     if args.bounds:
         sys.exit()
