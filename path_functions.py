@@ -5,7 +5,8 @@ import sys
 from argparse import ArgumentTypeError
 from glob import glob
 from typing import Tuple
-from classes import ImagePath, Accessory, HEIGHT_OF_MAIN_PAGE
+from classes import ImagePath, Accessory
+import classes
 
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
@@ -195,7 +196,7 @@ def get_default_outfit(
                 "",
                 x,
                 get_layering_for_accessory(x),
-                get_scaled_image_height(outfit_image, x, HEIGHT_OF_MAIN_PAGE),
+                get_scaled_image_height(outfit_image, x, classes.HEIGHT_OF_MAIN_PAGE),
             )
             for x in image_paths_access
         ]
