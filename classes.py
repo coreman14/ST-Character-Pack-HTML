@@ -88,7 +88,11 @@ class Accessory:
 
     @property
     def proper_name(self):
-        return f'{{"name" : "{self.name}", "state" : "{self.state}"}}, '
+        return f'{{"name" : "{self.name}", "state" : "{self.state}","is_face" : {str(self.is_face).lower()},}}, '
+
+    @property
+    def compare_name(self):
+        return self.name, self.state
 
 
 @dataclass
@@ -99,7 +103,17 @@ class Outfit:
 
     @property
     def accessory_names(self):
-        return {accessory.proper_name for accessory in self.on_accessories}
+        # Check if a proper accessory name is defined more than once
+        # If the name is defined more than once, if the values are the same, pass back whichever
+        # If the values are not the same, pass back the one that is true
+        accessory_names: dict[str, Accessory]
+        accessory_names = {}
+        for accessory in self.on_accessories:
+            if accessory.compare_name not in accessory_names:
+                accessory_names[accessory.compare_name] = accessory
+            elif not accessory_names[accessory.compare_name].is_face and accessory.is_face:
+                accessory_names[accessory.compare_name] = accessory
+        return {accessory.proper_name for accessory in accessory_names.values()}
 
     @property
     def outfit_string(self):  # Escape # for outfits
