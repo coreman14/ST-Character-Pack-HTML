@@ -246,5 +246,76 @@ def get_state_for_accessory(image: ImagePath) -> str:
     return acc_file.split("_", maxsplit=1)[1].rsplit(".", 1)[0]
 
 
+def get_outfit_name(outfit_path: str, pose_path: str):
+    span_name = outfit_path.replace(f"{pose_path}{os.sep}outfits{os.sep}", "").split(os.sep)
+    return span_name[0] if len(span_name) > 1 else span_name[0].split(".")[0]
+
+
 def get_scaled_image_height(outfit: ImagePath, accessory: ImagePath, page_height: int) -> int:
     return round((accessory.height / outfit.height) * page_height)
+
+
+# def find_access(out_path, off_accessories_to_add=None, on_accessories_to_add=None) -> tuple[str, list[str]]:
+#     outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
+#     off_acc = []
+#     on_acc = []
+#     if not outfit_access:
+#         return out_path, off_acc, on_acc
+#     for direct, ext in itertools.product(outfit_access, ACCEPTED_EXT):
+#         if acc_list := glob(os.path.join(direct, f"*{ext}")):
+#             acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
+#             for key, value in acc_dict.items():
+#                 if key == f"off{ext}":
+#                     off_acc.append(value)
+#                 else:
+#                     on_acc.append(value)
+#     off_acc.extend(off_accessories_to_add or ())
+#     on_acc.extend(on_accessories_to_add or ())
+#     return out_path, off_acc, on_acc
+
+
+def update_outfits_with_face_accessories(pose: str, outfits: list[tuple[str, list[str], list[str]]], char_yml):
+    # end_string = os.path.join("mutations", mutation, "face", "*/") if mutation else os.path.join("face", "*/")
+    faces_of_accessories = []
+    for path_of_face_accessory in glob(os.path.join(pose, "faces", "face", "*/")):
+        glob_for_face_accessories(pose, path_of_face_accessory, faces_of_accessories)
+
+    mutations_dict = {}
+    mutations_check = char_yml and "mutations" in char_yml
+    if mutations_check:
+        for mutation in char_yml["mutations"]:
+            for path_of_face_accessory in glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*/")):
+                mutation_face_list = []
+                glob_for_face_accessories(pose, path_of_face_accessory, mutation_face_list)
+                mutations_dict[mutation] = mutation_face_list
+    if not faces_of_accessories and not mutations_dict:
+        return
+
+    for outfit_path, _, on_accessories in outfits:
+        outfit_to_check = get_outfit_name(outfit_path, pose)
+        if mutations_check and any(
+            outfit_to_check in char_yml["mutations"][mutation] for mutation in char_yml["mutations"]
+        ):
+            mutation = next(
+                (key for key, value in char_yml["mutations"].items() if outfit_to_check in value),
+                "",
+            )
+            on_accessories.extend(mutations_dict[mutation])
+        else:
+            on_accessories.extend(faces_of_accessories)
+
+
+def glob_for_face_accessories(pose, path_to_glob, list_to_append):
+    for path_of_face_accessory in glob(path_to_glob):
+        before_len = len(list_to_append)
+        i = 0
+        while i < 100:
+            if glob(os.path.join(path_of_face_accessory, f"{i}.*")):
+                list_to_append.append(glob(os.path.join(path_of_face_accessory, f"{i}.*"))[0])
+                i = 100
+            i += 1
+        if before_len == len(list_to_append):
+            print(
+                f"Error: Face accessory was not found for accessory '{path_of_face_accessory.split(os.sep)[-1]}', for pose '{pose.split(os.sep)[-2:]}'"
+            )
+            sys.exit(1)

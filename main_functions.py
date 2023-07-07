@@ -87,6 +87,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
 
+    path_functions.update_outfits_with_face_accessories(path, outfits, char_yml)
     widths = []
     heights = []
     bboxs = []

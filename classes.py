@@ -73,10 +73,14 @@ class Accessory:
     layering_number: str  # [+-][0-9] or 0
     main_page_height: int  # This is the height used on the accessory page based on the height we declare to be. I dont think we'll need a main page height
     accessory_page_height: int = None
+    is_face: bool = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.is_face = "/faces/" in self.image.folder_path
 
     @property
     def accessory_string(self):
-        return f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}}}'
+        return f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}, "is_face" : {str(self.is_face).lower()}, "face_path" : "{self.image.folder_path if self.is_face else ""}"}}'
 
     @property
     def bare_accessory_string(self):
