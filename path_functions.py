@@ -37,21 +37,25 @@ def find_access(out_path, off_accessories_to_add=None, on_accessories_to_add=Non
 
 
 def get_faces_and_outfits(pose, character_name):
-    outfits: list[str] = []
+    outfits: list[Tuple[str, list[str], list[str]]] = []
     off_pose_level_accessories = []
     on_pose_level_accessories = []
     # Scan for off accessories
     for ext in ACCEPTED_EXT:
         off_pose_level_accessories.extend(glob(os.path.join(pose, "outfits", "acc_*", f"off{ext}")))
         on_pose_level_accessories.extend(glob(os.path.join(pose, "outfits", "acc_*", f"on*{ext}")))
-        outfits.extend(glob(os.path.join(pose, "outfits", f"*{ext}")))
+    for ext in ACCEPTED_EXT:
+        outfits.extend(
+            (x, list(off_pose_level_accessories), list(on_pose_level_accessories))
+            for x in glob(os.path.join(pose, "outfits", f"*{ext}"))
+        )
         outfits.extend(
             find_access(x, off_pose_level_accessories, on_pose_level_accessories)
             for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))
             if f"{os.sep}acc_" not in x
         )
         outfits_in_folders = [
-            x[0] for x in outfits if isinstance(x, tuple) and (x[1] or x[2])
+            x[0] for x in outfits if (x[1] or x[2])
         ]  # Get folders that have outfits and an off or on accessory
         outfit_folders = [x.rsplit(os.sep, 1)[0] for x in outfits_in_folders]
         outfits = [

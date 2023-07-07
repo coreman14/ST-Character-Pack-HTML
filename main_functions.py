@@ -60,6 +60,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
     1. Reorder method to check for default outfits first, then do faces after.
     """
+    mutation = None
     path, inputdir = paths
     faces, outfits = path_functions.get_faces_and_outfits(path, name)
     if None in [faces, outfits]:
@@ -85,6 +86,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
             outfit_prio=outfit_prio,
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
+
     widths = []
     heights = []
     bboxs = []
@@ -115,43 +117,40 @@ def create_character(trim, remove, name, paths, outfit_prio):
     new_outfits: list[Outfit] = []
     outfit_obj: list[str | list[str]]
     for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
-        if isinstance(outfit_obj, str):
-            new_outfits.append(Outfit(ImagePath(remove(outfit_obj), width, height, box)))
-        else:
-            outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
-            image_paths_on_access = []
-            image_paths_off_access = []
-            if outfit_obj[1]:
-                no_blank_off_access = [x for x in outfit_obj[1] if None not in trim(x)]
-                image_paths_off_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_off_access]
-                # get Layering for default accessories
-                image_paths_off_access = [
-                    Accessory(
-                        path_functions.get_name_for_accessory(x),
-                        "",
-                        x,
-                        path_functions.get_layering_for_accessory(x),
-                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
-                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
-                    )
-                    for x in image_paths_off_access
-                ]
-            if outfit_obj[2]:
-                no_blank_on_access = [x for x in outfit_obj[2] if None not in trim(x)]
-                image_paths_on_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_on_access]
-                # get Layering for default accessories
-                image_paths_on_access = [
-                    Accessory(
-                        path_functions.get_name_for_accessory(x),
-                        path_functions.get_state_for_accessory(x),
-                        x,
-                        path_functions.get_layering_for_accessory(x),
-                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
-                        path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
-                    )
-                    for x in image_paths_on_access
-                ]
-            new_outfits.append(Outfit(outfit_path, image_paths_off_access, image_paths_on_access))
+        outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
+        image_paths_on_access = []
+        image_paths_off_access = []
+        if outfit_obj[1]:
+            no_blank_off_access = [x for x in outfit_obj[1] if None not in trim(x)]
+            image_paths_off_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_off_access]
+            # get Layering for default accessories
+            image_paths_off_access = [
+                Accessory(
+                    path_functions.get_name_for_accessory(x),
+                    "",
+                    x,
+                    path_functions.get_layering_for_accessory(x),
+                    path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
+                    path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
+                )
+                for x in image_paths_off_access
+            ]
+        if outfit_obj[2]:
+            no_blank_on_access = [x for x in outfit_obj[2] if None not in trim(x)]
+            image_paths_on_access = [ImagePath(remove(x), *trim(x)) for x in no_blank_on_access]
+            # get Layering for default accessories
+            image_paths_on_access = [
+                Accessory(
+                    path_functions.get_name_for_accessory(x),
+                    path_functions.get_state_for_accessory(x),
+                    x,
+                    path_functions.get_layering_for_accessory(x),
+                    path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_MAIN_PAGE),
+                    path_functions.get_scaled_image_height(outfit_path, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
+                )
+                for x in image_paths_on_access
+            ]
+        new_outfits.append(Outfit(outfit_path, image_paths_off_access, image_paths_on_access))
 
     new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])
     return new_outfits, faces, *outfit_tuple
