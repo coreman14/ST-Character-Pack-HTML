@@ -284,8 +284,8 @@ def update_outfits_with_face_accessories(pose: str, outfits: list[tuple[str, lis
     mutations_check = char_yml and "mutations" in char_yml
     if mutations_check:
         for mutation in char_yml["mutations"]:
+            mutation_face_list = []
             for path_of_face_accessory in glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*/")):
-                mutation_face_list = []
                 glob_for_face_accessories(pose, path_of_face_accessory, mutation_face_list)
                 mutations_dict[mutation] = mutation_face_list
     if not faces_of_accessories and not mutations_dict:
