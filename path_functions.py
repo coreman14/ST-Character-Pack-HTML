@@ -316,7 +316,7 @@ def glob_for_face_accessories(pose, path_to_glob, list_to_append):
                 f"Error: Face accessory was not found for accessory '{path_of_face_accessory.removesuffix(os.sep).split(os.sep)[-1]}', for pose '{pose.split(os.sep)[-2:]}'"
             )
             sys.exit(1)
-        list_to_append.append(files[0])
+        list_to_append.append(os.path.join(path_of_face_accessory, files[0]))
 
 
 def convert(text):
