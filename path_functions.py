@@ -58,13 +58,16 @@ def get_faces_and_outfits(pose, character_name):
             x[0] for x in outfits if (x[1] or x[2])
         ]  # Get folders that have outfits and an off or on accessory
         outfit_folders = [x.rsplit(os.sep, 1)[0] for x in outfits_in_folders]
+        # If there are pose accessories, outfits not in folders will mess up this count. So we get that number and subtract 1 for the copy that will be left in
+        # We use max to make sure its not a negative number
+        non_folder_outfits_count = max(outfit_folders.count(os.path.join(pose, "outfits")) - 1, 0)
         outfits = [
             x
             for x in outfits
             if (isinstance(x, str) and not x.endswith(f"_inverted{ext}"))
             or (isinstance(x, tuple) and not x[0].endswith(f"_inverted{ext}"))
         ]
-        if len(set(outfit_folders)) != len(outfit_folders):
+        if len(set(outfit_folders)) + non_folder_outfits_count != len(outfit_folders):
             dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
             print(
                 f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" contains more than one outfit with an accessory in single folder.'
@@ -288,7 +291,7 @@ def update_outfits_with_face_accessories(pose: str, outfits: list[tuple[str, lis
             for path_of_face_accessory in glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*/")):
                 glob_for_face_accessories(pose, path_of_face_accessory, mutation_face_list)
                 mutations_dict[mutation] = mutation_face_list
-    if not faces_of_accessories and not mutations_dict:
+    if not faces_of_accessories or not mutations_dict:
         return
 
     for outfit_path, _, on_accessories in outfits:
@@ -307,15 +310,22 @@ def update_outfits_with_face_accessories(pose: str, outfits: list[tuple[str, lis
 
 def glob_for_face_accessories(pose, path_to_glob, list_to_append):
     for path_of_face_accessory in glob(path_to_glob):
-        before_len = len(list_to_append)
-        i = 0
-        while i < 100:
-            if glob(os.path.join(path_of_face_accessory, f"{i}.*")):
-                list_to_append.append(glob(os.path.join(path_of_face_accessory, f"{i}.*"))[0])
-                i = 100
-            i += 1
-        if before_len == len(list_to_append):
+        files = natural_sort(os.listdir(path_of_face_accessory))
+        if not files:
             print(
-                f"Error: Face accessory was not found for accessory '{path_of_face_accessory.split(os.sep)[-1]}', for pose '{pose.split(os.sep)[-2:]}'"
+                f"Error: Face accessory was not found for accessory '{path_of_face_accessory.removesuffix(os.sep).split(os.sep)[-1]}', for pose '{pose.split(os.sep)[-2:]}'"
             )
             sys.exit(1)
+        list_to_append.append(files[0])
+
+
+def convert(text):
+    return int(text) if text.isdigit() else text.lower()
+
+
+def alphanum_key(key):
+    return [convert(c) for c in re.split("([0-9]+)", key)]
+
+
+def natural_sort(l):
+    return sorted(l, key=alphanum_key)
