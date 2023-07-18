@@ -187,7 +187,7 @@ class Pose:
         if c_bbox is not None:
             boundary_boxes.append(c_bbox)
         for accessory in self.accessory_images():
-            accessory_image = Image.open(accessory.path).convert("RGBA").split()[-1]
+            accessory_image = Image.open(os.path.join(self.path, accessory.path)).convert("RGBA").split()[-1]
             accessory_image = accessory_image.crop((0, 0, accessory_image.width, int(face_height)))
             a_bbox = accessory_image.getbbox()
             if a_bbox is not None:
