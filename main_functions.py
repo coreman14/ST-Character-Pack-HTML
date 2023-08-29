@@ -42,7 +42,7 @@ def get_yaml(inputdir, name):
             "r",
             encoding="utf8",
         ) as char_file:
-            return yaml.safe_load(char_file)
+            return yaml.safe_load(char_file) or {}
     except FileNotFoundError:
         print(
             f"ERROR: Could not find character YML for {name}, please use the jsontoyaml utility by using -j or --jsontoyaml"
