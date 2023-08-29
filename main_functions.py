@@ -4,6 +4,8 @@ import sys
 import json
 import yaml
 
+from collections import defaultdict
+
 import classes
 from classes import ImagePath, Accessory, Outfit
 from html_arg_functions import update_html
@@ -54,7 +56,7 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths, outfit_prio):
+def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
@@ -66,7 +68,13 @@ def create_character(trim, remove, name, paths, outfit_prio):
     if None in [faces, outfits]:
         return
 
-    char_yml = get_yaml(inputdir, name)
+    char_yml: dict = get_yaml(inputdir, name)
+    excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})
+
+    inverse_accessories = defaultdict(list)
+    for k, v in excluded_accessories.items():
+        for x in v:
+            inverse_accessories[x].append(k)
 
     outfit_tuple = path_functions.get_default_outfit(
         outfits,
@@ -119,6 +127,7 @@ def create_character(trim, remove, name, paths, outfit_prio):
     outfit_obj: list[str | list[str]]
     for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
         outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
+        out_name = path_functions.get_outfit_name(outfit_obj[0], path)
         image_paths_on_access = []
         image_paths_off_access = []
         if outfit_obj[1]:
@@ -151,6 +160,13 @@ def create_character(trim, remove, name, paths, outfit_prio):
                 )
                 for x in image_paths_on_access
             ]
+            if out_name in inverse_accessories:
+                access_to_remove = []
+                for access in image_paths_on_access:
+                    if access.is_pose_level_accessory and access.name in inverse_accessories[out_name]:
+                        access_to_remove.append(access)
+                for access in access_to_remove:
+                    image_paths_on_access.remove(access)
         new_outfits.append(Outfit(outfit_path, image_paths_off_access, image_paths_on_access))
 
     new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])

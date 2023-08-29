@@ -74,9 +74,11 @@ class Accessory:
     main_page_height: int  # This is the height used on the accessory page based on the height we declare to be. I dont think we'll need a main page height
     accessory_page_height: int = None
     is_face: bool = field(init=False, repr=False)
+    is_pose_level_accessory: bool = field(init=False, repr=False)
 
     def __post_init__(self):
         self.is_face = "/faces/" in self.image.folder_path
+        self.is_pose_level_accessory = False if self.is_face else "/outfits/acc_" in self.image.path.lower()
 
     @property
     def accessory_string(self):
@@ -128,7 +130,6 @@ class Pose:
     name: str
     outfits: list[Outfit]
     faces: tuple[ImagePath]
-    # outfit_accessories: dict[str, list[Accessory]]
     default_outfit: ImagePath
     default_accessories: list[Accessory]
     face_height: int = None

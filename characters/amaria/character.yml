@@ -4,11 +4,6 @@ scale: 0.9
 poses:
   a:
     excludes:
-      hair:
-        - gym_camera
-        - uniform_camera
-  b:
-    excludes:
-      hair:
-        - gym_camera
-        - uniform_camera
+      face_test:
+        - uniform
+        - nude

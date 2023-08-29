@@ -90,6 +90,7 @@ def main_loop(args, yml):
                     character_name,
                     (pose_path, args.inputdir),
                     args.outfitprio,
+                    pose_letter,
                 ):
                     pose_list.append(classes.Pose(args.inputdir, pose_letter, *char_pose))
 
