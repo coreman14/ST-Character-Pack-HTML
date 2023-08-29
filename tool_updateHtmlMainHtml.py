@@ -7,10 +7,6 @@ STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 
 
 def clean_line(line: str):
-    if "//" in line:
-        print("ERROR: Single line comment found")
-        print("This will cause problems, please change line to a multi line comment")
-        print("Line: '" + line.replace("\n", "") + "'")
     if "<br/>" in line:
         line = line.replace("<br/>", "<br>")
     if "<br />" in line:
