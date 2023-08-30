@@ -5,7 +5,6 @@ import os
 import re
 import sys
 
-import configargparse
 import yaml
 import classes
 
@@ -14,8 +13,7 @@ import path_functions
 
 
 def get_args():
-    parser = configargparse.ArgumentParser(description="Makes an HTML file to browse a scenarios Characters")
-    parser.add_argument("-c", "--my-config", is_config_file=True, help="Config file path")
+    parser = argparse.ArgumentParser(description="Makes an HTML file to browse a scenarios Characters")
     parser.add_argument(
         "-i",
         "--inputdir",
