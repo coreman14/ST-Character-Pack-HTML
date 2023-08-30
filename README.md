@@ -2,8 +2,6 @@
 
 Inspired by the holy [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688), ST-Character-Pack-HTML will create a html file for a scenario or character pack to replace having to browse by the in game sprite viewer or File explorer. Basic demo [here](https://coreman14.github.io/ST-Character-Pack-HTML/).
 
-I've also added a json2yaml converter and image trim utility which are taken from [Student Transfer Utils](https://utils.student-transfer.com).
-
 ## Features
 
 -   No prep work is required. Just create the file and go.
@@ -28,15 +26,46 @@ If you are ok with installing these requirements to your machine, download the `
 
 For an up to date list, run the file with `-h` which will print all options. You can then add any to the command line.
 
-## Other features (Using these disables the HTML output)
+## Other features and uses
 
-Using -b, it will output the size of all the images within the characters folders. This size is the smallest size that the image could become. It will then highlight the largest image. You can also use -re to filter the results. This accepts and uses the value as regex, but it will work if you just put a single name.
+### Bounds
+
+The idea behind bounds is that sometimes, small invisible pixel's may not be fully clear from an image. When this happens, the file size may appear bigger and it may result in the HTML file being bigger than needed. The idea of bounds is to give the smallest size that the image can be cropped to.
+
+Example:
+
+```properties
+HTMLCreator.exe -b
+
+Faces:
+ Actual Image Size 463x206 0.webp
+ Actual Image Size 463x206 1.webp
+ Actual Image Size 500x206 2.webp
+```
+
+The last image, `2.webp` would be highlighted as it is different, which may be causing problems.
+
+### Json Converter
+
+This is taken from the [Student Transfer Utils](https://utils.student-transfer.com).
+
+This will walk through the input directory looking for any files that end in `json`. When found it will read the file, then output the contents in a `yml` file and remove the JSON file.
+
+This can be ran using by adding `-cj` when running the program. This will not output an HTML file after it is completed and must be ran again.
+
+### Image trimmer
+
+This is taken from the [Student Transfer Utils](https://utils.student-transfer.com). When ran this will remove as much of the image as possible to save space.
+
+This only removes it from the bottom and right part of the image so it will not affect the character itself.
+
+If your characters feature any transparency, do not use the trim image function. PIL does not play well with transparency.
+
+To use the trimmer, add `-t` when running the program
 
 ## Notes
 
 When running the program, do not stop the program. Doing so can corrupt your images.
-
-If your characters feature any transparency, do not use the trim image function. PIL does not play well with transparency.
 
 There are some files that pillow does not like read. When this happens, it should output the full path to the file
 
