@@ -14,7 +14,7 @@ Inspired by the holy [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f
 
 ## Running the program
 
-For Windows, just download the EXE from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double clicking or from the command line.
+For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double clicking or from the command line.
 
 For Mac, Unix and other OS's, install Python 3.8 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest).
 
