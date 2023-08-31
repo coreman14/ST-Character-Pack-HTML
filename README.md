@@ -1,36 +1,36 @@
 # [ST-Character-Pack-HTML](https://github.com/coreman14/ST-Character-Pack-HTML)
 
-Inspired by the holy [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688), ST-Character-Pack-HTML will create a html file for a scenario or character pack to replace having to browse by the in game sprite viewer or File explorer. Basic demo [here](https://coreman14.github.io/ST-Character-Pack-HTML/).
+Inspired by the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t=15688), ST-Character-Pack-HTML will create an HTML file for a scenario or character pack to replace having to browse using the in game sprite viewer or File explorer. Basic demo [here](https://coreman14.github.io/ST-Character-Pack-HTML/).
 
 ## Features
 
 -   No prep work is required. Just create the file and go.
 -   No additional files will be created during the process. The HTML file generated is the only file made.
 -   Betters the browsing experience. With this added, the user will not have to load into ST to see all the characters, or navigate it with a file explorer.
--   The html is written in pure JS and CSS and can be used offline. This also allows for customization of the HTML file.
--   Useful information is shown before even clicking on a character (The # of faces a pose has, can set a minimum number of poses)
--   Show's all expression's on the characters page, so it can be a replacement for a expression sheet.
--   Keyboard shortcuts are added and can be turn off with a key press.
+-   The HTML is written in pure JS and CSS and can be used offline. This also allows for customization of the HTML file.
+-   The number of faces a characters pose has is shown on the front page, and characters can be filtered by setting a minimum number of poses
+-   Show's all expression's on the characters page, so it can be a replacement for an expression sheet.
+-   Keyboard shortcuts are added and can be turned off with a key press.
 
 ## Running the program
 
-For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double clicking or from the command line.
+For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double-clicking or from the command line.
 
-For Mac, Unix and other OS's, install Python 3.8 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest).
+On Mac, Unix and other OSes, install Python 3.8 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest).
 
-For the script to run, it requires a few additional packages for processing images and YAML files. If you do not want to install these requirements locally, download the `STHtml_includes_requirements.pyz` file. When ran this will unzip the requirements needed.
+The script requires a few additional packages for processing images and YAML files. If you do not want to install these requirements locally, download the `STHtml_includes_requirements.pyz` file. When ran this will unzip the requirements needed.
 
 If you are ok with installing these requirements to your machine, download the `STHtml.pyz` then run the command `python -m pip install pyyaml pillow colorama`. After it finishes installing, you can run the PYZ file.
 
 ## Arguments
 
-For an up to date list, run the file with `-h` which will print all options. You can then add any to the command line.
+For an up-to-date list, run the file with `-h` which will print all options. You can then add any to the command line.
 
 ## Other features and uses
 
 ### Bounds
 
-The idea behind bounds is that sometimes, small invisible pixel's may not be fully clear from an image. When this happens, the file size may appear bigger and it may result in the HTML file being bigger than needed. The idea of bounds is to give the smallest size that the image can be cropped to.
+The idea behind bounds is that sometimes, small invisible pixel's may not be fully clear from an image. When this happens, the file size may appear bigger, and it may result in the HTML file being bigger than needed. The idea of bounds is to give the smallest size that the image can be cropped to.
 
 Example:
 
@@ -45,19 +45,19 @@ Faces:
 
 The last image, `2.webp` would be highlighted as it is different, which may be causing problems.
 
-### Json Converter
+### JSON Converter
 
 This is taken from the [Student Transfer Utils](https://utils.student-transfer.com).
 
 This will walk through the input directory looking for any files that end in `json`. When found it will read the file, then output the contents in a `yml` file and remove the JSON file.
 
-This can be ran using by adding `-cj` when running the program. This will not output an HTML file after it is completed and must be ran again.
+This can be run using by adding `-cj` when running the program. This will not output an HTML file after it is completed and must be run again.
 
 ### Image trimmer
 
 This is taken from the [Student Transfer Utils](https://utils.student-transfer.com). When ran this will remove as much of the image as possible to save space.
 
-This only removes it from the bottom and right part of the image so it will not affect the character itself.
+This only removes it from the bottom and right part of the image, so it will not affect the character itself.
 
 If your characters feature any transparency, do not use the trim image function. PIL does not play well with transparency.
 
@@ -67,7 +67,7 @@ To use the trimmer, add `-t` when running the program
 
 When running the program, do not stop the program. Doing so can corrupt your images.
 
-There are some files that pillow does not like read. When this happens, it should output the full path to the file
+There are some files that pillow does not like to read. When this happens, it should output the full path to the file
 
 ```js
 Error: cannot identify image file "C:\\StudentTransfer\\A deal with the devil\\characters\\corneliasaya\\a\\faces\\face\\0.png". Please convert the file to png or webp.
