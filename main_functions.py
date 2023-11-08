@@ -45,7 +45,7 @@ def get_yaml(inputdir, name):
             return yaml.safe_load(char_file) or {}
     except FileNotFoundError:
         print(
-            f"ERROR: Could not find character YML for {name}, please use the jsontoyaml utility by using -j or --jsontoyaml"
+            f"ERROR: Could not find character YML for {name}, please use the jsontoyaml utility by using -cj or --convertjson"
         )
         input("Press Enter to exit...")
         sys.exit(1)
