@@ -17,7 +17,7 @@ from print_functions import bounds_print
 def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
     if regex is None or re.match(regex, name):
-        faces, outfits = path_functions.get_faces_and_outfits(path, name)
+        faces, _, outfits = path_functions.get_faces_and_outfits(path, name)
         if None in [faces, outfits]:
             return
 
@@ -64,7 +64,7 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
     """
     mutation = None
     path, inputdir = paths
-    faces, outfits = path_functions.get_faces_and_outfits(path, name)
+    faces, blushes, outfits = path_functions.get_faces_and_outfits(path, name)
     if None in [faces, outfits]:
         return
 
@@ -94,6 +94,7 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
             outfit_prio=outfit_prio,
         )
         faces = path_functions.get_mutated_faces(path, name, mutation)
+        blushes = path_functions.get_mutated_faces(path, name, mutation, face_folder="blush")
 
     path_functions.update_outfits_with_face_accessories(path, outfits, char_yml)
     widths = []
@@ -114,6 +115,21 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
         )
     )
     faces.sort(key=sort_functions.face_sort_imp)
+    for width, height, bbox in map(trim, blushes):
+        widths.append(width)
+        heights.append(height)
+        bboxs.append(bbox)
+
+    blushes: list[ImagePath] = list(
+        map(
+            ImagePath,
+            map(remove, blushes),
+            widths,
+            heights,
+            bboxs,
+        )
+    )
+    blushes.sort(key=sort_functions.face_sort_imp)
 
     widths.clear()
     heights.clear()
@@ -170,7 +186,7 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
         new_outfits.append(Outfit(outfit_path, image_paths_off_access, image_paths_on_access))
 
     new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])
-    return new_outfits, faces, *outfit_tuple
+    return new_outfits, faces, blushes, *outfit_tuple
 
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):

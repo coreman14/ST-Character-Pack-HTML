@@ -1,0 +1,10 @@
+default_outfit: crop_top
+display_name: Hoshii
+eye_line: 0.0
+name_color: '#969ab7'
+poses:
+  a:
+    center_width: 273
+    facing: right
+scale: 0.95
+voice: woman

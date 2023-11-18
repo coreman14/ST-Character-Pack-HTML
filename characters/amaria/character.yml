@@ -5,5 +5,5 @@ poses:
   a:
     excludes:
       face_test:
-        - uniform
+        - gym
         - nude

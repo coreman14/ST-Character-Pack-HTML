@@ -3,6 +3,7 @@ import os
 import re
 from dataclasses import dataclass, field
 from typing import NamedTuple
+from sort_functions import face_sort_imp
 
 from PIL import Image
 
@@ -34,6 +35,10 @@ class ImagePath(NamedTuple):
             "\\1",
             self.path,
         )
+
+    @property
+    def file_name(self):
+        return self.path.split("/")[-1]
 
 
 class CropBox(NamedTuple):
@@ -82,7 +87,7 @@ class Accessory:
 
     @property
     def accessory_string(self):
-        return f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.clean_path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}, "is_face" : {str(self.is_face).lower()}, "face_path" : "{self.image.folder_path if self.is_face else ""}"}}'
+        return f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.path}", "layer" : "{self.layering_number}", "main_height" : {self.main_page_height}, "access_height" : {self.accessory_page_height}, "is_face" : {str(self.is_face).lower()}}}'
 
     @property
     def bare_accessory_string(self):
@@ -129,7 +134,8 @@ class Pose:
     path: str
     name: str
     outfits: list[Outfit]
-    faces: tuple[ImagePath]
+    faces: list[ImagePath]
+    blushes: list[ImagePath]
     default_outfit: ImagePath
     default_accessories: list[Accessory]
     face_height: int = None
@@ -140,6 +146,25 @@ class Pose:
         for outfit in self.outfits:
             self.accessories_name.extend(outfit.accessory_names)
         self.accessories_name = sorted(set(self.accessories_name))
+        self._combine_faces()
+
+    def _combine_faces(self):
+        """
+        Add missing faces to to blsuhes and faces
+        """
+        if not self.blushes:
+            return
+        file_names_faces = [x.file_name for x in self.faces]
+        file_names_blushes = [x.file_name for x in self.blushes]
+        file_names_blushes  # Debug line
+        for index, x in enumerate(file_names_blushes):
+            if x not in file_names_faces:
+                self.faces.append(self.blushes[index])
+        for index, x in enumerate(file_names_faces):
+            if x not in file_names_blushes:
+                self.blushes.append(self.faces[index])
+        self.faces.sort(key=face_sort_imp)
+        self.blushes.sort(key=face_sort_imp)
 
     @property
     def formatted_outfit_output(self):
@@ -147,7 +172,11 @@ class Pose:
 
     @property
     def faces_escaped(self):
-        return [x.clean_path for x in self.faces]
+        return [x.path for x in self.faces]
+
+    @property
+    def blushes_escaped(self):
+        return [x.path for x in self.blushes]
 
     @property
     def face_path(self):
@@ -215,7 +244,7 @@ class Character(NamedTuple):
                 int(pose.face_height * self.max_height_multiplier) if pose.face_height != 0 else boundsBox.bottom
             )
             acc = "".join(x.bare_accessory_string for x in pose.default_accessories)
-            builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "face_path": "{pose.face_path}", "faces": {pose.faces_escaped}, '
+            builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "faces": {pose.faces_escaped}, "blushes": {pose.blushes_escaped}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
             builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top},"accessory_names" : [{"".join(pose.accessories_name)}], "outfits": {pose.formatted_outfit_output}}}, '

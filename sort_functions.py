@@ -23,7 +23,7 @@ def sort_by_numbers(path: str, sep=os.sep):
             break
     if not num:
         return face_name
-    return ("0" * (3 - len(num))) + path.split(os.sep)[-1].split(".")[0]
+    return ("0" * (3 - len(num))) + face_name
 
 
 def face_sort_imp(image: ImagePath):

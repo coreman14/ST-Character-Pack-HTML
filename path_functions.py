@@ -85,27 +85,32 @@ def get_faces_and_outfits(pose, character_name):
         *glob(os.path.join(pose, "faces", "face", "*.webp")),
         *glob(os.path.join(pose, "faces", "face", "*.png")),
     ]
+    blushes: list[str] = [
+        *glob(os.path.join(pose, "faces", "blush", "*.webp")),
+        *glob(os.path.join(pose, "faces", "blush", "*.png")),
+    ]
     if not outfits or not faces:
         out_str = ("" if outfits else "outfits") + ("faces" if not faces and outfits else "" if faces else " and faces")
 
         print(
             f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain {out_str}. Skipping.'
         )
-        return None, None
+        return None, None, None
     faces = remove_path_duplicates_no_ext(faces)
+    blushes = remove_path_duplicates_no_ext(blushes)
     outfits = remove_path_duplicates_no_ext(outfits)
     # outfits = [(x, []) for x in outfits]
-    return faces, outfits
+    return faces, blushes, outfits
 
 
-def get_mutated_faces(pose, character_name, mutation):
+def get_mutated_faces(pose, character_name, mutation, face_folder="face"):
     faces: list[str] = [
-        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.webp")),
-        *glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*.png")),
+        *glob(os.path.join(pose, "faces", "mutations", mutation, face_folder, "*.webp")),
+        *glob(os.path.join(pose, "faces", "mutations", mutation, face_folder, "*.png")),
     ]
     if not faces:
         print(
-            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces for mutation "{mutation}". Skipping.'
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces in folder {face_folder} for mutation "{mutation}". Skipping.'
         )
         return None, None
     faces = remove_path_duplicates_no_ext(faces)
