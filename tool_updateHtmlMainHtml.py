@@ -7,6 +7,11 @@ STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 
 
 def clean_line(line: str):
+    if match := re.match(r"""(.*;\s*)\/\/(?=(?:[^"']*("|')[^"']*("|'))*[^"']*$)(.*)""", line):
+        line = match.group(1)
+        comment = "/*" + match.group(4) + "*/"
+        comment += line
+        line = comment
     if "<br/>" in line:
         line = line.replace("<br/>", "<br>")
     if "<br />" in line:
