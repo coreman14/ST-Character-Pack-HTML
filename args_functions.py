@@ -12,6 +12,7 @@ import json2yaml
 import path_functions
 
 INPUT_DIR = ""
+STRICT_ERROR_PARSING = False
 
 
 def get_args():
@@ -24,6 +25,12 @@ def get_args():
         default=os.path.abspath(os.curdir),
     )
     parser.add_argument("-s", "--silent", help="Will not ask for input", action="store_true")
+    parser.add_argument(
+        "-st",
+        "--strict",
+        help="Will throw more errors when characters are not configured correctly",
+        action="store_true",
+    )
     argroup = parser.add_argument_group(
         "Bounds functions",
         description='Outbox "real size" (Image size after maximum crop). It will highlight any file that has a different size than the most common, or all if the most_common is 1.',
@@ -168,7 +175,7 @@ def setup_args(args):
         json_convert = True
         print(f"Error: Scenario.yml does not exist in '{args.inputdir}'.")
         response = input(
-            "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): ",
+            "Would you like to convert all JSON files to YAML? (y for yes, anything else to exit): ",
         )
         if response.lower() in ["y"]:
             json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
@@ -200,6 +207,7 @@ def setup_args(args):
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")
         input("Press Enter to exit...")
         sys.exit(1)
-    global INPUT_DIR
+    global INPUT_DIR, STRICT_ERROR_PARSING
     INPUT_DIR = args.inputdir if not json_convert else ""
+    STRICT_ERROR_PARSING = args.strict
     return yml_data

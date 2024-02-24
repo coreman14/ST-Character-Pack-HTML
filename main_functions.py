@@ -15,6 +15,9 @@ from print_functions import bounds_print
 import json2yaml
 import args_functions
 
+YML_FAILS = []
+JSON_CONVERT_ASK = False
+
 
 def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
@@ -46,21 +49,41 @@ def get_yaml(inputdir, name):
         ) as char_file:
             return yaml.safe_load(char_file) or {}
     except FileNotFoundError:
-        print(f"ERROR: Could not find character YML for {name}")
+        global JSON_CONVERT_ASK
+        json_ask_finish = "anything else to skip"
+        if args_functions.STRICT_ERROR_PARSING:
+            json_ask_finish = "anything else to exit"
         if (
             os.path.exists(os.path.join(inputdir, "characters", name, "character.json"))
             and args_functions.INPUT_DIR != ""
+            and name not in YML_FAILS
         ):
-            response = input(
-                "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): ",
-            )
+            if not JSON_CONVERT_ASK:
+                print(f"ERROR: Could not find character YML for {name}, but found a json file.")
+                response = input(
+                    f"Would you like to convert all JSON files to YAML? (y for yes, {json_ask_finish}): ",
+                )
+                JSON_CONVERT_ASK = True
+            else:
+                response = ""
             if response.lower() in ["y"]:
                 json2yaml.json2yaml(input_dir=args_functions.INPUT_DIR)
                 get_yaml(inputdir, name)
+            elif not args_functions.STRICT_ERROR_PARSING:
+                pass
             else:
                 sys.exit(1)
+        elif not args_functions.STRICT_ERROR_PARSING:
+            pass
         else:
+            print(f"ERROR: Could not find character YML for {name}")
             sys.exit(1)
+        if name not in YML_FAILS:
+            print(
+                f"Could not find config info for {name}. Using blank configuration. To disable this feature, use enable strict mode using --strict"
+            )
+            YML_FAILS.append(name)
+        return {}
     except yaml.YAMLError as error:
         print(f"ERROR: Character YML for {name}, could not be read.\nInfo: {error}")
 
@@ -96,7 +119,13 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
         outfit_prio=outfit_prio,
     )
     if not outfit_tuple:
-        mutation = list(char_yml["mutations"])[0]
+        print("Could not find an outfit, trying with mutation")
+        mutation = list(char_yml.get("mutations", {}))
+        if len(mutation) == 0:
+            print("Error: Could not find a mutation. Please check the YML")
+            input("Press Enter to exit...")
+            sys.exit(1)
+        mutation = mutation[0]
         outfit_tuple = path_functions.get_default_outfit(
             outfits,
             char_data=char_yml,
