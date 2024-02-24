@@ -11,6 +11,8 @@ import classes
 import json2yaml
 import path_functions
 
+INPUT_DIR = ""
+
 
 def get_args():
     parser = argparse.ArgumentParser(description="Makes an HTML file to browse a scenarios Characters")
@@ -161,7 +163,9 @@ def setup_args(args):
         json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
         sys.exit()
     yml_data: dict = {}
+    json_convert = False
     if not os.path.exists(os.path.join(args.inputdir, "scenario.yml")) and not args.bounds:
+        json_convert = True
         print(f"Error: Scenario.yml does not exist in '{args.inputdir}'.")
         response = input(
             "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): ",
@@ -196,5 +200,6 @@ def setup_args(args):
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")
         input("Press Enter to exit...")
         sys.exit(1)
-
+    global INPUT_DIR
+    INPUT_DIR = args.inputdir if not json_convert else ""
     return yml_data

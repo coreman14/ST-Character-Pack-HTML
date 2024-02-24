@@ -12,6 +12,8 @@ from html_arg_functions import update_html
 import path_functions
 import sort_functions
 from print_functions import bounds_print
+import json2yaml
+import args_functions
 
 
 def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
@@ -44,11 +46,21 @@ def get_yaml(inputdir, name):
         ) as char_file:
             return yaml.safe_load(char_file) or {}
     except FileNotFoundError:
-        print(
-            f"ERROR: Could not find character YML for {name}, please use the jsontoyaml utility by using -cj or --convertjson"
-        )
-        input("Press Enter to exit...")
-        sys.exit(1)
+        print(f"ERROR: Could not find character YML for {name}")
+        if (
+            os.path.exists(os.path.join(inputdir, "characters", name, "character.json"))
+            and args_functions.INPUT_DIR != ""
+        ):
+            response = input(
+                "Would you like to convert all JSON files to YAML? (Y|y for yes, anything else to exit): ",
+            )
+            if response.lower() in ["y"]:
+                json2yaml.json2yaml(input_dir=args_functions.INPUT_DIR)
+                get_yaml(inputdir, name)
+            else:
+                sys.exit(1)
+        else:
+            sys.exit(1)
     except yaml.YAMLError as error:
         print(f"ERROR: Character YML for {name}, could not be read.\nInfo: {error}")
 

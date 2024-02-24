@@ -7,8 +7,9 @@ import yaml
 from yaml import YAMLError
 
 
-def json2yaml(args):
-    files = glob(os.path.join(args.input_dir, "**", "*.json"), recursive=True)
+def json2yaml(args=None, input_dir=""):
+    input_dir = args.input_dir if args else input_dir
+    files = glob(os.path.join(input_dir, "**", "*.json"), recursive=True)
     file_len = len(files)
     for index, file_json in enumerate(files, start=1):
         print(f"File {file_json}, {index}/{file_len}")
