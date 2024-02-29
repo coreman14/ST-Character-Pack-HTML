@@ -271,10 +271,10 @@ def create_js(args, chars_tuple):
         + "".join(str(x) for x in chars)
         + "}}"
     )
-    with open(os.path.join(args.inputdir, args.jsname), "w+", encoding="utf8") as json_file:
+    with open(os.path.join(args.inputdir, args.jsonname), "w+", encoding="utf8") as json_file:
         json_file.write(f"var data = {json.dumps(formatted_json)}")
 
-    print(f"Outputted to JSON at {os.path.join(args.inputdir, args.jsname)}", end="")
+    print(f"Outputted to JSON at {os.path.join(args.inputdir, args.jsonname)}", end="")
     input(
         ", press enter to exit...",
     )
