@@ -2,6 +2,8 @@ import os
 
 from PIL import Image, UnidentifiedImageError
 
+FILES_THAT_COULD_BE_REMOVED = []
+
 
 def tryOpenImageIter(name, index=0):
     try:
@@ -32,9 +34,11 @@ def trimImage(name, do_trim=False, remove_empty=False):
     if not bbox:
         if f"{os.sep}face{os.sep}" in name or "/face/" in name:
             return (*tsize, None)
-        print(f"{name} is empty, it can be removed")
         if remove_empty:
             os.remove(name)
+        elif name not in FILES_THAT_COULD_BE_REMOVED:
+            FILES_THAT_COULD_BE_REMOVED.append(name)
+            print(f"{name} is empty, it can be removed")
         return (*tsize, None)
     trimmedSize = bbox[2:]
 
