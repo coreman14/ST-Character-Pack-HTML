@@ -1,0 +1,8 @@
+default_outfit: casual
+name: Aurora
+name_color: '#f8da76'
+overlay: mouth,eyes
+poses:
+  a:
+    facing: right
+scale: 1.15
