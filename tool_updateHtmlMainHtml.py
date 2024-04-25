@@ -2,7 +2,7 @@ import re
 
 
 # 1 Means extract from the start of the finding. So if a line is "xxxyyyxxx" and we are given ("yyxxx", 1), we only take the line from yyxxx
-START_POINTS = [("", 0), (" Viewer</title>", 1), ('/*Start*/ titleExtra.textContent="";', 0)]
+START_POINTS = [("", 0), (" Viewer</title>", 1), ("/*Start*/ indexLen=characterArray.length - 1;", 0)]
 STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 
 
@@ -22,6 +22,10 @@ def clean_line(line: str):
         line = re.sub(r"<img (.*)/>", r"<img \1>", line)
     if re.search("<meta.*/>", line):
         line = line.replace("/>", ">")
+    if re.search("<link.*/>", line):
+        line = line.replace("/>", ">")
+    if 'href="data:image/png' in line:
+        line = 'href="FAVICONHERE"\n'
     line = re.sub("([\\.#]\\w*) {", "\\1{", line)
     line = re.sub(" ([=]+) ", "\\1", line)
     return line
