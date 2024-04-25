@@ -232,6 +232,7 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
 
 def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
     html_snip1, html_snip2, html_snip3 = html_snips
+    html_snip1 = html_snip1.replace("FAVICONHERE", args.favicon)
     html_snip2 = update_html(args, html_snip2)
     chars_with_poses, chars = chars_tuple
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:

@@ -1,10 +1,13 @@
 import argparse
 import ast
+import base64
 import builtins
 import os
 import re
 import sys
+from io import BytesIO
 
+from PIL import Image, UnidentifiedImageError
 import yaml
 import classes
 
@@ -134,6 +137,10 @@ def get_args():
         help="Use the given text as the title on main page instead of the one from scenario.yml.",
     )
     argroup.add_argument(
+        "-fi", "--favicon", help="Change the favicon to a given file. Recommend file size is 32x32 or smaller"
+    )
+
+    argroup.add_argument(
         "-mhm",
         "--maxheightmultiplier",
         help="Change the max face height multiplier. The bigger the number, the more it will show of the outfit on the expression sheet. Default is 1.07",
@@ -158,6 +165,20 @@ def get_args():
 
 
 def setup_args(args):
+    if args.favicon is None:
+        args.favicon = "data:image/png;base64,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"
+    elif not os.path.exists(args.favicon):
+        print(f"""ERROR: Given Favicon does not exist. Given file is {args.favicon}""")
+        sys.exit()
+    else:
+        try:
+            fav_icon = Image.open(args.favicon)
+            new_fav_icon = BytesIO()
+            fav_icon.save(new_fav_icon, format="png")
+            img_str = base64.b64encode(new_fav_icon.getvalue())
+            args.favicon = "data:image/png;base64," + img_str.decode()
+        except UnidentifiedImageError:
+            print("ERROR: Could not identify given image. Please specify an image or re-convert the image")
     if args.outfitprio and not isinstance(args.outfitprio, list):
         print('''ERROR: outfitprio arg must be in a list. Example: "['a', ('b', 'c'), 'd']"''')
         sys.exit()
