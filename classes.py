@@ -1,6 +1,7 @@
 import html
 import os
 import re
+from math import ceil
 from dataclasses import dataclass, field
 from typing import NamedTuple
 from sort_functions import face_sort_imp
@@ -198,6 +199,10 @@ class Pose:
         return CropBox.bbox_from_multiple_pil((x.cropbox for x in self.faces))
 
     @property
+    def accessory_view_width(self):
+        return ceil(max((x.path.width * (HEIGHT_OF_ACCESSORY_PAGE / x.path.height) for x in self.outfits)))
+
+    @property
     def outfit_bbox(self):
         ff_box = self.get_imagebox_faces
         face_height = ff_box.bottom if ff_box is not None else 0
@@ -245,6 +250,7 @@ class Character(NamedTuple):
             )
             acc = "".join(x.bare_accessory_string for x in pose.default_accessories)
             builder += f'"{pose.name}" : {{"max_face_height": {faceBoundsBox}, "faces": {pose.faces_escaped}, "blushes": {pose.blushes_escaped}, '
+            builder += f'"max_accessory_outfit_width" : {pose.accessory_view_width}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc}  ], '
             builder += f'"default_left_crop" : {boundsBox.left}, "default_right_crop" : {boundsBox.right},"default_top_crop" : {boundsBox.top},"accessory_names" : [{"".join(pose.accessories_name)}], "outfits": {pose.formatted_outfit_output}}}, '
