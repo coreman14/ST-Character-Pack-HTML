@@ -2,7 +2,7 @@ import re
 
 
 # 1 Means extract from the start of the finding. So if a line is "xxxyyyxxx" and we are given ("yyxxx", 1), we only take the line from yyxxx
-START_POINTS = [("", 0), (" Viewer</title>", 1), ("/*Start*/ indexLen=characterArray.length - 1;", 0)]
+START_POINTS = [("", 0), (" Viewer</title>", 1), ("/*Start*/ var characterArray=[];", 0)]
 STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 
 

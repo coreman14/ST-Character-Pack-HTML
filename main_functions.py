@@ -230,25 +230,18 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
     return new_outfits, faces, blushes, *outfit_tuple
 
 
-def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=False):
+def create_html_file(args, scenario_title, html_snips, chars, split_files=False):
     html_snip1, html_snip2, html_snip3 = html_snips
     html_snip1 = html_snip1.replace("FAVICONHERE", args.favicon)
     html_snip2 = update_html(args, html_snip2)
-    chars_with_poses, chars = chars_tuple
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
         html_file.write(html_snip1 + scenario_title)
         html_file.write(html_snip2)
         html_file.write(f'{scenario_title}";')
         if split_files:
-            html_file.write("var characterArray = data.carray;var jsonData = data.characters;")
+            html_file.write("var jsonData = data.characters;")
         else:
-            html_file.write(
-                "var characterArray=["
-                + ", ".join(str(x) for x in chars_with_poses)
-                + "]; var jsonData={ "
-                + "".join(str(x) for x in chars)
-                + "};"
-            )
+            html_file.write("var jsonData={ " + "".join(str(x) for x in chars) + "};")
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
         html_file.write(html_snip3)
     print(
@@ -263,15 +256,8 @@ def create_html_file(args, scenario_title, html_snips, chars_tuple, split_files=
         print()
 
 
-def create_js(args, chars_tuple):
-    chars_with_poses, chars = chars_tuple
-    formatted_json = yaml.safe_load(
-        '{"carray":['
-        + ", ".join(str(x) for x in chars_with_poses)
-        + '],"characters": { '
-        + "".join(str(x) for x in chars)
-        + "}}"
-    )
+def create_js(args, chars):
+    formatted_json = yaml.safe_load('{"characters": { ' + "".join(str(x) for x in chars) + "}}")
     with open(os.path.join(args.inputdir, args.jsonname), "w+", encoding="utf8") as json_file:
         json_file.write(f"var data = {json.dumps(formatted_json)}")
 
