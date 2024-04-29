@@ -239,7 +239,7 @@ def create_html_file(args, scenario_title, html_snips, chars, split_files=False)
         html_file.write(html_snip2)
         html_file.write(f'{scenario_title}";')
         if split_files:
-            html_file.write("var jsonData = data.characters;")
+            html_file.write(f'</script><script src="{args.jsonname}"></script><script>var jsonData = data.characters;')
         else:
             html_file.write("var jsonData={ " + "".join(str(x) for x in chars) + "};")
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
