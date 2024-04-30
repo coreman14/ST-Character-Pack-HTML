@@ -218,6 +218,8 @@ def setup_args(args):
         if args.titlename:
             yml_data["title"] = args.titlename
 
+        args.prefix = yml_data.get("prefix", "PRE")
+
     if args.outfitheight:
         classes.HEIGHT_OF_MAIN_PAGE = args.outfitheight
 

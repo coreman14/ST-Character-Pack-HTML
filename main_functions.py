@@ -237,7 +237,7 @@ def create_html_file(args, scenario_title, html_snips, chars, split_files=False)
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
         html_file.write(html_snip1 + scenario_title)
         html_file.write(html_snip2)
-        html_file.write(f'{scenario_title}";')
+        html_file.write(f'{scenario_title}";prefix="{args.prefix}";')
         if split_files:
             html_file.write(f'</script><script src="{args.jsonname}"></script><script>var jsonData = data.characters;')
         else:
