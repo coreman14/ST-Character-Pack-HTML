@@ -6,4 +6,3 @@ poses:
     excludes:
       face_test:
         - gym
-        - nude
