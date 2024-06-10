@@ -1,4 +1,4 @@
-colorama==0.4.4
-ConfigArgParse==1.5.3
-Pillow==9.1.1
-PyYAML==6.0
+colorama==0.4.6
+ConfigArgParse==1.7
+Pillow==10.1.0
+PyYAML==6.0.1
