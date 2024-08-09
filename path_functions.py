@@ -177,15 +177,14 @@ def get_default_outfit(
                     del outfit_dict[i]
     # Create true false dict
     outfit = None
-    for x in outfit_prio:
-        if outfit:
+    outfit_index = len(outfit_prio)  # Set index as out of bounds index
+    for index, x in enumerate(outfit_prio):
+        if not outfit_index or index >= outfit_index:  # Break if first prio outfit is found
             break
-        for outfit_loop in outfit_dict.values():
-            og_outfit = outfit_loop
-            if not isinstance(outfit_loop, str):
-                outfit_loop = outfit_loop[0]
-            if re.search(f"{x}\\.", outfit_loop):
-                outfit = og_outfit
+        for outfit_tuple in outfit_dict.values():
+            if re.search(f"{x}\\.", outfit_tuple[0]):
+                outfit = outfit_tuple
+                outfit_index = index
                 break
 
     image_paths_access = []
