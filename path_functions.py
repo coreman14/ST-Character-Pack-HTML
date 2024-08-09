@@ -121,16 +121,17 @@ def get_faces_and_outfits(pose, character_name):
     return faces, blushes, outfits
 
 
-def get_mutated_faces(pose, character_name, mutation, face_folder="face"):
-    faces: list[str] = [
-        *glob(os.path.join(pose, "faces", "mutations", mutation, face_folder, "*.webp")),
-        *glob(os.path.join(pose, "faces", "mutations", mutation, face_folder, "*.png")),
-    ]
+def get_mutated_faces(pose, character_name, mutation=None, face_folder="face"):
+    faces: list[str] = []
+    face_path = os.path.join(pose, "faces", *(("mutations", mutation) if mutation else ""), face_folder)
+    for ext in ACCEPTED_EXT:
+        faces.extend(glob(os.path.join(face_path, f"*{ext}")))
     if not faces:
+        mutation_string = f' for mutation "{mutation}"' if mutation else ""
         print(
-            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces in folder {face_folder} for mutation "{mutation}". Skipping.'
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces in folder {face_folder}{mutation_string}. Skipping.'
         )
-        return None, None
+        return None
     faces = remove_path_duplicates_no_ext(faces)
     return faces
 
