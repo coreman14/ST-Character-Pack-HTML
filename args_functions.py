@@ -118,7 +118,7 @@ def get_args():
         "-op",
         "--outfitpriority",
         dest="outfitprio",
-        help=f"Change the priority in which outfits are chosen. Will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIO}",
+        help=f"Change the priority in which outfits are chosen. Outfits priority is decided by order from the command line. This switch will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIO}",
         nargs="+",
     )
 
