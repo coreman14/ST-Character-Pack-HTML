@@ -1,5 +1,4 @@
 import argparse
-import ast
 import base64
 import builtins
 import os
@@ -119,8 +118,8 @@ def get_args():
         "-op",
         "--outfitpriority",
         dest="outfitprio",
-        help=f"Change the priority in which outfits are chosen. Accepts a python list made of strings and tuples. A tuple means both are treated the same, but first one found will chosen for it. Current order, from left to right, is: {path_functions.OUTFIT_PRIO}",
-        type=ast.literal_eval,
+        help=f"Change the priority in which outfits are chosen. Will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIO}",
+        nargs="+",
     )
 
     argroup = parser.add_argument_group("General Functions")
@@ -179,9 +178,6 @@ def setup_args(args):
             args.favicon = "data:image/png;base64," + img_str.decode()
         except UnidentifiedImageError:
             print("ERROR: Could not identify given image. Please specify an image or re-convert the image")
-    if args.outfitprio and not isinstance(args.outfitprio, list):
-        print('''ERROR: outfitprio arg must be in a list. Example: "['a', ('b', 'c'), 'd']"''')
-        sys.exit()
 
     if args.silent:
         builtins.input2 = builtins.input

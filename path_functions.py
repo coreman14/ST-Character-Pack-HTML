@@ -11,9 +11,11 @@ import classes
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
     "uniform",
-    ("casual", "dress"),
+    "casual",
+    "dress",
     "nude",
-    ("under", "underwear"),
+    "under",
+    "underwear",
 ]
 
 
@@ -182,14 +184,9 @@ def get_default_outfit(
             og_outfit = outfit_loop
             if not isinstance(outfit_loop, str):
                 outfit_loop = outfit_loop[0]
-            if isinstance(x, str) and re.search(f"{x}\\.", outfit_loop):
+            if re.search(f"{x}\\.", outfit_loop):
                 outfit = og_outfit
                 break
-            if isinstance(x, tuple):
-                for y in x:
-                    if re.search(f"{y}\\.", outfit_loop):
-                        outfit = og_outfit
-                        break
 
     image_paths_access = []
     if not outfit_dict:
