@@ -63,6 +63,7 @@ def main_loop(args, yml):
                 main_functions.bounds(
                     args.regex,
                     pose_path,
+                    args.inputdir,
                     character_name,
                     args.skip_if_same,
                     args.skip_faces,
@@ -76,7 +77,8 @@ def main_loop(args, yml):
                     trim_images,
                     remove_path_setup,
                     character_name,
-                    (pose_path, args.inputdir),
+                    pose_path,
+                    args.inputdir,
                     args.outfitprio,
                     pose_letter,
                 ):

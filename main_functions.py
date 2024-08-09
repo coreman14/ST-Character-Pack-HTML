@@ -19,18 +19,37 @@ YML_FAILS = []
 JSON_CONVERT_ASK = False
 
 
-def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
+def bounds(regex, path, inputdir, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
     if (regex is None or re.match(regex, name)) and path_functions.check_character_is_valid(path):
-        # TODO: Add mutated faces
+        char_yml: dict = get_yaml(inputdir, name)
         outfits = path_functions.get_outfits(path, name)
         faces = path_functions.get_faces(path, name)
+        blushes = path_functions.get_faces(path, name, face_folder="blush")
 
+        mutations: dict[str, list[str]]
         print(f"Character {name}: Pose {pose_letter}")
         if print_faces:
             faces.sort(key=sort_functions.sort_by_numbers)
+
             print("Faces")
             bounds_print(faces, skip_if_same)
+            if blushes:
+                blushes.sort(key=sort_functions.sort_by_numbers)
+                print("Blush faces")
+                bounds_print(blushes, skip_if_same)
+            if mutations := char_yml.get("mutations", {}):
+                for key in [x for x in mutations.keys() if path_functions.check_character_mutation_is_valid(path, x)]:
+                    faces = path_functions.get_faces(path, name, key)
+                    if faces:
+                        faces.sort(key=sort_functions.sort_by_numbers)
+                        print(f'Mutation "{key}" face')
+                        bounds_print(faces, skip_if_same)
+                    blushes = path_functions.get_faces(path, name, key, face_folder="blush")
+                    if blushes:
+                        blushes.sort(key=sort_functions.sort_by_numbers)
+                        print(f'Mutation "{key}" blush face')
+                        bounds_print(blushes, skip_if_same)
         if print_outfits:
             outfits.sort(key=sort_functions.face_sort_outtuple)
             print()
@@ -91,14 +110,13 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
+def create_character(trim, remove, name, path, inputdir, outfit_prio, pose_letter):
     """
     Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
     It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
     1. Reorder method to check for default outfits first, then do faces after.
     """
     mutation = None
-    path, inputdir = paths
 
     if not path_functions.check_character_is_valid(path):
         return
