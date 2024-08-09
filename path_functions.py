@@ -54,7 +54,7 @@ def check_character_is_valid(pose: str) -> bool:
     return False
 
 
-def get_faces_and_outfits(pose, character_name):
+def get_outfits(pose, character_name):
     outfits: list[Tuple[str, list[str], list[str]]] = []
     off_pose_level_accessories = []
     on_pose_level_accessories = []
@@ -99,37 +99,26 @@ def get_faces_and_outfits(pose, character_name):
             for x in dup:
                 print("\t" + (char_folder_path + x.replace(pose, "")).replace(os.sep, "/"))
             sys.exit(1)
-    faces: list[str] = [
-        *glob(os.path.join(pose, "faces", "face", "*.webp")),
-        *glob(os.path.join(pose, "faces", "face", "*.png")),
-    ]
-    blushes: list[str] = [
-        *glob(os.path.join(pose, "faces", "blush", "*.webp")),
-        *glob(os.path.join(pose, "faces", "blush", "*.png")),
-    ]
-    if not outfits or not faces:
-        out_str = ("" if outfits else "outfits") + ("faces" if not faces and outfits else "" if faces else " and faces")
 
+    if not outfits:
         print(
-            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain {out_str}. Skipping.'
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain outfits. Skipping.'
         )
-        return None, None, None
-    faces = remove_path_duplicates_no_ext(faces)
-    blushes = remove_path_duplicates_no_ext(blushes)
+        return None
     outfits = remove_path_duplicates_no_ext(outfits)
-    # outfits = [(x, []) for x in outfits]
-    return faces, blushes, outfits
+    return outfits
 
 
-def get_mutated_faces(pose, character_name, mutation=None, face_folder="face"):
+def get_faces(pose, character_name, mutation=None, face_folder=None):
+    folder_to_look_in = face_folder or "face"
     faces: list[str] = []
-    face_path = os.path.join(pose, "faces", *(("mutations", mutation) if mutation else ""), face_folder)
+    face_path = os.path.join(pose, "faces", *(("mutations", mutation) if mutation else ""), folder_to_look_in)
     for ext in ACCEPTED_EXT:
         faces.extend(glob(os.path.join(face_path, f"*{ext}")))
-    if not faces:
+    if not faces and not face_folder:  # Only error if no folder is given
         mutation_string = f' for mutation "{mutation}"' if mutation else ""
         print(
-            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces in folder {face_folder}{mutation_string}. Skipping.'
+            f'Error: Character "{character_name}" with corresponding pose "{pose.split(os.sep)[-1]}" does not contain faces in folder {folder_to_look_in}{mutation_string}. Skipping.'
         )
         return None
     faces = remove_path_duplicates_no_ext(faces)

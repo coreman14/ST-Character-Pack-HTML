@@ -22,7 +22,9 @@ JSON_CONVERT_ASK = False
 def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
     if (regex is None or re.match(regex, name)) and path_functions.check_character_is_valid(path):
-        faces, _, outfits = path_functions.get_faces_and_outfits(path, name)
+        # TODO: Add mutated faces
+        outfits = path_functions.get_outfits(path, name)
+        faces = path_functions.get_faces(path, name)
 
         print(f"Character {name}: Pose {pose_letter}")
         if print_faces:
@@ -100,7 +102,9 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
 
     if not path_functions.check_character_is_valid(path):
         return
-    faces, blushes, outfits = path_functions.get_faces_and_outfits(path, name)
+    outfits = path_functions.get_outfits(path, name)
+    faces = path_functions.get_faces(path, name)
+    blushes = path_functions.get_faces(path, name, face_folder="blush")
 
     char_yml: dict = get_yaml(inputdir, name)
     excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})
@@ -133,8 +137,8 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
             mutation=mutation,
             outfit_prio=outfit_prio,
         )
-        faces = path_functions.get_mutated_faces(path, name, mutation)
-        blushes = path_functions.get_mutated_faces(path, name, mutation, face_folder="blush")
+        faces = path_functions.get_faces(path, name, mutation)
+        blushes = path_functions.get_faces(path, name, mutation, face_folder="blush")
 
     path_functions.update_outfits_with_face_accessories(path, outfits, char_yml)
     widths = []
