@@ -38,6 +38,22 @@ def find_access(out_path, off_accessories_to_add=None, on_accessories_to_add=Non
     return out_path, off_acc, on_acc
 
 
+def check_character_is_valid(pose: str) -> bool:
+    face_found = False
+    outfit_found = False
+    for ext in ACCEPTED_EXT:
+        # Check for any outfits/faces
+        outfit_found = (
+            outfit_found
+            or bool([x for x in glob(os.path.join(pose, "outfits", f"*{ext}"))])
+            or bool([x for x in glob(os.path.join(pose, "outfits", "*", f"*{ext}"))])
+        )
+        face_found = face_found or bool(glob(os.path.join(pose, "faces", "face", f"*{ext}")))
+        if face_found and outfit_found:
+            return True
+    return False
+
+
 def get_faces_and_outfits(pose, character_name):
     outfits: list[Tuple[str, list[str], list[str]]] = []
     off_pose_level_accessories = []

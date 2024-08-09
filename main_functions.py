@@ -21,10 +21,8 @@ JSON_CONVERT_ASK = False
 
 def bounds(regex, path, name, skip_if_same, print_faces, print_outfits):
     pose_letter = path.split(os.sep)[-1]
-    if regex is None or re.match(regex, name):
+    if (regex is None or re.match(regex, name)) and path_functions.check_character_is_valid(path):
         faces, _, outfits = path_functions.get_faces_and_outfits(path, name)
-        if None in [faces, outfits]:
-            return
 
         print(f"Character {name}: Pose {pose_letter}")
         if print_faces:
@@ -99,9 +97,10 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
     """
     mutation = None
     path, inputdir = paths
-    faces, blushes, outfits = path_functions.get_faces_and_outfits(path, name)
-    if None in [faces, outfits]:
+
+    if not path_functions.check_character_is_valid(path):
         return
+    faces, blushes, outfits = path_functions.get_faces_and_outfits(path, name)
 
     char_yml: dict = get_yaml(inputdir, name)
     excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})

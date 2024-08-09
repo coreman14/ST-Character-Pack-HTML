@@ -70,9 +70,7 @@ def main_loop(args, yml):
                 )
 
             else:
-                faces, _, outfits = path_functions.get_faces_and_outfits(pose_path, character_name)
-                # default_outfit = default_outfit or check_for_default_outfit(outfits)
-                if None in [faces, outfits]:
+                if not path_functions.check_character_is_valid(pose_path):
                     continue
                 if char_pose := main_functions.create_character(
                     trim_images,
