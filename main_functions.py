@@ -103,8 +103,6 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
     if not path_functions.check_character_is_valid(path):
         return
     outfits = path_functions.get_outfits(path, name)
-    faces = path_functions.get_faces(path, name)
-    blushes = path_functions.get_faces(path, name, face_folder="blush")
 
     char_yml: dict = get_yaml(inputdir, name)
     excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})
@@ -116,29 +114,22 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
 
     outfit_tuple = path_functions.get_default_outfit(
         outfits,
-        char_data=char_yml,
         trim_images=trim,
         full_path=inputdir,
         outfit_prio=outfit_prio,
     )
-    if not outfit_tuple:
-        print("Could not find an outfit, trying with mutation")
-        mutation = list(char_yml.get("mutations", {}))
-        if len(mutation) == 0:
-            print("Error: Could not find a mutation. Please check the YML")
-            input("Press Enter to exit...")
-            sys.exit(1)
-        mutation = mutation[0]
-        outfit_tuple = path_functions.get_default_outfit(
-            outfits,
-            char_data=char_yml,
-            trim_images=trim,
-            full_path=inputdir,
-            mutation=mutation,
-            outfit_prio=outfit_prio,
-        )
-        faces = path_functions.get_faces(path, name, mutation)
-        blushes = path_functions.get_faces(path, name, mutation, face_folder="blush")
+    default_outfit_name = outfit_tuple[0].file_name
+    mutation = None
+    mutations: dict[str, list[str]]
+    if mutations := char_yml.get("mutations", {}):
+        for key, value in mutations.items():
+            if any(x in default_outfit_name for x in value):
+                if path_functions.check_character_mutation_is_valid(path, key):
+                    mutation = key
+                break
+
+    faces = path_functions.get_faces(path, name, mutation)
+    blushes = path_functions.get_faces(path, name, mutation, face_folder="blush")
 
     path_functions.update_outfits_with_face_accessories(path, outfits, char_yml)
     widths = []

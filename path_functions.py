@@ -11,6 +11,7 @@ import classes
 ACCEPTED_EXT = [".webp", ".png"]
 OUTFIT_PRIO = [
     "uniform",
+    "suit",
     "casual",
     "dress",
     "nude",
@@ -50,6 +51,16 @@ def check_character_is_valid(pose: str) -> bool:
         )
         face_found = face_found or bool(glob(os.path.join(pose, "faces", "face", f"*{ext}")))
         if face_found and outfit_found:
+            return True
+    return False
+
+
+def check_character_mutation_is_valid(pose: str, mutation: str) -> bool:
+    face_found = False
+    for ext in ACCEPTED_EXT:
+        # Check for any outfits/faces
+        face_found = face_found or bool(glob(os.path.join(pose, "faces", "mutations", mutation, "face", f"*{ext}")))
+        if face_found:
             return True
     return False
 
@@ -150,12 +161,10 @@ def remove_path(a, full_path):
 
 
 def get_default_outfit(
-    outfit_data: list[str | tuple[str]],
-    char_data: dict,
+    outfit_data: list[tuple[str]],
     trim_images,
     full_path,
-    outfit_prio,
-    mutation="",
+    outfit_prio: list[str],
 ) -> Tuple[ImagePath, list[ImagePath, str, int]]:
     """Returns best default outfit for headshot.
 
@@ -166,54 +175,33 @@ def get_default_outfit(
     # adjust outfit prio based on pass in
     outfit_prio = outfit_prio or OUTFIT_PRIO
 
-    # Check in tuple for outfit
-    # Return given/list or blank one
-    outfit_dict = {str(i): outfit_data[i] for i in range(len(outfit_data))}
-    if char_data and "mutations" in char_data:
-        char_data = char_data["mutations"]
-        for x in char_data:
-            if mutation and x == mutation:
-                continue
-            for y in char_data[x]:
-                del_key = [
-                    k for k, v in outfit_dict.items() if f"{y}." in v or not isinstance(v, str) and f"{y}." in v[0]
-                ]
-
-                for i in del_key:
-                    del outfit_dict[i]
-    # Create true false dict
-    outfit = None
-    outfit_index = len(outfit_prio)  # Set index as out of bounds index
-    for index, x in enumerate(outfit_prio):
-        if not outfit_index or index >= outfit_index:  # Break if first prio outfit is found
+    default_outfit = None
+    for x in outfit_prio:
+        if default_outfit:
             break
-        for outfit_tuple in outfit_dict.values():
-            if re.search(f"{x}\\.", outfit_tuple[0]):
-                outfit = outfit_tuple
-                outfit_index = index
+        for outfit_tuple in outfit_data:
+            if re.search(f"{re.escape(os.sep)}{x}\\.", outfit_tuple[0]):
+                default_outfit = outfit_tuple
                 break
+    if not default_outfit:
+        default_outfit = outfit_data[0]
 
     image_paths_access = []
-    if not outfit_dict:
-        return None
-    if len(outfit_dict) == 1 or not outfit:
-        outfit = list(outfit_dict.values())[0]
 
-    outfit_image = ImagePath(remove_path(outfit, full_path), *trim_images(outfit))
-    if not isinstance(outfit, str):
-        no_blank_access = [x for x in outfit[1] if None not in trim_images(x)]
-        image_paths_access = [ImagePath(remove_path(x, full_path), *trim_images(x)) for x in no_blank_access]
-        # get Layering for default accessories
-        image_paths_access = [
-            Accessory(
-                "",
-                "",
-                x,
-                get_layering_for_accessory(x),
-                get_scaled_image_height(outfit_image, x, classes.HEIGHT_OF_MAIN_PAGE),
-            )
-            for x in image_paths_access
-        ]
+    outfit_image = ImagePath(remove_path(default_outfit, full_path), *trim_images(default_outfit))
+    no_blank_access = [x for x in default_outfit[1] if None not in trim_images(x)]
+    image_paths_access = [ImagePath(remove_path(x, full_path), *trim_images(x)) for x in no_blank_access]
+    # get Layering for default accessories
+    image_paths_access = [
+        Accessory(
+            "",
+            "",
+            x,
+            get_layering_for_accessory(x),
+            get_scaled_image_height(outfit_image, x, classes.HEIGHT_OF_MAIN_PAGE),
+        )
+        for x in image_paths_access
+    ]
 
     return (
         outfit_image,
