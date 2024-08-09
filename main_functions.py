@@ -126,6 +126,10 @@ def create_character(trim, remove, name, paths, outfit_prio, pose_letter):
             if any(x in default_outfit_name for x in value):
                 if path_functions.check_character_mutation_is_valid(path, key):
                     mutation = key
+                else:
+                    print(
+                        f'WARNING: Character "{name}" for pose "{pose_letter}" default outfit of "{default_outfit_name}" has mutation "{key}", but no faces are provided for that mutation.'
+                    )
                 break
 
     faces = path_functions.get_faces(path, name, mutation)
