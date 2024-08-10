@@ -22,6 +22,13 @@ def get_args() -> argparse.Namespace:
     "Create the parser used for the arguments"
     parser = argparse.ArgumentParser(description="Makes an HTML file to browse a scenarios Characters")
     parser.add_argument(
+        "-cj",
+        "--convertjson",
+        dest="json2yaml",
+        help="Skip HTML and instead convert JSON files to YML. Will walk through the whole directory and convert any found.",
+        action="store_true",
+    )
+    parser.add_argument(
         "-i",
         "--inputdir",
         help="Run the program in a different directory.",
@@ -37,11 +44,9 @@ def get_args() -> argparse.Namespace:
     )
     argroup = parser.add_argument_group(
         "Bounds functions",
-        description=(
-            'Output the "real size" (Image size after maximum crop). ',
-            "It will highlight any file that has a different size than the most common, or all if the most_common is 1. ",
-            "This can catch invisible pixels that may be left over from editing.",
-        ),
+        description='Output the "real size" (Image size after maximum crop). '
+        + "It will highlight any file that has a different size than the most common, or all if the most_common is 1. "
+        + "This can catch invisible pixels that may be left over from editing.",
     )
     argroup.add_argument(
         "-b",
@@ -77,11 +82,9 @@ def get_args() -> argparse.Namespace:
     # Output a JSON File instead of HTML
     argroup = parser.add_argument_group(
         "Separate files",
-        description=(
-            "These commands deal with creating the character data in a different file than the HTML.",
-            " This aim of these commands are to allow for modifications to the ",
-            "HTML file that wont need to be overwritten if a character changes.",
-        ),
+        description="These commands deal with creating the character data in a different file than the HTML."
+        + " This aim of these commands are to allow for modifications to the "
+        + "HTML file that wont need to be overwritten if a character changes.",
     )
     argdiff = argroup.add_mutually_exclusive_group()
     argdiff.add_argument(
@@ -93,10 +96,8 @@ def get_args() -> argparse.Namespace:
     argdiff.add_argument(
         "-sp",
         "--splitfiles",
-        help=(
-            "Creates an HTML and character data file instead of a single HTML file. ",
-            "The HTML file will work the same way, but the character data will not be embedded.",
-        ),
+        help="Creates an HTML and character data file instead of a single HTML file. "
+        + "The HTML file will work the same way, but the character data will not be embedded.",
         action="store_true",
     )
 
@@ -117,27 +118,16 @@ def get_args() -> argparse.Namespace:
     argroup.add_argument(
         "-r",
         "--removeempty",
-        help=(
-            "This removes any off accessories that are blank. ",
-            "Off accessories do not need to be present if they have no pixels. Does not remove anything during -b/bounds check.",
-        ),
-        action="store_true",
-    )
-    argroup.add_argument(
-        "-cj",
-        "--convertjson",
-        dest="json2yaml",
-        help="Skip HTML and instead convert JSON files to YML. Will walk through the whole directory and convert any found.",
+        help="This removes any off accessories that are blank. "
+        + "Off accessories do not need to be present if they have no pixels. Does not remove anything during -b/bounds check.",
         action="store_true",
     )
     argroup.add_argument(
         "-op",
         "--outfitpriority",
         dest="outfitprio",
-        help=(
-            "Change the priority in which outfits are chosen. Outfits priority is decided by order from the command line. ",
-            f"This switch will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIORITY}",
-        ),
+        help="Change the priority in which outfits are chosen. Outfits priority is decided by order from the command line. "
+        + f"This switch will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIORITY}",
         nargs="+",
     )
 
@@ -161,10 +151,8 @@ def get_args() -> argparse.Namespace:
     argroup.add_argument(
         "-mhm",
         "--maxheightmultiplier",
-        help=(
-            "Change the max face height multiplier. ",
-            "The bigger the number, the more it will show of the outfit on the expression sheet. Default is 1.07",
-        ),
+        help="Change the max face height multiplier. "
+        + "The bigger the number, the more it will show of the outfit on the expression sheet. Default is 1.07",
         type=float,
         default=1.07,
     )
