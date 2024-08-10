@@ -134,16 +134,18 @@ class Outfit:
         "If a pose level accessory and outfit level accessory with the same name are both present, remove the pose level one"
         pose_level_on_accessories: list[Accessory] = [x for x in self.on_accessories if x.is_pose_level_accessory]
         pose_level_on_accessories_name: list[str] = [x.name for x in pose_level_on_accessories]
-        pose_level_off_accessories: list[Accessory] = [x for x in self.off_accessories if x.is_pose_level_accessory]
-        pose_level_off_accessories_name: list[str] = [x.name for x in pose_level_off_accessories]
         for accessory in list(x for x in self.on_accessories if not x.is_pose_level_accessory):
             if accessory.name in pose_level_on_accessories_name:
                 i = pose_level_on_accessories_name.index(accessory.name)
                 self.on_accessories.remove(pose_level_on_accessories[i])
+                pose_level_on_accessories_name.remove(accessory.name)
+        pose_level_off_accessories: list[Accessory] = [x for x in self.off_accessories if x.is_pose_level_accessory]
+        pose_level_off_accessories_name: list[str] = [x.name for x in pose_level_off_accessories]
         for accessory in list(x for x in self.off_accessories if not x.is_pose_level_accessory):
             if accessory.name in pose_level_off_accessories_name:
                 i = pose_level_off_accessories_name.index(accessory.name)
-                self.on_accessories.remove(pose_level_off_accessories[i])
+                self.off_accessories.remove(pose_level_off_accessories[i])
+                pose_level_off_accessories_name.remove(accessory.name)
 
     @property
     def accessory_names(self):
