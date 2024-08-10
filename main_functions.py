@@ -23,13 +23,13 @@ JSON_CONVERT_ASK = False
 
 
 def bounds(
-    regex: re.Pattern, path: str, inputdir: str, name: str, skip_if_same: bool, print_faces: bool, print_outfits: bool
+    regex: re.Pattern, path: str, input_dir: str, name: str, skip_if_same: bool, print_faces: bool, print_outfits: bool
 ):
     """Output the minimum size of each image for the character.
     Use it to find invisible pixels left over from editing"""
     pose_letter = path.split(os.sep)[-1]
     if (regex is None or re.match(regex, name)) and path_functions.check_character_is_valid(path):
-        char_yml: dict = get_yaml(inputdir, name)
+        char_yml: dict = get_yaml(input_dir, name)
         outfits = path_functions.get_outfits(path, name)
         faces = path_functions.get_faces(path, name)
         blushes = path_functions.get_faces(path, name, face_folder="blush")
@@ -58,7 +58,7 @@ def bounds(
                         print(f'Mutation "{key}" blush face')
                         bounds_print(blushes, skip_if_same)
         if print_outfits:
-            outfits.sort(key=sort_functions.face_sort_outtuple)
+            outfits.sort(key=sort_functions.face_sort_out_tuple)
             print()
             print("Outfits")
             bounds_print(outfits, skip_if_same)
@@ -66,11 +66,11 @@ def bounds(
         print()
 
 
-def get_yaml(inputdir: str, name: str) -> dict:
+def get_yaml(input_dir: str, name: str) -> dict:
     "Get the YAML file for the character"
     try:
         with open(
-            os.path.join(inputdir, "characters", name, "character.yml"),
+            os.path.join(input_dir, "characters", name, "character.yml"),
             "r",
             encoding="utf8",
         ) as char_file:
@@ -81,7 +81,7 @@ def get_yaml(inputdir: str, name: str) -> dict:
         if args_functions.STRICT_ERROR_PARSING:
             json_ask_finish = "anything else to exit"
         if (
-            os.path.exists(os.path.join(inputdir, "characters", name, "character.json"))
+            os.path.exists(os.path.join(input_dir, "characters", name, "character.json"))
             and args_functions.INPUT_DIR != ""
             and name not in YML_FAILS
         ):
@@ -95,7 +95,7 @@ def get_yaml(inputdir: str, name: str) -> dict:
                 response = ""
             if response.lower() in ["y"]:
                 json2yaml.json2yaml(input_dir=args_functions.INPUT_DIR)
-                return get_yaml(inputdir, name)
+                return get_yaml(input_dir, name)
             elif not args_functions.STRICT_ERROR_PARSING:
                 pass
             else:
@@ -120,7 +120,7 @@ def get_yaml(inputdir: str, name: str) -> dict:
 
 
 def create_character(
-    trim: Callable, remove: Callable, name: str, path: str, inputdir: str, outfit_prio: list[str], pose_letter: str
+    trim: Callable, remove: Callable, name: str, path: str, input_dir: str, outfit_priority: list[str], pose_letter: str
 ) -> None | tuple[list[Outfit], list[ImagePath], list[ImagePath], ImagePath, list[ImagePath]]:
     """
     Gets all the require inputs for a given pose
@@ -131,7 +131,7 @@ def create_character(
         return
     outfits = path_functions.get_outfits(path, name)
 
-    char_yml: dict = get_yaml(inputdir, name)
+    char_yml: dict = get_yaml(input_dir, name)
     excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})
 
     inverse_accessories = defaultdict(list)
@@ -142,8 +142,8 @@ def create_character(
     outfit_tuple = path_functions.get_default_outfit(
         outfits,
         trim_images=trim,
-        path_to_remove=inputdir,
-        outfit_prio=outfit_prio,
+        path_to_remove=input_dir,
+        outfit_priority=outfit_priority,
     )
     default_outfit_name = outfit_tuple[0].file_name
     mutation = None
@@ -166,11 +166,11 @@ def create_character(
     path_functions.update_outfits_with_face_accessories(path, outfits, char_yml)
     widths = []
     heights = []
-    bboxs = []
+    bb_boxes = []
     for width, height, bbox in map(trim, faces):
         widths.append(width)
         heights.append(height)
-        bboxs.append(bbox)
+        bb_boxes.append(bbox)
 
     faces: list[ImagePath] = list(
         map(
@@ -178,14 +178,14 @@ def create_character(
             map(remove, faces),
             widths,
             heights,
-            bboxs,
+            bb_boxes,
         )
     )
     faces.sort(key=sort_functions.face_sort_imp)
     for width, height, bbox in map(trim, blushes):
         widths.append(width)
         heights.append(height)
-        bboxs.append(bbox)
+        bb_boxes.append(bbox)
 
     blushes: list[ImagePath] = list(
         map(
@@ -193,22 +193,22 @@ def create_character(
             map(remove, blushes),
             widths,
             heights,
-            bboxs,
+            bb_boxes,
         )
     )
     blushes.sort(key=sort_functions.face_sort_imp)
 
     widths.clear()
     heights.clear()
-    bboxs.clear()
+    bb_boxes.clear()
     for width, height, bbox in map(trim, outfits):
         widths.append(width)
         heights.append(height)
-        bboxs.append(bbox)
+        bb_boxes.append(bbox)
 
     new_outfits: list[Outfit] = []
     outfit_obj: list[str | list[str]]
-    for outfit_obj, width, height, box in zip(outfits, widths, heights, bboxs):
+    for outfit_obj, width, height, box in zip(outfits, widths, heights, bb_boxes):
         outfit_path = ImagePath(remove(outfit_obj[0]), width, height, box)
         out_name = path_functions.get_outfit_name(outfit_obj[0], path)
         image_paths_on_access = []

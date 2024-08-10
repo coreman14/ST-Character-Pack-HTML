@@ -5,13 +5,13 @@ import html_arg_functions
 from html_main import HTML_SNIP2
 
 
-def test_outfitHeight():
+def test_outfit_height():
     "Test if the pages outfit height is updated"
     test_args = Namespace(outfitheight=300)
     assert HTML_SNIP2 != html_arg_functions.update_html(test_args, HTML_SNIP2)
 
 
-def test_accessoryHeight():
+def test_accessory_height():
     "Test the pages accessory height is updated"
     test_args = Namespace(accessoryheight=300)
     assert HTML_SNIP2 != html_arg_functions.update_html(test_args, HTML_SNIP2)

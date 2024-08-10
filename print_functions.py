@@ -13,14 +13,14 @@ def bounds_print(to_print: list[str], skip_if_same: bool, split_str=os.sep):
     print(Style.RESET_ALL, end="")
     print_box = []
     print_name = []
-    for ipath in to_print:
-        if not isinstance(ipath, str):
-            ipath = ipath[0]
-        if bobobo := return_bb_box(ipath):
-            print_box.append(CropBox(*bobobo))
+    for image_path in to_print:
+        if not isinstance(image_path, str):
+            image_path = image_path[0]
+        if bb_box := return_bb_box(image_path):
+            print_box.append(CropBox(*bb_box))
         else:
             print_box.append(None)
-        print_name.append(ipath.split(split_str)[-1])
+        print_name.append(image_path.split(split_str)[-1])
     if len(Counter(print_box).most_common()) == 1 and skip_if_same:
         print("All images have the same measurements")
         return

@@ -34,6 +34,6 @@ def face_sort_imp(image: ImagePath):
     return sort_by_numbers(image.path, sep="/")
 
 
-def face_sort_outtuple(image: ImagePath):
+def face_sort_out_tuple(image: tuple[str]):
     "Return a sortable version of the given file"
     return sort_by_numbers(image[0])

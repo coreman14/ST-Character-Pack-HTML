@@ -10,7 +10,7 @@ from classes import ImagePath, Accessory
 import classes
 
 ACCEPTED_EXT = [".webp", ".png"]
-OUTFIT_PRIO = [
+OUTFIT_PRIORITY = [
     "uniform",
     "suit",
     "casual",
@@ -182,7 +182,7 @@ def get_default_outfit(
     outfit_data: list[tuple[str]],
     trim_images: Callable,
     path_to_remove: str,
-    outfit_prio: list[str],
+    outfit_priority: list[str],
 ) -> Tuple[ImagePath, list[ImagePath, str, int]]:
     """Returns best default outfit for headshot.
 
@@ -190,11 +190,11 @@ def get_default_outfit(
     Can take optional priority list to change what outfit is shown on main page
     """
 
-    # adjust outfit prio based on pass in
-    outfit_prio = outfit_prio or OUTFIT_PRIO
+    # adjust outfit_priority based on pass in
+    outfit_priority = outfit_priority or OUTFIT_PRIORITY
 
     default_outfit = None
-    for x in outfit_prio:
+    for x in outfit_priority:
         if default_outfit:
             break
         for outfit_tuple in outfit_data:
@@ -270,7 +270,7 @@ def get_outfit_name(outfit_path: str, path_to_pose: str):
 
 
 def get_scaled_image_height(outfit: ImagePath, accessory: ImagePath, page_height: int) -> int:
-    "Find the height to be display on based on the oufit height and page height"
+    "Find the height to be display on based on the outfit height and page height"
     return round((accessory.height / outfit.height) * page_height)
 
 
@@ -324,11 +324,11 @@ def convert(text: str) -> int | str:
     return int(text) if text.isdigit() else text.lower()
 
 
-def alphanum_key(key: str):
+def alpha_num_key(key: str):
     "Convert a string to a list of string and number"
     return [convert(c) for c in re.split("([0-9]+)", key)]
 
 
 def natural_sort(l: list[str]):
     "Naturally sort the list"
-    return sorted(l, key=alphanum_key)
+    return sorted(l, key=alpha_num_key)

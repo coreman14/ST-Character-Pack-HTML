@@ -15,7 +15,7 @@ HEIGHT_OF_ACCESSORY_PAGE = 400
 
 
 class CropBox(NamedTuple):
-    "Holds the max amount of pixels that can be trimed from an image."
+    "Holds the max amount of pixels that can be trimmed from an image."
     left: int
     top: int
     right: int
@@ -23,8 +23,8 @@ class CropBox(NamedTuple):
 
     @classmethod
     def bbox_from_multiple_pil(cls, bounds_boxes: list[tuple[int, int, int, int]]):
-        """Given a list of tuples that have 4 ints, create a cropbox that contains the maximum value that can be trimed from the image.
-        Left and top use the min instead of max as the image is being trimed from the top left.
+        """Given a list of tuples that have 4 ints, create a cropbox that contains the maximum value that can be trimmed from the image.
+        Left and top use the min instead of max as the image is being trimmed from the top left.
         """
         q = list(bounds_boxes)
         while None in q:
@@ -69,7 +69,7 @@ class ImagePath(NamedTuple):
 
     @property
     def folder_path(self) -> str:
-        """Does the oppisite of clean path. Removes the path inside the folder and returns the before path"""
+        """Does the opposite of clean path. Removes the path inside the folder and returns the before path"""
         return re.sub(
             "(characters/[^/]+/[^/]+/(outfits|faces/face|faces/mutations)/)(.*)",
             "\\1",
@@ -114,7 +114,7 @@ class Accessory:
 
     @property
     def proper_name(self) -> str:
-        "Short verson of the JSON, used for the accessory picker list"
+        "Short version of the JSON, used for the accessory picker list"
         return f'{{"name" : "{self.name}", "state" : "{self.state}","is_face" : {str(self.is_face).lower()},}}, '
 
     @property
@@ -178,7 +178,7 @@ class Pose:
 
     def _combine_faces(self):
         """
-        Add missing faces to to blsuhes and faces
+        Add missing faces to to blushes and faces
         """
         if not self.blushes:
             return
@@ -228,7 +228,7 @@ class Pose:
         return [x.image for x in self.default_accessories]
 
     @property
-    def get_imagebox_faces(self) -> CropBox:
+    def get_image_box_faces(self) -> CropBox:
         "Return the max crop of all faces"
         return CropBox.bbox_from_multiple_pil((x.cropbox for x in self.faces))
 
@@ -240,7 +240,7 @@ class Pose:
     @property
     def outfit_bbox(self) -> None | CropBox:
         "Return the max crop used for expression sheets"
-        ff_box = self.get_imagebox_faces
+        ff_box = self.get_image_box_faces
         face_height = ff_box.bottom if ff_box is not None else 0
         self.face_height = face_height
         boundary_boxes = []
