@@ -7,16 +7,18 @@ Inspired by the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t
 -   No prep work is required. Just create the file and go.
 -   No additional files will be created during the process. The HTML file generated is the only file made.
 -   Betters the browsing experience. With this added, the user will not have to load into ST to see all the characters, or navigate it with a file explorer.
--   The HTML is written in pure JS and CSS and can be used offline. This also allows for customization of the HTML file.
--   The number of faces a characters pose has is shown on the front page, and characters can be filtered by setting a minimum number of poses
+-   The HTML is written in pure HTML, JavaScript and CSS so it can be easily customized.
+-   No dependencies are used, so the file can be used with no internet connection.
+-   Stats about the character are shown on the main page, allowing users to better find a character that fits their needs.
 -   Show's all expression's on the characters page, so it can be a replacement for an expression sheet.
--   Keyboard shortcuts are added and can be turned off with a key press.
+-   Expression sheet can be toggled to show blush faces.
+-   Includes keyboard shortcuts for navigation that can be turned off.
 
 ## Running the program
 
 For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double-clicking or from the command line.
 
-On Mac, Unix and other OSes, install Python 3.8 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest).
+On Mac, Unix and other OSes, install Python 3.10 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest) and install the requirements.
 
 The script requires a few additional packages for processing images and YAML files. If you do not want to install these requirements locally, download the `STHtml_includes_requirements.pyz` file. When ran this will unzip the requirements needed.
 
