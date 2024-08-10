@@ -1,3 +1,4 @@
+"Takes the given HTML file and parses it to update the main HTML strings"
 import re
 
 
@@ -25,6 +26,7 @@ def clean_line(line: str):
 
 
 def main():
+    "Function ran only file"
     html_snips = [""]  # Adding blank entry so that we can use a 1 index instead of zero.
     snip_index = 0
     with open("index.html", "r", encoding="utf8") as f:

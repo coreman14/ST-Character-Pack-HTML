@@ -1,7 +1,8 @@
+"Update the HTML file with the arguments"
 from argparse import Namespace
 
 
-def update_html(args: Namespace, string_to_replace: str):
+def update_html(args: Namespace, string_to_replace: str) -> str:
     """
     Updates the the string_to_replace with a namespace.
 

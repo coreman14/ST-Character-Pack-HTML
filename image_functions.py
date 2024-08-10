@@ -1,23 +1,28 @@
+"Functions to deal with images"
 import os
-
+import sys
 from PIL import Image, UnidentifiedImageError
+from PIL.Image import Image as ImageType
 
 FILES_THAT_COULD_BE_REMOVED = []
 
 
-def tryOpenImageIter(name, index=0):
+def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
+    """Attempts to open image. Treats image as a string first, then on failure treats it as a list."""
     try:
         try:
             return name, Image.open(name)
         except AttributeError:
-            return name[index], Image.open(name[index])
+            return name[0], Image.open(name[0])
     except UnidentifiedImageError as pil_error:
         print()
         print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
+        sys.exit(1)
 
 
-def return_bb_box(name):
-    name, trim_img = tryOpenImageIter(name, index=0)
+def return_bb_box(name: str | list[str]) -> tuple[int, int, int, int]:
+    """Opens the given image or first image in the list, then returns the bounding box of the image."""
+    name, trim_img = attempt_to_open_image(name)
     if trim_img.mode != "RGBA":
         trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
@@ -25,25 +30,33 @@ def return_bb_box(name):
 
 
 # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
-def trimImage(name, do_trim=False, remove_empty=False):
-    name, trim_img = tryOpenImageIter(name)
-    tsize = trim_img.size
+def open_image_and_get_measurements(
+    name: str | list[str], do_trim=False, remove_empty=False
+) -> tuple[int, int, None] | tuple[int, int, tuple[int, int, int, int] | None]:
+    """Opens the given image or first image in the list, then returns the size and bound box.
+    If do_trim is true, will trim the image before
+    Setting remove_empty as true will remove any blank image.
+    """
+    name, trim_img = attempt_to_open_image(name)
+    image_size = trim_img.size
     # if trim_img.mode != "RGBA":
     #     trim_img = trim_img.convert("RGBA")
     bbox = trim_img.split()[-1].getbbox()
     if not bbox:
         if f"{os.sep}face{os.sep}" in name or "/face/" in name:
-            return (*tsize, None)
+            return (*image_size, None)
         if remove_empty:
             os.remove(name)
         elif name not in FILES_THAT_COULD_BE_REMOVED:
             FILES_THAT_COULD_BE_REMOVED.append(name)
             print(f"{name} is empty, it can be removed")
-        return (*tsize, None)
-    trimmedSize = bbox[2:]
+        return (*image_size, None)
 
-    if trimmedSize != trim_img.size and do_trim:
-        trim_img = trim_img.crop((0, 0) + trimmedSize)
+    amount_to_trim = bbox[2:]
+
+    if amount_to_trim != image_size and do_trim:
+        trim_img = trim_img.crop((0, 0) + amount_to_trim)
         bbox = trim_img.getbbox()
         trim_img.save(name)
-    return (*trim_img.size, bbox)
+        image_size = trim_img.size
+    return (*image_size, bbox)

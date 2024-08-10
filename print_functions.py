@@ -1,3 +1,4 @@
+"Functions for printing text in a special way"
 import os
 from collections import Counter
 
@@ -7,7 +8,8 @@ from classes import CropBox
 from image_functions import return_bb_box
 
 
-def bounds_print(to_print, skip_if_same, split_str=os.sep):
+def bounds_print(to_print: list[str], skip_if_same: bool, split_str=os.sep):
+    """Prints the real calculate size of each file. Will highlight any files where the size is different than the others"""
     print(Style.RESET_ALL, end="")
     print_box = []
     print_name = []
@@ -23,9 +25,7 @@ def bounds_print(to_print, skip_if_same, split_str=os.sep):
         print("All images have the same measurements")
         return
     most_bbox = Counter(print_box).most_common(1)
-    most_bbox = (
-        None if most_bbox[0][1] == 1 and len(print_box) != 1 else most_bbox[0][0]
-    )
+    most_bbox = None if most_bbox[0][1] == 1 and len(print_box) != 1 else most_bbox[0][0]
     for f_name, bbox in zip(print_name, print_box):
         if bbox:
             print(

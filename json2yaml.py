@@ -1,3 +1,4 @@
+"Script/function for converting JSON to YAML"
 import argparse
 import json
 import os
@@ -7,7 +8,10 @@ import yaml
 from yaml import YAMLError
 
 
-def json2yaml(args=None, input_dir=""):
+def json2yaml(args: argparse.Namespace = None, input_dir=""):
+    """Traverse given directory and convert all json files to yaml files
+    Takes a namespace object or a string as input to allow for main program to use it
+    """
     input_dir = args.input_dir if args else input_dir
     files = glob(os.path.join(input_dir, "**", "*.json"), recursive=True)
     file_len = len(files)
@@ -34,6 +38,7 @@ def json2yaml(args=None, input_dir=""):
 
 
 def main():
+    "Function used when running the script from the command line"
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i",

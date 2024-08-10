@@ -1,13 +1,16 @@
+"Main runner functions for the program"
+from argparse import Namespace
 import os
 import re
 import sys
 import json
+from collections import defaultdict
+from typing import Callable
 import yaml
 
-from collections import defaultdict
 
 import classes
-from classes import ImagePath, Accessory, Outfit
+from classes import Character, ImagePath, Accessory, Outfit
 from html_arg_functions import update_html
 import path_functions
 import sort_functions
@@ -19,7 +22,11 @@ YML_FAILS = []
 JSON_CONVERT_ASK = False
 
 
-def bounds(regex, path, inputdir, name, skip_if_same, print_faces, print_outfits):
+def bounds(
+    regex: re.Pattern, path: str, inputdir: str, name: str, skip_if_same: bool, print_faces: bool, print_outfits: bool
+):
+    """Output the minimum size of each image for the character.
+    Use it to find invisible pixels left over from editing"""
     pose_letter = path.split(os.sep)[-1]
     if (regex is None or re.match(regex, name)) and path_functions.check_character_is_valid(path):
         char_yml: dict = get_yaml(inputdir, name)
@@ -59,7 +66,8 @@ def bounds(regex, path, inputdir, name, skip_if_same, print_faces, print_outfits
         print()
 
 
-def get_yaml(inputdir, name):
+def get_yaml(inputdir: str, name: str) -> dict:
+    "Get the YAML file for the character"
     try:
         with open(
             os.path.join(inputdir, "characters", name, "character.yml"),
@@ -99,7 +107,8 @@ def get_yaml(inputdir, name):
             sys.exit(1)
         if name not in YML_FAILS:
             print(
-                f"Could not find config info for {name}. Using blank configuration. To disable this feature, use enable strict mode using --strict"
+                f"Could not find config info for {name}. "
+                + "Using blank configuration. To disable this feature, use enable strict mode using --strict",
             )
             YML_FAILS.append(name)
         return {}
@@ -110,11 +119,11 @@ def get_yaml(inputdir, name):
         sys.exit(1)
 
 
-def create_character(trim, remove, name, path, inputdir, outfit_prio, pose_letter):
+def create_character(
+    trim: Callable, remove: Callable, name: str, path: str, inputdir: str, outfit_prio: list[str], pose_letter: str
+) -> None | tuple[list[Outfit], list[ImagePath], list[ImagePath], ImagePath, list[ImagePath]]:
     """
-    Mutations broke. When mutation broke, it returns None and then logic needs to be implemented to handle it.
-    It needs to check beforehand and if it doesn't have one we need to find a mutation, then get an outfit that fixes it plus change the path to faces
-    1. Reorder method to check for default outfits first, then do faces after.
+    Gets all the require inputs for a given pose
     """
     mutation = None
 
@@ -133,7 +142,7 @@ def create_character(trim, remove, name, path, inputdir, outfit_prio, pose_lette
     outfit_tuple = path_functions.get_default_outfit(
         outfits,
         trim_images=trim,
-        full_path=inputdir,
+        path_to_remove=inputdir,
         outfit_prio=outfit_prio,
     )
     default_outfit_name = outfit_tuple[0].file_name
@@ -146,7 +155,8 @@ def create_character(trim, remove, name, path, inputdir, outfit_prio, pose_lette
                     mutation = key
                 else:
                     print(
-                        f'WARNING: Character "{name}" for pose "{pose_letter}" default outfit of "{default_outfit_name}" has mutation "{key}", but no faces are provided for that mutation.'
+                        f'WARNING: Character "{name}" for pose "{pose_letter}" default outfit of "{default_outfit_name}"'
+                        + f' has mutation "{key}", but no faces are provided for that mutation.',
                     )
                 break
 
@@ -246,7 +256,10 @@ def create_character(trim, remove, name, path, inputdir, outfit_prio, pose_lette
     return new_outfits, faces, blushes, *outfit_tuple
 
 
-def create_html_file(args, scenario_title, html_snips, chars, split_files=False):
+def create_html_file(
+    args: Namespace, scenario_title: str, html_snips: tuple[str, str, str], chars: list[Character], split_files=False
+):
+    "Create the HTML file for the scenario"
     html_snip1, html_snip2, html_snip3 = html_snips
     html_snip1 = html_snip1.replace("FAVICONHERE", args.favicon)
     html_snip2 = update_html(args, html_snip2)
@@ -272,7 +285,8 @@ def create_html_file(args, scenario_title, html_snips, chars, split_files=False)
         print()
 
 
-def create_js(args, chars):
+def create_js(args: Namespace, chars: list[Character]):
+    "Create a JS file containing the information needed for the HTML"
     formatted_json = yaml.safe_load('{"characters": { ' + "".join(str(x) for x in chars) + "}}")
     with open(os.path.join(args.inputdir, args.jsonname), "w+", encoding="utf8") as json_file:
         json_file.write(f"var data = {json.dumps(formatted_json)}")
