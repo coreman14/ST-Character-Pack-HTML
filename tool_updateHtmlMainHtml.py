@@ -70,17 +70,16 @@ def main():
             start_extracting = False
             line_to_add = ""
     html_snips.append(line_to_add)
-
     all_lines = []
     snip_counter = 1
     with open("html_main.py", "r", encoding="utf8") as f:
         for line in f:
-            if line.startswith(f"html_snip{snip_counter}"):
+            if line.startswith(f"HTML_SNIP{snip_counter}"):
                 quote_to_use = (
                     "'" if html_snips[snip_counter].endswith('"') or html_snips[snip_counter].startswith('"') else '"'
                 )
                 all_lines.append(
-                    f"html_snip{snip_counter} = r{quote_to_use * 3}{html_snips[snip_counter]}{quote_to_use * 3}\n"
+                    f"HTML_SNIP{snip_counter} = r{quote_to_use * 3}{html_snips[snip_counter]}{quote_to_use * 3}\n"
                 )
                 snip_counter += 1
             else:
