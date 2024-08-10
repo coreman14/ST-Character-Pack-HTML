@@ -99,7 +99,7 @@ class Accessory:
         self.is_pose_level_accessory = False if self.is_face else "/outfits/acc_" in self.image.path.lower()
 
     @property
-    def accessory_string(self) -> str:
+    def full_json(self) -> str:
         "Full JSON output for the accessory, used for the selected character page"
         return (
             f'{{"name" : "{self.name}", "state" : "{self.state}", "path" : "{self.image.path}", "layer" : "{self.layering_number}",'
@@ -108,12 +108,12 @@ class Accessory:
         )
 
     @property
-    def bare_accessory_string(self) -> str:
+    def default_accessory_json(self) -> str:
         "Short version of the JSON, used when no character is selected"
         return f'{{"path" : "{self.image.clean_path}","layer" : "{self.layering_number}","main_height" : {self.main_page_height}}}, '
 
     @property
-    def proper_name(self) -> str:
+    def proper_name_json(self) -> str:
         "Short version of the JSON, used for the accessory picker list"
         return f'{{"name" : "{self.name}", "state" : "{self.state}","is_face" : {str(self.is_face).lower()},}}, '
 
@@ -130,6 +130,21 @@ class Outfit:
     off_accessories: list[Accessory] = field(default_factory=list)
     on_accessories: list[Accessory] = field(default_factory=list)
 
+    def __post_init__(self):
+        "If a pose level accessory and outfit level accessory with the same name are both present, remove the pose level one"
+        pose_level_on_accessories: list[Accessory] = [x for x in self.on_accessories if x.is_pose_level_accessory]
+        pose_level_on_accessories_name: list[str] = [x.name for x in pose_level_on_accessories]
+        pose_level_off_accessories: list[Accessory] = [x for x in self.off_accessories if x.is_pose_level_accessory]
+        pose_level_off_accessories_name: list[str] = [x.name for x in pose_level_off_accessories]
+        for accessory in list(x for x in self.on_accessories if not x.is_pose_level_accessory):
+            if accessory.name in pose_level_on_accessories_name:
+                i = pose_level_on_accessories_name.index(accessory.name)
+                self.on_accessories.remove(pose_level_on_accessories[i])
+        for accessory in list(x for x in self.off_accessories if not x.is_pose_level_accessory):
+            if accessory.name in pose_level_off_accessories_name:
+                i = pose_level_off_accessories_name.index(accessory.name)
+                self.on_accessories.remove(pose_level_off_accessories[i])
+
     @property
     def accessory_names(self):
         """
@@ -144,15 +159,15 @@ class Outfit:
                 accessory_names[accessory.compare_name] = accessory
             elif not accessory_names[accessory.compare_name].is_face and accessory.is_face:
                 accessory_names[accessory.compare_name] = accessory
-        return {accessory.proper_name for accessory in accessory_names.values()}
+        return {accessory.proper_name_json for accessory in accessory_names.values()}
 
     @property
     def outfit_string(self) -> str:  # Escape # for outfits
         "Return the outfit json"
         return (
             f'{{"path" : "{html.escape(self.path.clean_path)}", '
-            + f'"off_accessories" : [{",".join(y.accessory_string for y in self.off_accessories)}], '
-            + f'"on_accessories" : [{",".join(y.accessory_string for y in self.on_accessories)}]}}'
+            + f'"off_accessories" : [{",".join(y.full_json for y in self.off_accessories)}], '
+            + f'"on_accessories" : [{",".join(y.full_json for y in self.on_accessories)}]}}'
         )
 
 
@@ -284,7 +299,7 @@ class Character(NamedTuple):
             face_bounds_box = (
                 int(pose.face_height * self.max_height_multiplier) if pose.face_height != 0 else bounds_box.bottom
             )
-            acc = "".join(x.bare_accessory_string for x in pose.default_accessories)
+            acc = "".join(x.default_accessory_json for x in pose.default_accessories)
             builder += (
                 f'"{pose.name}" : {{"max_face_height": {face_bounds_box}, '
                 + f'"faces": {pose.faces_escaped}, "blushes": {pose.blushes_escaped}, '
