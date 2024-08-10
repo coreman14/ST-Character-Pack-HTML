@@ -38,8 +38,9 @@ def get_args() -> argparse.Namespace:
     argroup = parser.add_argument_group(
         "Bounds functions",
         description=(
-            'Outbox "real size" (Image size after maximum crop). ',
-            "It will highlight any file that has a different size than the most common, or all if the most_common is 1.",
+            'Output the "real size" (Image size after maximum crop). ',
+            "It will highlight any file that has a different size than the most common, or all if the most_common is 1. ",
+            "This can catch invisible pixels that may be left over from editing.",
         ),
     )
     argroup.add_argument(
