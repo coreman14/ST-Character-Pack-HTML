@@ -3,17 +3,27 @@ import os
 import sys
 from PIL import Image, UnidentifiedImageError
 from PIL.Image import Image as ImageType
+import numpy as np
 
 FILES_THAT_COULD_BE_REMOVED = []
 
 
 def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
     """Attempts to open image. Treats image as a string first, then on failure treats it as a list."""
+    return_name = name
     try:
         try:
-            return name, Image.open(name)
+            image = Image.open(name)
         except AttributeError:
-            return name[0], Image.open(name[0])
+            image = Image.open(name[0])
+            return_name = name[0]
+        if image.mode != "RGBA":
+            image = image.convert("RGBA")
+        img_np = np.array(image)
+        img_np[img_np < (0, 0, 0, 255)] = 0
+        image = Image.fromarray(img_np)
+        return return_name, image
+
     except UnidentifiedImageError as pil_error:
         print()
         print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
