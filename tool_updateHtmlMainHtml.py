@@ -12,7 +12,7 @@ STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
 def clean_line(line: str):
     "We do any text changes here, such as removing the end slash from br tags."
     # Replace single line comments in multiline comments (Comments aren't minified well)
-    if match := re.match(r"""(.*;\s*)\/\/(?=(?:[^"']*("|')[^"']*("|'))*[^"']*$)(.*)""", line):
+    if match := re.match(r"""(.*;\s*|^\s*)\/\/(?=(?:[^"']*("|')[^"']*("|'))*[^"']*$)(.*)""", line):
         line = match.group(1)
         comment = "/*" + match.group(4) + "*/"
         comment += line
