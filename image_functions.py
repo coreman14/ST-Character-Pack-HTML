@@ -59,7 +59,6 @@ def open_image_and_get_measurements(
         if remove_empty:
             os.remove(name)
         elif name not in FILES_THAT_COULD_BE_REMOVED:
-            trim_img.show()
             FILES_THAT_COULD_BE_REMOVED.append(name)
             print(f"{name} is empty, it can be removed")
         return (*image_size, None)
