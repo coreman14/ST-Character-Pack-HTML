@@ -19,9 +19,10 @@ def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], Image
             return_name = name[0]
         if image.mode != "RGBA":
             image = image.convert("RGBA")
-        img_np = np.array(image)
-        img_np[img_np < (0, 0, 0, 255)] = 0
-        image = Image.fromarray(img_np)
+        if "faces" in name:
+            img_np = np.array(image)
+            img_np[img_np < (0, 0, 0, 255)] = 0
+            image = Image.fromarray(img_np)
         return return_name, image
 
     except UnidentifiedImageError as pil_error:
@@ -58,6 +59,7 @@ def open_image_and_get_measurements(
         if remove_empty:
             os.remove(name)
         elif name not in FILES_THAT_COULD_BE_REMOVED:
+            trim_img.show()
             FILES_THAT_COULD_BE_REMOVED.append(name)
             print(f"{name} is empty, it can be removed")
         return (*image_size, None)
