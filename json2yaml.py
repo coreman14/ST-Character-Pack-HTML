@@ -11,10 +11,12 @@ from yaml import YAMLError
 def json2yaml(args: argparse.Namespace = None, input_dir=""):
     """Traverse given directory and convert all json files to yaml files
     Takes a namespace object or a string as input to allow for main program to use it
+    Returns a tuple of the number of files converted and the total number of json files found
     """
     input_dir = args.input_dir if args else input_dir
     files = glob(os.path.join(input_dir, "**", "*.json"), recursive=True)
     file_len = len(files)
+    converted_files = 0
     for index, file_json in enumerate(files, start=1):
         print(f"File {file_json}, {index}/{file_len}")
         file_yaml = f"{os.path.splitext(file_json)[0]}.yml"
@@ -31,10 +33,13 @@ def json2yaml(args: argparse.Namespace = None, input_dir=""):
                         allow_unicode=True,
                     )
                 )
+            converted_files += 1
         except (OSError, json.JSONDecodeError, YAMLError):
             print(f"Failed to parse : {file_json}")
 
         os.remove(file_json)
+    print("Completed YML conversion.")
+    print(f"Converted {converted_files}/{file_len} of json files found.")
 
 
 def main():

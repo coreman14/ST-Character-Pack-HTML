@@ -104,6 +104,7 @@ def get_yaml(input_dir: str, name: str) -> dict:
             pass
         else:
             print(f"ERROR: Could not find character YML for {name}")
+            input("Press Enter to exit...")
             sys.exit(1)
         if name not in YML_FAILS:
             print(

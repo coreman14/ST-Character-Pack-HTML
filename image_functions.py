@@ -28,6 +28,7 @@ def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], Image
     except UnidentifiedImageError as pil_error:
         print()
         print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
+        input("Press Enter to exit...")
         sys.exit(1)
 
 

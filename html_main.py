@@ -84,7 +84,7 @@ def main_loop(args: Namespace, yml: dict):
             chars.append(classes.Character(character_name, pose_list, args.maxheightmultiplier))
 
     if args.bounds:
-        sys.exit()
+        sys.exit(0)
 
     if not chars:
         print("No suitable characters exist. Read what each character is missing and add those to create html.")

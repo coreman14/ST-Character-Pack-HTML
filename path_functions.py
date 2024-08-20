@@ -120,6 +120,7 @@ def get_outfits(path_to_pose: str, character_name: str) -> None | list[Tuple[str
             char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
             for x in dup:
                 print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
+            input("Press Enter to exit...")
             sys.exit(1)
 
     if not outfits:
@@ -315,6 +316,7 @@ def glob_for_face_accessories(pose: str, path_to_glob: str, list_to_append: list
                 f"Error: Face accessory was not found for accessory '{path_of_face_accessory.removesuffix(os.sep).split(os.sep)[-1]}',"
                 + f" for pose '{pose.split(os.sep)[-2:]}'",
             )
+            input("Press Enter to exit...")
             sys.exit(1)
         list_to_append.append(os.path.join(path_of_face_accessory, files[0]))
 
