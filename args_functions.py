@@ -18,8 +18,8 @@ INPUT_DIR = ""
 STRICT_ERROR_PARSING = False
 
 
-def get_args() -> argparse.Namespace:
-    "Create the parser used for the arguments"
+def get_args(args: list[str] = None) -> argparse.Namespace:
+    "Create the parser used for the arguments. If args is given, will use those args instead"
     parser = argparse.ArgumentParser(description="Makes an HTML file to browse a scenarios Characters")
     parser.add_argument(
         "-cj",
@@ -170,7 +170,7 @@ def get_args() -> argparse.Namespace:
         type=int,
         default=400,
     )
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def setup_args(args: argparse.Namespace) -> dict:

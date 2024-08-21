@@ -121,9 +121,9 @@ def main_loop(args: Namespace, yml: dict):
         )
 
 
-def main():
+def main(args: list[str] = None):
     "Main method"
-    args = args_functions.get_args()
+    args = args_functions.get_args(args)
     yml_data = args_functions.setup_args(args)
     main_loop(args, yml_data)
 
