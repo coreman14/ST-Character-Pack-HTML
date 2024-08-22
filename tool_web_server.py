@@ -1,11 +1,67 @@
+import asyncio
 import hashlib
-from fasthtml.common import fast_app, serve, FileResponse, StaticFiles, Mount
-from fasthtml import ft, FastHTML
-from io import BytesIO
 import os
+from zipfile import ZipFile
+from contextlib import asynccontextmanager
+import traceback
+from fasthtml.common import fast_app, serve, FileResponse
+from fasthtml import ft, FastHTML
+from html_main import main
+from shutil import rmtree
+
+
+async def print_task(sleep: int):
+    while True:
+        for x in [x for x in os.listdir("tmp") if x.endswith(".zip")]:
+            path = "tmp/" + x
+            folder_path = path.replace(".zip", "")
+            error_path = folder_path + ".error"
+            if folder_path not in os.listdir("tmp"):
+                yml_file_found = False
+                path_to_yml_file = ""
+                try:
+                    with ZipFile(path, "r") as f:
+                        for file in f.namelist():
+
+                            yml_file_found = yml_file_found or "/scenario.yml" in file
+                            if yml_file_found and not path_to_yml_file:
+                                path_to_yml_file = os.path.dirname(file)
+                                break
+                        if yml_file_found:
+                            os.makedirs(folder_path, exist_ok=True)
+                            f.extractall(folder_path)
+                        else:
+                            with open(error_path, "w") as x:
+                                pass
+                            os.rename(path, path + "-completed")
+                            continue
+
+                    main(["-s", "-i", folder_path + "/" + path_to_yml_file])
+                    index_location = folder_path + "/" + path_to_yml_file + "/index.html"
+                    with ZipFile(path, "a") as f:
+                        f.write(index_location, path_to_yml_file + "/index.html")
+                    await asyncio.sleep(5)
+                    rmtree(folder_path)
+                except Exception:
+                    print("Something went wrong")
+                    print(traceback.format_exc())
+                    with open(error_path, "w") as x:
+                        pass
+                os.rename(path, path + "-completed")
+
+        await asyncio.sleep(sleep)
+
+
+@asynccontextmanager
+async def lifespan(app: FastHTML):
+    asyncio.create_task(print_task(5))
+    yield
+    # Add any logs or commands before shutting down.
+    print("It is shutting down...")
+
 
 app: FastHTML
-app, rt = fast_app(debug=True)
+app, rt = fast_app(debug=True, lifespan=lifespan)
 
 
 """
