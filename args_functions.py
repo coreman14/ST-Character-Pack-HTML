@@ -37,6 +37,11 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
     )
     parser.add_argument("-s", "--silent", help="Will not ask for input", action="store_true")
     parser.add_argument(
+        "-hp",
+        "--hashprogress",
+        help="Given a hash, will create a progress file for it in the format <hash>.<current_char_number>.<total>",
+    )
+    parser.add_argument(
         "-st",
         "--strict",
         help="Will throw more errors when characters are not configured correctly",
@@ -194,6 +199,14 @@ def setup_args(args: argparse.Namespace) -> dict:
     if args.silent:
         builtins.input2 = builtins.input
         builtins.input = lambda x: ""
+    if args.hashprogress:
+        sys.exit2 = sys.exit
+
+        # No exit should happen, raise exception instead
+        def throw_error(*args, **kwargs):
+            raise Exception()
+
+        sys.exit = throw_error
     if args.json2yaml:
         print("Attempting to convert all JSON to YML.")
         json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
