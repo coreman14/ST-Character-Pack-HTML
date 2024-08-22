@@ -1,6 +1,6 @@
 *.pyz
 charactersTrim/*
-
+tmp/*
 scenario.yml
 scenario.json
 zipapps cmdline.txt
