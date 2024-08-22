@@ -2,6 +2,7 @@ from contextlib import redirect_stdout
 import hashlib
 import io
 import os
+import argparse
 from glob import glob
 from zipfile import ZipFile
 import traceback
@@ -258,4 +259,14 @@ def stop_backupthread():
     t.join(1.0)
 
 
-serve()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Startup settings for HTML webserver")
+    parser.add_argument(
+        "-p",
+        "--port",
+        help="Change the port to broadcast to. Default is 5000",
+        type=int,
+        default=5000,
+    )
+    args = parser.parse_args()
+    serve(port=args.port)
