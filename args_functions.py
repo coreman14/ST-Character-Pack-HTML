@@ -39,7 +39,10 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
     parser.add_argument(
         "-hp",
         "--hashprogress",
-        help="Given a hash, will create a progress file for it in the format <hash>.<current_char_number>.<total>",
+        help=argparse.SUPPRESS,
+        # Given a hash, will create a progress file for it in the format <hash>.<current_char_number>.<total>.
+        # This also replaces the sys.exit() command with an exception raise instead.
+        # This is used for the webserver which uses the file as a progress bar.
     )
     parser.add_argument(
         "-st",
