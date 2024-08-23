@@ -20,83 +20,99 @@ css = """
     padding-bottom: 0.5em;
 }
 """
+"""
+List of tasks:
+    1. Proper logging.
+    2. Make a way to pass in perticular arguments like favicon or height.
+        For this, we change the main program and not the web server.
+        We will make it so that the YML file can override arguments.
+        The only thing it cannot do is anything to do with seperating files and bounds/system arguments like strict, silent, hashprogress, etc...
+
+"""
 
 
-def print_task():
-    # The last thing missing from this is the ability to remove old files to save space. I think we go 30 mins
+def process_uploaded_files():
     while True:
         print("Looking for files to update")
-        for x in [x for x in os.listdir(path=DIR_OF_HOLDING) if x.endswith(".zip")]:
-            path = "tmp/" + x
-            file_hash = x.split(".")[0]
-            folder_path = path.replace(".zip", "")
-            error_path = folder_path + ".error"
-            print(f"Found file {x}")
-            if folder_path not in os.listdir(DIR_OF_HOLDING):
-                yml_file_found = False
-                path_to_yml_file = ""
-                list_of_files_to_write = []
+        files_to_check = os.listdir(DIR_OF_HOLDING)
+        for filename in [x for x in files_to_check if x.endswith(".zip")]:
+            print(f"Found file {filename}")
+            file_hash = filename.split(".")[0]
+            zip_file_path = os.path.join(DIR_OF_HOLDING, filename)
+            extract_folder_path = zip_file_path.replace(".zip", "")
+            error_file_path = extract_folder_path + ".error"
+            # Don't try to process a file that is already being processed
+            if extract_folder_path not in files_to_check:
+                yml_file_folder = ""
+                list_of_files_in_zip = []
                 try:
-                    with ZipFile(path, "r") as f:
-                        list_of_files_to_write = f.namelist()
-                        for file in f.namelist():
-                            yml_file_found = yml_file_found or "/scenario.yml" in file
-                            if yml_file_found and not path_to_yml_file:
-                                path_to_yml_file = os.path.dirname(file)
+                    with ZipFile(zip_file_path, "r") as f:
+                        list_of_files_in_zip = f.namelist()
+                        for zip_file in list_of_files_in_zip:
+                            if "/scenario.yml" in zip_file:
+                                yml_file_folder = os.path.dirname(zip_file)
                                 break
-                        if yml_file_found:
-                            os.makedirs(folder_path, exist_ok=True)
-                            f.extractall(folder_path)
+                        if yml_file_folder:
+                            os.makedirs(extract_folder_path, exist_ok=True)
+                            f.extractall(extract_folder_path)
                         else:
-                            with open(error_path, "w", encoding="utf8") as x:
-                                x.write("Couldn't find YML file")
-                            os.rename(path, path + "-completed")
+                            with open(error_file_path, "w", encoding="utf8") as filename:
+                                filename.write("Couldn't find YML file")
+                            os.rename(zip_file_path, zip_file_path + "-completed")
                             continue
-                    print("File x has scenario.yml. Processing file")
-
-                    error = False
-                    os_error = None
-
+                    print(f"File {filename} has scenario.yml. Processing file")
+                    # For a general error we print the HTML creation std_out.
+                    general_error = False
+                    # Os Error we print a generic message to prevent leaking the dir stuff
+                    os_error = False
+                    print("Starting HTML creation")
                     f = io.StringIO()
                     with redirect_stdout(f):
                         try:
-                            main(["-s", "-i", folder_path + "/" + path_to_yml_file, "-hp", file_hash])
+                            main(["-s", "-i", extract_folder_path + "/" + yml_file_folder, "-hp", file_hash])
                         except OSError:
-                            os_error = "OSError: Please contact server Admin to fix or wait 30 minutes."
+                            os_error = True
+                            print(traceback.format_exc())
                         except Exception:
-                            error = True
-                    if error or os_error:
+                            general_error = True
+                            print(traceback.format_exc())
+                    if general_error or os_error:
                         print("Something went wrong with HTML processing, printing debug log")
-                        with open(error_path, "w", encoding="utf8") as x:
+                        with open(error_file_path, "w", encoding="utf8") as filename:
                             if os_error:
-                                x.write(os_error)
+                                filename.write("OSError: Please contact server Admin to fix or wait 30 minutes.")
                             else:
-                                x.write(f.getvalue())
-                        os.rename(path, path + "-completed")
+                                filename.write(f.getvalue())
+                        os.rename(zip_file_path, zip_file_path + "-completed")
                         continue
 
-                    index_location = folder_path + "/" + path_to_yml_file + "/index.html"
-                    with ZipFile(path, "w") as f:
-                        for file in list_of_files_to_write:
-                            f.write(folder_path + "/" + file, file)
-                        if path_to_yml_file + "/index.html" not in list_of_files_to_write:
-                            f.write(index_location, path_to_yml_file + "/index.html")
+                    index_html_location = extract_folder_path + "/" + yml_file_folder + "/index.html"
+                    with ZipFile(zip_file_path, "w") as f:
+                        for zip_file in list_of_files_in_zip:
+                            f.write(extract_folder_path + "/" + zip_file, zip_file)
+                        if yml_file_folder + "/index.html" not in list_of_files_in_zip:
+                            f.write(index_html_location, yml_file_folder + "/index.html")
                     sleep(5)
-                    rmtree(folder_path)
-                    print("Finished Processing File")
+                    rmtree(extract_folder_path)
+                    print(f"Finished Processing File {filename}")
                 except Exception:
                     print("Something went wrong")
                     print(traceback.format_exc())
-                    with open(error_path, "w", encoding="utf8") as x:
-                        x.write(traceback.format_exc())
-                os.rename(path, path + "-completed")
+                    with open(error_file_path, "w", encoding="utf8") as filename:
+                        filename.write("An error has occured. Please contact server Admin to fix or wait 30 minutes.")
+                os.rename(zip_file_path, zip_file_path + "-completed")
 
         files = [os.path.join(DIR_OF_HOLDING, f) for f in os.listdir(DIR_OF_HOLDING)]  # add path to each file
-        for file in filter(lambda x: os.path.getmtime(x) < (time() - (60 * 30)), files):
-            if os.path.isdir(file):
-                rmtree(file)
+        files_removed = 0
+        for zip_file in filter(lambda x: os.path.getmtime(x) < (time() - (60 * 30)), files):
+            if os.path.isdir(zip_file):
+                rmtree(zip_file)
             else:
-                os.remove(file)
+                os.remove(zip_file)
+            files_removed += 1
+        if files_removed:
+            print(f"Removed {files_removed} files")
+        print("Finished Processing")
         sleep(30)
 
 
@@ -260,7 +276,7 @@ async def get(fname: str):
 
 os.makedirs(DIR_OF_HOLDING, exist_ok=True)
 
-t = Thread(target=print_task)
+t = Thread(target=process_uploaded_files)
 t.daemon = True
 
 
