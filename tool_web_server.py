@@ -1,42 +1,50 @@
 from contextlib import redirect_stdout
 import hashlib
 import io
+import logging.config
 import os
 import argparse
 from glob import glob
+import pathlib
 from zipfile import ZipFile
 import traceback
 from shutil import rmtree
 from threading import Thread
 from time import sleep, time
+import logging
+
+import yaml
 from fasthtml.common import fast_app, serve, FileResponse, Style
 from fasthtml import ft, FastHTML
 from html_main import main
 
 DIR_OF_HOLDING = "tmp"
+DIR_OF_LOGGING = "serverConfig/logs"
 
 css = """
 .container > h1 {
     padding-bottom: 0.5em;
 }
 """
-"""
-List of tasks:
-    1. Proper logging.
-    2. Make a way to pass in perticular arguments like favicon or height.
-        For this, we change the main program and not the web server.
-        We will make it so that the YML file can override arguments.
-        The only thing it cannot do is anything to do with seperating files and bounds/system arguments like strict, silent, hashprogress, etc...
 
-"""
+
+def setup_logging():
+    config_file = pathlib.Path("serverConfig/loggingconfig.yaml")
+    with config_file.open() as f:
+        config = yaml.safe_load(f)
+    logging.config.dictConfig(config)
+
+
+setup_logging()
+logger = logging.getLogger("web_server")
 
 
 def process_uploaded_files():
     while True:
-        print("Looking for files to update")
+        logger.info("Looking for files to update")
         files_to_check = os.listdir(DIR_OF_HOLDING)
         for filename in [x for x in files_to_check if x.endswith(".zip")]:
-            print(f"Found file {filename}")
+            logger.info("Found file %s", filename)
             file_hash = filename.split(".")[0]
             zip_file_path = os.path.join(DIR_OF_HOLDING, filename)
             extract_folder_path = zip_file_path.replace(".zip", "")
@@ -45,6 +53,8 @@ def process_uploaded_files():
             if extract_folder_path not in files_to_check:
                 yml_file_folder = ""
                 list_of_files_in_zip = []
+                # For a general error we print the HTML creation std_out.
+                general_error = False
                 try:
                     with ZipFile(zip_file_path, "r") as f:
                         list_of_files_in_zip = f.namelist()
@@ -56,33 +66,41 @@ def process_uploaded_files():
                             os.makedirs(extract_folder_path, exist_ok=True)
                             f.extractall(extract_folder_path)
                         else:
-                            with open(error_file_path, "w", encoding="utf8") as filename:
-                                filename.write("Couldn't find YML file")
-                            os.rename(zip_file_path, zip_file_path + "-completed")
-                            continue
-                    print(f"File {filename} has scenario.yml. Processing file")
-                    # For a general error we print the HTML creation std_out.
-                    general_error = False
+                            general_error = True
+
+                    if general_error:
+                        with open(error_file_path, "w", encoding="utf8") as filename:
+                            filename.write(
+                                "Couldn't find YML file. Please check that the the zip uses YML files instead of JSON."
+                            )
+                        logger.info("Uploaded file did not contain a YML file.")
+                        os.rename(zip_file_path, zip_file_path + "-completed")
+                        continue
+                    logger.info("File %s has scenario.yml. Processing file", filename)
+
                     # Os Error we print a generic message to prevent leaking the dir stuff
                     os_error = False
-                    print("Starting HTML creation")
+                    error_text = None
+                    logger.info("Starting HTML creation")
                     f = io.StringIO()
                     with redirect_stdout(f):
                         try:
                             main(["-s", "-i", extract_folder_path + "/" + yml_file_folder, "-hp", file_hash])
                         except OSError:
                             os_error = True
-                            print(traceback.format_exc())
+                            error_text = traceback.format_exc()
                         except Exception:
                             general_error = True
-                            print(traceback.format_exc())
+                            error_text = traceback.format_exc()
                     if general_error or os_error:
-                        print("Something went wrong with HTML processing, printing debug log")
+                        logger.debug(error_text)
+                        logger.info("Something went wrong with HTML processing, printing debug log")
                         with open(error_file_path, "w", encoding="utf8") as filename:
                             if os_error:
                                 filename.write("OSError: Please contact server Admin to fix or wait 30 minutes.")
                             else:
                                 filename.write(f.getvalue())
+                                logger.debug(f.getvalue())
                         os.rename(zip_file_path, zip_file_path + "-completed")
                         continue
 
@@ -94,10 +112,10 @@ def process_uploaded_files():
                             f.write(index_html_location, yml_file_folder + "/index.html")
                     sleep(5)
                     rmtree(extract_folder_path)
-                    print(f"Finished Processing File {filename}")
+                    logger.info("Finished Processing File %s", filename)
                 except Exception:
-                    print("Something went wrong")
-                    print(traceback.format_exc())
+                    logger.info("Something went wrong")
+                    logger.debug(traceback.format_exc())
                     with open(error_file_path, "w", encoding="utf8") as filename:
                         filename.write("An error has occured. Please contact server Admin to fix or wait 30 minutes.")
                 os.rename(zip_file_path, zip_file_path + "-completed")
@@ -111,8 +129,8 @@ def process_uploaded_files():
                 os.remove(zip_file)
             files_removed += 1
         if files_removed:
-            print(f"Removed {files_removed} files")
-        print("Finished Processing")
+            logger.info("Removed %d files", files_removed)
+        logger.info("Finished Processing")
         sleep(30)
 
 
@@ -215,7 +233,7 @@ def get(file_hash: str):
 
 @app.route("/{fname:path}.{ext:static}")
 async def get(fname: str, ext: str):
-    return FileResponse(f"html/{fname}.{ext}")
+    return FileResponse(f"htmlAssets/{fname}.{ext}")
 
 
 @rt("/")
@@ -225,7 +243,7 @@ def get():
             "Create HTML for character pack",
             ft.Div(
                 ft.A(
-                    "Click here to for information",
+                    "Click here for information on this tool",
                     hx_get="/info",
                     hx_target="#form",
                     style="display:block; padding-bottom: 15px;",
@@ -284,23 +302,34 @@ async def post(request):
         filename = form["file"].filename
         contents = await form["file"].read()
 
+    def sizeof_fmt(num, suffix="B"):
+        for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
+            if abs(num) < 1024.0:
+                return f"{num:3.1f}{unit}{suffix}"
+            num /= 1024.0
+        return f"{num:.1f}Yi{suffix}"
+
+    logger.info("File was uploaded, %s, with size of: %s", filename, sizeof_fmt(len(contents)))
     # Start hashing
     md5 = hashlib.md5()
     md5.update(contents)
     digests = [x.split(".")[0] for x in os.listdir(DIR_OF_HOLDING)]
     if md5.hexdigest() not in digests:
-        with open(f"tmp/{md5.hexdigest()}.{filename}", "wb") as f:
+        with open(f"{DIR_OF_HOLDING}/{md5.hexdigest()}.{filename}", "wb") as f:
             f.write(contents)
+        logger.info('File %s was saved at "%s"', filename, f"{DIR_OF_HOLDING}/{md5.hexdigest()}.{filename}")
+    else:
+        logger.info("File %s is a duplicate, returning error log", filename)
     return decide_div(md5.hexdigest())
 
 
 @rt("/downloadCompletedZip/{fname:path}")
 async def get(fname: str):
-    print(fname)
     return FileResponse(f"tmp/{fname}.zip-completed", filename=fname.split(".", 1)[1] + ".zip")
 
 
 os.makedirs(DIR_OF_HOLDING, exist_ok=True)
+os.makedirs(DIR_OF_LOGGING, exist_ok=True)
 
 t = Thread(target=process_uploaded_files)
 t.daemon = True
@@ -325,5 +354,11 @@ if __name__ == "__main__":
         type=int,
         default=5000,
     )
+    parser.add_argument(
+        "-dr",
+        "--disablereloading",
+        help="When true, do not reload the server if file changes happen.",
+        action="store_false",
+    )
     args = parser.parse_args()
-    serve(port=args.port)
+    serve(port=args.port, reload=args.disablereloading, reload_includes="*.py")

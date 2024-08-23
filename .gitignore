@@ -7,3 +7,4 @@ zipapps cmdline.txt
 zipapps_cache/*
 __pycache__/*
 .sesskey
+serverConfig/logs/*
