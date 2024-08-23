@@ -16,6 +16,8 @@ Inspired by the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t
 
 ## Running the program
 
+I've made a small website that when you upload the ZIP to, will generate the HTML file inside the zip. You can find it [here](https://html.coreman14.com/).
+
 For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double-clicking or from the command line.
 
 On Mac, Unix and other OSes, install Python 3.10 or greater, then download one of the PYZ files from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest) and install the requirements.
@@ -27,6 +29,17 @@ If you are ok with installing these requirements to your machine, download the `
 ## Arguments
 
 For an up-to-date list, run the file with `-h` which will print all options. You can then add any to the command line.
+
+Certain arguments will be recognized and used if written in `scenario.yml` file.
+Those arguments are listed below:
+
+| Argument              | Description                                                                                                                                                                                              | Command line example              | YML entry example                                    |
+| :-------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------- |
+| Outfit priority       | Change the list of outfits that is used to determine the default outfit on the main page. This completely replaces the default outfit priority order. In scenario.yml, this must be a list.              | `-op gym swimsuit casual uniform` | `outfitpriority: [ gym, swimsuit, casual, uniform ]` |
+| Max height Multiplier | Change how much of the body is shown on the expression sheet. The bigger the number, the lower the expression sheet will show. Default is 1.07                                                           | `-mhm 1.4`                        | `maxheightmultiplier: 1.4`                           |
+| Outfit height         | Change the height of the outfits shown on the default page. Default value is 200                                                                                                                         | `-oh 300`                         | `outfitheight: 300`                                  |
+| Accessory Height      | Change the height of the accessory viewer. Default value is 400                                                                                                                                          | `-ah 300`                         | `accessoryheight: 300`                               |
+| Favorite Icon         | Change the icon that is displayed in the tab bar in a browser. Recommended size is a square image around 32x32. If you are using backslashes `\` in the YML file, do not use quotes or double them `\\`. | `-fi assets/icon.png`             | `favicon: assets/icon.png`                           |
 
 ## Other features and uses
 

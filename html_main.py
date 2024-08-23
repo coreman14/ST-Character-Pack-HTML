@@ -33,18 +33,28 @@ def main_loop(args: Namespace, yml: dict):
     )
 
     remove_path_setup = partial(path_functions.remove_path, path_to_remove=args.inputdir)
-
     chars: list[classes.Character] = []
+    paths = [
+        path
+        for path in os.listdir(os.path.join(args.inputdir, "characters"))
+        if os.path.isdir(os.path.join(args.inputdir, "characters", path))
+    ]
+
+    if args.hashprogress:
+        # Set hashprogress as the path
+        args.hashprogress = args.inputdir + f"/progress.{args.hashprogress}.0.{len(paths)}"
+        with open(args.hashprogress, "w"):
+            pass
     for count, character_name in enumerate(
-        (
-            path
-            for path in os.listdir(os.path.join(args.inputdir, "characters"))
-            if os.path.isdir(os.path.join(args.inputdir, "characters", path))
-        ),
+        paths,
         start=1,
     ):
         if not args.bounds:
             print(f"Character {count}: {character_name}")
+            if args.hashprogress:
+                new_name = args.hashprogress.replace(f".{count - 1}.", f".{count}.")
+                os.rename(args.hashprogress, new_name)
+                args.hashprogress = new_name
 
         pose_list = []
         # default_outfit = False
@@ -121,9 +131,9 @@ def main_loop(args: Namespace, yml: dict):
         )
 
 
-def main():
+def main(args: list[str] = None):
     "Main method"
-    args = args_functions.get_args()
+    args = args_functions.get_args(args)
     yml_data = args_functions.setup_args(args)
     main_loop(args, yml_data)
 
