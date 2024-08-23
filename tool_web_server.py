@@ -27,6 +27,9 @@ css = """
 }
 """
 
+os.makedirs(DIR_OF_HOLDING, exist_ok=True)
+os.makedirs(DIR_OF_LOGGING, exist_ok=True)
+
 
 def setup_logging():
     config_file = pathlib.Path("serverConfig/loggingconfig.yaml")
@@ -327,9 +330,6 @@ async def post(request):
 async def get(fname: str):
     return FileResponse(f"tmp/{fname}.zip-completed", filename=fname.split(".", 1)[1] + ".zip")
 
-
-os.makedirs(DIR_OF_HOLDING, exist_ok=True)
-os.makedirs(DIR_OF_LOGGING, exist_ok=True)
 
 t = Thread(target=process_uploaded_files)
 t.daemon = True
