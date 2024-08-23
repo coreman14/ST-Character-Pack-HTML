@@ -224,6 +224,12 @@ def get():
         ft.Titled(
             "Create HTML for character pack",
             ft.Div(
+                ft.A(
+                    "Click here to for information",
+                    hx_get="/info",
+                    hx_target="#form",
+                    style="display:block; padding-bottom: 15px;",
+                ),
                 ft.Form(
                     ft.Label("Upload a character pack in a .zip format", **{"for": "file"}),
                     ft.Input(
@@ -249,6 +255,26 @@ def get():
                 style="font-size:1.5em;",
             ),
         ),
+    )
+
+
+@rt("/info")
+def get():
+    return ft.Div(
+        ft.H2("Information"),
+        ft.P(
+            "This website allows users to upload their scenarios or zip files to create an index.html using ",
+            ft.A("ST-Charcter-Pack-HTML", href="https://github.com/coreman14/ST-Character-Pack-HTML"),
+        ),
+        ft.P("You cannot enter any arguments when you upload the character pack to this site."),
+        ft.P(
+            "You",
+            ft.B("can however"),
+            "use the few arguments that can be found through the scenario.yml file. You can find these entries ",
+            ft.A("here", href="https://github.com/coreman14/ST-Character-Pack-HTML?tab=readme-ov-file#arguments"),
+        ),
+        return_to_home_link(),
+        id="form",
     )
 
 
