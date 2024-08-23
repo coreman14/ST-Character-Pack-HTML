@@ -9,11 +9,17 @@ import traceback
 from shutil import rmtree
 from threading import Thread
 from time import sleep, time
-from fasthtml.common import fast_app, serve, FileResponse
+from fasthtml.common import fast_app, serve, FileResponse, Style
 from fasthtml import ft, FastHTML
 from html_main import main
 
 DIR_OF_HOLDING = "tmp"
+
+css = """
+.container > h1 {
+    padding-bottom: 0.5em;
+}
+"""
 
 
 def print_task():
@@ -62,7 +68,7 @@ def print_task():
                     if error or os_error:
                         print("Something went wrong with HTML processing, printing debug log")
                         with open(error_path, "w", encoding="utf8") as x:
-                            if os.error:
+                            if os_error:
                                 x.write(os_error)
                             else:
                                 x.write(f.getvalue())
@@ -95,7 +101,7 @@ def print_task():
 
 
 app: FastHTML
-app, rt = fast_app()
+app, rt = fast_app(hdrs=[Style(css)])
 app.routes.pop()
 
 
@@ -106,7 +112,7 @@ def progress_html(progress_file: str, file_hash: str):
     total = x[-1]
     current = x[-2]
     return ft.Div(
-        ft.H3("Processing zip file"),
+        ft.H2("Processing zip file", style="color: green;"),
         (
             ft.Div(f"Progress: ", ft.Span(f"{current}/{total}", style="color: green;"), " characters processed")
             if current != total
@@ -121,9 +127,18 @@ def progress_html(progress_file: str, file_hash: str):
     )
 
 
+def return_to_home_link():
+    return ft.A(
+        "Click here to upload another file",
+        hx_get="/",
+        hx_target="closest body",
+        style="display:block; padding-bottom: 15px;",
+    )
+
+
 def starting_html(file_hash: str):
     return ft.Div(
-        ft.H2("File has been uploaded."),
+        ft.H2("File has been uploaded.", style="color: green;"),
         ft.H3("Starting process to generate HTML file"),
         id="form",
         hx_get=f"/progress/{file_hash}",
@@ -142,15 +157,10 @@ def error_html(error_file: str, file_hash: str):
     error_text = error_text.replace(os.sep + file_hash + ".", "")
 
     return ft.Div(
-        ft.H3(
+        ft.H2(
             "Failed to create HTML file. Please check fix the errors listed below. Then try again.", style="color: red"
         ),
-        ft.A(
-            "Click here to upload another file",
-            hx_get="/",
-            hx_target="closest body",
-            style="display:block; padding-bottom: 15px;",
-        ),
+        return_to_home_link(),
         ft.Textarea(error_text, style="height: 60vh"),
     )
 
@@ -161,7 +171,7 @@ def return_completed_state(link_to_file: str):
     link_to_file = f"/downloadCompletedZip/{link_to_file}"
     return ft.Div(
         ft.P(f"Completed HTML for {filename}. You can download it ", ft.A("here", href=link_to_file)),
-        ft.A("Click here to upload another file", hx_get="/", hx_target="closest body"),
+        return_to_home_link(),
         id="form",
         style="font-size:2em;",
     )
@@ -195,9 +205,8 @@ async def get(fname: str, ext: str):
 @rt("/")
 def get():
     return (
-        ft.Title("Create HTML for character pack"),
         ft.Titled(
-            "HTML Creator",
+            "Create HTML for character pack",
             ft.Div(
                 ft.Form(
                     ft.Label("Upload a character pack in a .zip format", **{"for": "file"}),
