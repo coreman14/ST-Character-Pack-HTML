@@ -16,7 +16,7 @@ Inspired by the [Holy Pack](https://www.tfgames.site/phpbb3/viewtopic.php?f=72&t
 
 ## Running the program
 
-I've made a small website that when you upload the ZIP to, will generate the HTML file inside the zip. You can find it [here](https://html.coreman14.com/).
+I've made a small website that when you upload the ZIP to, will generate the HTML file inside the zip. You can find it [here](https://html.coreman14.com/). It does not handle big files well, so please download the tool if the upload is taking a while.
 
 For Windows, just download the [EXE](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest/download/HTMLCreator.exe) from the [Latest release](https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest), place it into the scenario folder you wish to create the HTML for, next to the `scenario.yml` file, and run it by double-clicking or from the command line.
 

@@ -29,7 +29,8 @@ css = """
 
 js = """
         htmx.on('#form', 'htmx:xhr:progress', function(evt) {
-          htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+          htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100);
+          htmx.find('#progressNumber').innerHTML = (evt.detail.loaded/evt.detail.total * 100).toFixed(2) + "%";
         });
 
 """
@@ -259,6 +260,16 @@ def get():
                     hx_target="#form",
                     style="display:block; padding-bottom: 15px;",
                 ),
+                ft.Div(
+                    "If your upload is taking a while, please consider downloading the tool instead.",
+                    hx_get="/info",
+                    hx_target="#form",
+                    style="display:block; padding-bottom: 15px;",
+                ),
+                ft.A(
+                    "You can find the tool here",
+                    href="https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest",
+                ),
                 ft.Form(
                     ft.Label("Upload a character pack in a .zip format", **{"for": "file"}),
                     ft.Input(
@@ -276,10 +287,11 @@ def get():
                     hx_post="/uploadFile",
                     hx_target="#form",
                     hx_swap="innerHTML",
-                    hx_indicator="#notifications",
+                    hx_indicator="#notifications, #progressNumber",
                     **{"hx-disabled-elt": "find button"},
                 ),
                 ft.Progress(id="progress", value=0, **{"max": 100}),
+                ft.Div(id="progressNumber", **{"class": "htmx-indicator"}),
                 ft.Div("Uploading file...", id="notifications", **{"class": "htmx-indicator"}),
                 id="form",
                 style="font-size:1.5em;",
