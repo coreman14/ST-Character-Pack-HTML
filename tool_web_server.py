@@ -14,7 +14,7 @@ from time import sleep, time
 import logging
 
 import yaml
-from fasthtml.common import fast_app, serve, FileResponse, Style
+from fasthtml.common import fast_app, serve, FileResponse, Style, Script
 from fasthtml import ft, FastHTML
 from html_main import main
 
@@ -26,6 +26,14 @@ css = """
     padding-bottom: 0.5em;
 }
 """
+
+js = """
+        htmx.on('#form', 'htmx:xhr:progress', function(evt) {
+          htmx.find('#progress').setAttribute('value', evt.detail.loaded/evt.detail.total * 100)
+        });
+
+"""
+
 
 os.makedirs(DIR_OF_HOLDING, exist_ok=True)
 os.makedirs(DIR_OF_LOGGING, exist_ok=True)
@@ -138,7 +146,7 @@ def process_uploaded_files():
 
 
 app: FastHTML
-app, rt = fast_app(hdrs=[Style(css)])
+app, rt = fast_app(hdrs=[Style(css), Script(js)])
 app.routes.pop()
 
 
@@ -271,6 +279,7 @@ def get():
                     hx_indicator="#notifications",
                     **{"hx-disabled-elt": "find button"},
                 ),
+                ft.Progress(id="progress", value=0, **{"max": 100}),
                 ft.Div("Uploading file...", id="notifications", **{"class": "htmx-indicator"}),
                 id="form",
                 style="font-size:1.5em;",
