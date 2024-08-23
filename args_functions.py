@@ -47,7 +47,7 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
     parser.add_argument(
         "-st",
         "--strict",
-        help="Will throw more errors when characters are not configured correctly",
+        help="If enabled, will force exit when a characters YML file is setup incorrectly.",
         action="store_true",
     )
     argroup = parser.add_argument_group(
@@ -236,12 +236,10 @@ def setup_args(args: argparse.Namespace) -> dict:
                 print(f"Error: Could not read YAML data from scenario.yaml.\nInfo:{exc}")
                 input("Press Enter to exit...")
                 sys.exit(1)
-
-        if "title" not in yml_data:
-            yml_data["title"] = ""
-
         if args.titlename:
             yml_data["title"] = args.titlename
+        elif "title" not in yml_data:
+            yml_data["title"] = ""
 
         args.prefix = yml_data.get("prefix", "PRE")
 
