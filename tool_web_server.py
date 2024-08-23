@@ -95,7 +95,8 @@ def print_task():
 
 
 app: FastHTML
-app, rt = fast_app(debug=True)
+app, rt = fast_app()
+app.routes.pop()
 
 
 def progress_html(progress_file: str, file_hash: str):
@@ -184,6 +185,11 @@ def decide_div(file_hash):
 @rt("/progress/{file_hash}")
 def get(file_hash: str):
     return decide_div(file_hash)
+
+
+@app.route("/{fname:path}.{ext:static}")
+async def get(fname: str, ext: str):
+    return FileResponse(f"html/{fname}.{ext}")
 
 
 @rt("/")
