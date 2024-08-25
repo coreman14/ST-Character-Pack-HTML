@@ -253,7 +253,7 @@ func renderBaseEnd(c echo.Context) error {
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
-
+	e.Static("/", "htmlAssets")
 	e.Renderer = newTemplate()
 
 	e.GET("/", func(c echo.Context) error {
@@ -276,6 +276,6 @@ func main() {
 		return upload(c)
 	})
 	e.Logger.Fatal(e.Start(":80"))
-	/*Last things to do. 1. Make the post and download routes 2. Make the file response routes (favicon.ico and stuff) 3. Move go into main folder 4. Make python server only do the files processing. 5. Do go logging. */
+	/*Last things to do. 4. Make python server only do the files processing. 5. Do go logging. */
 
 }
