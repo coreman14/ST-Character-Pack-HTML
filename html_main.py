@@ -46,7 +46,7 @@ def main_loop(args: Namespace, yml: dict):
         with open(args.hashprogress, "w"):
             pass
     for count, character_name in enumerate(
-        paths,
+        sorted(paths),
         start=1,
     ):
         if not args.bounds:
