@@ -1,7 +1,6 @@
 {{ block "headers" .}}
 <!DOCTYPE html>
 <head>
-    <title>Create HTML for character pack</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <script src="https://unpkg.com/htmx.org@next/dist/htmx.min.js"></script>
@@ -29,6 +28,7 @@
 {{end}}
 {{ block "index" . }}
 <div id="form" style="font-size: 1.5em">
+    <title>Create HTML for character pack</title>
     <script>
         htmx.on("#form", "htmx:xhr:progress", function (evt) {
             htmx.find("#progress").setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
@@ -65,6 +65,7 @@
 
 {{block "informationBlock" .}}
 <div id="form" style="font-size: 1.5em">
+    <title>Information</title>
     <h2>Information</h2>
     <p>
         This website allows users to upload their scenarios or zip files to create an index.html using
@@ -83,12 +84,13 @@
 
 {{block "waitingforthread" . }}
 <div
-    hx-get="/progress/{{.FileHash}}"
+hx-get="/progress/{{.FileHash}}"
     hx-trigger="every 5s"
     hx-swap="outerHTML"
     hx-target="#form"
     id="form"
->
+    >
+    <title>Checking progress for {{.FileHash}}</title>
     <h2 style="color: green">File has been uploaded.</h2>
     <h3>Starting process to generate HTML file</h3>
 </div>
@@ -96,6 +98,7 @@
 
 {{block "finishedhtml" .}}
 <div id="form" style="font-size: 2em">
+    <title>Finished creating {{.Filename}}</title>
     <p>
         Completed HTML for {{ .Filename }}. You can download it
         <a href="{{ .LinkToFile }}">
@@ -114,13 +117,14 @@
 
 {{block "progress" .}}
 <div
-    hx-get="/progress/{{.FileHash}}"
+hx-get="/progress/{{.FileHash}}"
     hx-trigger="every 5s"
     hx-swap="outerHTML"
     hx-target="#form"
     id="form"
     style="font-size: 2em"
 >
+    <title>Checking progress for {{.FileHash}}</title>
     <h2 style="color: green">Processing zip file</h2>
     {{ if .IsCharacterParsed }}
         <div>Creating HTML</div>
@@ -132,6 +136,7 @@
 
 {{block "error" .}}
 <div>
+    <title>Failed to create HTML</title>
     <h2 style="color: red">
         Failed to create HTML file. Please check fix the errors listed below. Then try again.
     </h2>
