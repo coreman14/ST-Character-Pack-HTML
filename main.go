@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"io"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"slices"
@@ -159,7 +162,73 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 	}
 	return c.Render(200, "waitingforthread", newBasicFileHash(fileHash))
 }
+func sizeof_fmt(num float64, suffix string) string {
+	if suffix == "" {
+		suffix = "b"
+	}
+	for _, unit := range []string{"", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"} {
+		if math.Abs(num) < 1024.0 {
+			return fmt.Sprintf("%3.1f%s%s", num, unit, suffix)
+		}
+		num /= 1024.0
+	}
+	return fmt.Sprintf("%.1fYi%s", num, suffix)
+}
+func upload(c echo.Context) error {
+	// Read form fields
 
+	//-----------
+	// Read file
+	//-----------
+
+	// Source
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("File was uploaded, %s, with size of: %s\n", file.Filename, sizeof_fmt(float64(file.Size), ""))
+	src, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer src.Close()
+	md5 := md5.New()
+	if _, err := io.Copy(md5, src); err != nil {
+		log.Fatal(err)
+	}
+	src.Seek(0, io.SeekStart)
+	file_hash := hex.EncodeToString(md5.Sum(nil))
+	filename := DIR_OF_HOLDING + "/" + file_hash + "." + file.Filename
+
+	files, err := os.ReadDir(DIR_OF_HOLDING)
+	if err != nil {
+		fmt.Println("First error")
+		log.Fatal(err)
+	}
+	files = slices.DeleteFunc(files, func(file os.DirEntry) bool {
+		//Remove original zip file
+		return !strings.HasPrefix(file.Name(), file_hash)
+	})
+	// Destination
+	if len(files) == 0 {
+		dst, err := os.Create(filename)
+		if err != nil {
+			return err
+		}
+		defer dst.Close()
+
+		// Copy
+		if _, err = io.Copy(dst, src); err != nil {
+			return err
+		}
+		fmt.Printf("File %s was saved at \"%s\"\n", file.Filename, filename)
+	} else {
+		fmt.Printf("File %s is a duplicate, returning correct Div\n", filename)
+	}
+
+	return decideDivReturn(c, file_hash)
+}
 func renderBase(c echo.Context) echo.Context {
 	c.Render(200, "headers", nil)
 	c.Render(200, "htmlstart", nil)
@@ -187,6 +256,12 @@ func main() {
 	})
 	e.GET("/progress/:fileHash", func(c echo.Context) error {
 		return decideDivReturn(c, c.Param("fileHash"))
+	})
+	e.GET("/downloadCompletedZip/:fName", func(c echo.Context) error {
+		return c.Attachment(DIR_OF_HOLDING+"/"+c.Param("fName")+".zip-completed", strings.Split(c.Param("fName"), ".")[1]+".zip")
+	})
+	e.POST("/uploadFile", func(c echo.Context) error {
+		return upload(c)
 	})
 	e.Logger.Fatal(e.Start(":80"))
 	/*Last things to do. 1. Make the post and download routes 2. Make the file response routes (favicon.ico and stuff) 3. Move go into main folder 4. Make python server only do the files processing. 5. Do go logging. */

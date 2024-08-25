@@ -28,14 +28,14 @@
 </body>
 {{end}}
 {{ block "index" . }}
-<script>
-    htmx.on("#form", "htmx:xhr:progress", function (evt) {
-        htmx.find("#progress").setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
-        htmx.find("#progressNumber").innerHTML =
-            ((evt.detail.loaded / evt.detail.total) * 100).toFixed(2) + "%";
-    });
-</script>
 <div id="form" style="font-size: 1.5em">
+    <script>
+        htmx.on("#form", "htmx:xhr:progress", function (evt) {
+            htmx.find("#progress").setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
+            htmx.find("#progressNumber").innerHTML =
+                ((evt.detail.loaded / evt.detail.total) * 100).toFixed(2) + "%";
+        });
+    </script>
     <a href="#" hx-get="/info"  hx-push-url="true" hx-target="#form" hx-select="#form" hx-swap="outerHTML" style="display: block; padding-bottom: 15px">
     Click here for information on this tool
     </a>
