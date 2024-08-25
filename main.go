@@ -119,7 +119,19 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 				fmt.Println("4th error")
 				log.Fatal(err)
 			}
-			return c.Render(200, "error", newErrorText(string(data)))
+			data_string := string(data)
+			folderName := strings.ReplaceAll(errorFile[0].Name(), ".error", "")
+			fullPath, err := filepath.Abs(DIR_OF_HOLDING)
+			if err != nil {
+				fmt.Println("5th error")
+				log.Fatal(err)
+			}
+			sep := string(os.PathSeparator)
+			fullPath = strings.ToUpper(string(fullPath[0])) + fullPath[1:]
+			data_string = strings.ReplaceAll(data_string, fullPath, "")
+			data_string = strings.ReplaceAll(data_string, folderName+sep, folderName+".zip"+sep)
+			data_string = strings.ReplaceAll(data_string, sep+fileHash+".", "")
+			return c.Render(200, "error", newErrorText(data_string))
 		}
 		completedFile := slices.DeleteFunc(completedFilesSlice, func(file os.DirEntry) bool {
 			//Remove original zip file

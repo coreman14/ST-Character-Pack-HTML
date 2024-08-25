@@ -136,8 +136,6 @@
         Failed to create HTML file. Please check fix the errors listed below. Then try again.
     </h2>
     {{template "returnhome" }}
-    <textarea style="height: 60vh">
-{{ .ErrorText }}
-    </textarea>
+    <textarea style="height: 60vh">{{ .ErrorText }}</textarea>
 </div>
 {{end}}
