@@ -1,68 +1,70 @@
-{{ block "index" . }}
+{{ block "headers" .}}
 <!DOCTYPE html>
-
-<html>
-    <head>
-        <title>Create HTML for character pack</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <script src="https://unpkg.com/htmx.org@next/dist/htmx.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/answerdotai/surreal@main/surreal.js"></script>
-        <script src="https://cdn.jsdelivr.net/gh/gnat/css-scope-inline@main/script.js"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css" />
-        <style>
-            :root {
-                --pico-font-size: 100%;
-            }
-            .container > h1 {
-                padding-bottom: 0.5em;
-            }
-        </style>
-        <script>
-            htmx.on("#form", "htmx:xhr:progress", function (evt) {
-                htmx.find("#progress").setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
-                htmx.find("#progressNumber").innerHTML =
-                    ((evt.detail.loaded / evt.detail.total) * 100).toFixed(2) + "%";
-            });
-        </script>
-    </head>
-    <body>
-        <title>Create HTML for character pack</title>
-        <main class="container">
-            <h1>Create HTML for character pack</h1>
-            <div id="form" style="font-size: 1.5em">
-                <a href="#" hx-get="/info"  hx-push-url="true" hx-target="#form" style="display: block; padding-bottom: 15px">
-                Click here for information on this tool
-                </a>
-                <div style="display: block; padding-bottom: 15px">
-                    If your upload is taking a while, please consider downloading the tool instead.
-                </div>
-                <a href="https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest">
-                    You can find the tool here
-                </a>
-                <form
-                    enctype="multipart/form-data"
-                    hx-post="/uploadFile"
-                    hx-target="#form"
-                    hx-swap="innerHTML"
-                    hx-indicator="#notifications, #progressNumber"
-                    hx-disabled-elt="find button"
-                >
-                    <label for="file">Upload a character pack in a .zip format</label>
-                    <input type="file" name="file" accept=".rpy,.zip" id="file" />
-                    <button type="submit">Upload</button>
-                </form>
-                <progress value="0" max="100" id="progress"></progress>
-                <div class="htmx-indicator" id="progressNumber"></div>
-                <div class="htmx-indicator" id="notifications">Uploading file...</div>
-            </div>
-        </main>
-    </body>
-</html>
+<head>
+    <title>Create HTML for character pack</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script src="https://unpkg.com/htmx.org@next/dist/htmx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/answerdotai/surreal@main/surreal.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gnat/css-scope-inline@main/script.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@latest/css/pico.min.css" />
+    <style>
+        :root {
+            --pico-font-size: 100%;
+        }
+        .container > h1 {
+            padding-bottom: 0.5em;
+        }
+    </style>
+</head>
+{{end}}
+{{block "htmlstart" .}}
+<body>
+    <main class="container">
+        <h1>Create HTML for character pack</h1>
+{{end}}
+{{block "htmlend" .}}
+    </main>
+</body>
+{{end}}
+{{ block "index" . }}
+<script>
+    htmx.on("#form", "htmx:xhr:progress", function (evt) {
+        htmx.find("#progress").setAttribute("value", (evt.detail.loaded / evt.detail.total) * 100);
+        htmx.find("#progressNumber").innerHTML =
+            ((evt.detail.loaded / evt.detail.total) * 100).toFixed(2) + "%";
+    });
+</script>
+<div id="form" style="font-size: 1.5em">
+    <a href="#" hx-get="/info"  hx-push-url="true" hx-target="#form" hx-select="#form" hx-swap="outerHTML" style="display: block; padding-bottom: 15px">
+    Click here for information on this tool
+    </a>
+    <div style="display: block; padding-bottom: 15px">
+        If your upload is taking a while, please consider downloading the tool instead.
+    </div>
+    <a href="https://github.com/coreman14/ST-Character-Pack-HTML/releases/latest">
+        You can find the tool here
+    </a>
+    <form
+        enctype="multipart/form-data"
+        hx-post="/uploadFile"
+        hx-target="#form"
+        hx-swap="innerHTML"
+        hx-indicator="#notifications, #progressNumber"
+        hx-disabled-elt="find button"
+    >
+        <label for="file">Upload a character pack in a .zip format</label>
+        <input type="file" name="file" accept=".rpy,.zip" id="file" />
+        <button type="submit">Upload</button>
+    </form>
+    <progress value="0" max="100" id="progress"></progress>
+    <div class="htmx-indicator" id="progressNumber"></div>
+    <div class="htmx-indicator" id="notifications">Uploading file...</div>
+</div>
 {{ end }}
 
 {{block "informationBlock" .}}
-<div id="form">
+<div id="form" style="font-size: 1.5em">
     <h2>Information</h2>
     <p>
         This website allows users to upload their scenarios or zip files to create an index.html using

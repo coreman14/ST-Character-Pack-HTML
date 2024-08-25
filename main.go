@@ -160,6 +160,15 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 	return c.Render(200, "waitingforthread", newBasicFileHash(fileHash))
 }
 
+func renderBase(c echo.Context) echo.Context {
+	c.Render(200, "headers", nil)
+	c.Render(200, "htmlstart", nil)
+	return c
+}
+func renderBaseEnd(c echo.Context) error {
+	return c.Render(200, "htmlend", nil)
+}
+
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
@@ -167,10 +176,14 @@ func main() {
 	e.Renderer = newTemplate()
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Render(200, "index", nil)
+		c = renderBase(c)
+		c.Render(200, "index", nil)
+		return renderBaseEnd(c)
 	})
 	e.GET("/info", func(c echo.Context) error {
-		return c.Render(200, "informationBlock", nil)
+		c = renderBase(c)
+		c.Render(200, "informationBlock", nil)
+		return renderBaseEnd(c)
 	})
 	e.GET("/progress/:fileHash", func(c echo.Context) error {
 		return decideDivReturn(c, c.Param("fileHash"))
