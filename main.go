@@ -20,7 +20,16 @@ import (
 var (
 	DIR_OF_HOLDING = "tmp"
 	DIR_OF_LOGGING = "serverConfig/logs"
+	logger         *log.Logger
 )
+
+func initLogger() {
+	file, err := os.OpenFile(DIR_OF_LOGGING+"/go_web_server.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	logger = log.New(io.MultiWriter(file, os.Stdout), "INFO: ", log.Lshortfile|log.LstdFlags|log.Lshortfile)
+}
 
 type Templates struct {
 	templates *template.Template
@@ -199,7 +208,7 @@ func upload(c echo.Context) error {
 		return err
 	}
 
-	fmt.Printf("File was uploaded, %s, with size of: %s\n", file.Filename, sizeof_fmt(float64(file.Size), ""))
+	logger.Printf("File was uploaded, %s, with size of: %s\n", file.Filename, sizeof_fmt(float64(file.Size), ""))
 	src, err := file.Open()
 	if err != nil {
 		return err
@@ -215,7 +224,6 @@ func upload(c echo.Context) error {
 
 	files, err := os.ReadDir(DIR_OF_HOLDING)
 	if err != nil {
-		fmt.Println("First error")
 		log.Fatal(err)
 	}
 	files = slices.DeleteFunc(files, func(file os.DirEntry) bool {
@@ -234,9 +242,9 @@ func upload(c echo.Context) error {
 		if _, err = io.Copy(dst, src); err != nil {
 			return err
 		}
-		fmt.Printf("File %s was saved at \"%s\"\n", file.Filename, filename)
+		logger.Printf("File %s was saved at \"%s\"\n", file.Filename, filename)
 	} else {
-		fmt.Printf("File %s is a duplicate, returning correct Div\n", filename)
+		logger.Printf("File %s is a duplicate, returning correct Div\n", filename)
 	}
 
 	return decideDivReturn(c, file_hash)
@@ -251,6 +259,7 @@ func renderBaseEnd(c echo.Context) error {
 }
 
 func main() {
+	initLogger()
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Static("/", "htmlAssets")
