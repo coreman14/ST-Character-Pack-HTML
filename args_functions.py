@@ -142,6 +142,7 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
         "-tn",
         "--titlename",
         help="Use the given text as the title on main page instead of the one from scenario.yml.",
+        default="",
     )
     argroup.add_argument(
         "-fi", "--favicon", help="Change the favicon to a given file. Recommend file size is 32x32 or smaller"
@@ -221,10 +222,9 @@ def setup_args(args: argparse.Namespace) -> dict:
                 sys.exit(1)
         args.prefix = yml_data.get("prefix", "PRE")
 
-        if args.titlename:
-            yml_data["title"] = args.titlename
-        elif "title" not in yml_data:
-            yml_data["title"] = ""
+        if not args.titlename:
+            args.titlename = yml_data.get("title", "Default Title")
+
         if "outfitpriority" in yml_data and isinstance(yml_data["outfitpriority"], list):
             print("Found new value for outfit priority in YML file")
             args.outfitprio = yml_data["outfitpriority"]
@@ -271,4 +271,3 @@ def setup_args(args: argparse.Namespace) -> dict:
     global INPUT_DIR, STRICT_ERROR_PARSING
     INPUT_DIR = args.inputdir if not json_convert else ""
     STRICT_ERROR_PARSING = args.strict
-    return yml_data

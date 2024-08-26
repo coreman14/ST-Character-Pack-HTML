@@ -5,8 +5,8 @@ import re
 # The points to start and stop the text splitting.
 # Each point is a tuple containing the text to look for, and how to parse the line.
 # 1 means to only grab it from the found point, 0 means grab the whole line.
-START_POINTS = [("", 0), (" Viewer</title>", 1), ("/*Start*/ var characterArray=[];", 0)]
-STOP_POINTS = [("<title>", 1), ('scenario="', 1), ("", 0)]
+START_POINTS = [("", 0), ("/*Start*/ var characterArray=[];", 0)]
+STOP_POINTS = [("/*Scenario 2 Stop*/", 1), ("", 0)]
 
 
 def clean_line(line: str):
