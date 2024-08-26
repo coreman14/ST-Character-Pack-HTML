@@ -294,7 +294,7 @@ class Character(NamedTuple):
     max_height_multiplier: float
 
     def __repr__(self):
-        builder = f'"{self.name}": {{"name": "{self.name}", "poses" :{{'
+        builder = f'"{self.name}": {{ "poses" :{{'
         for pose in self.poses:
             print(f"Creating: {self.name} {pose.name}")
             bounds_box = pose.outfit_bbox
