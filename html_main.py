@@ -39,7 +39,7 @@ def main_loop(args: Namespace, yml: dict):
         for path in os.listdir(os.path.join(args.inputdir, "characters"))
         if os.path.isdir(os.path.join(args.inputdir, "characters", path))
     ]
-
+    total_characters = len(paths)
     if args.hashprogress:
         # Set hashprogress as the path
         args.hashprogress = args.inputdir + f"/progress.{args.hashprogress}.0.{len(paths)}"
@@ -50,7 +50,7 @@ def main_loop(args: Namespace, yml: dict):
         start=1,
     ):
         if not args.bounds:
-            print(f"Character {count}: {character_name}")
+            print(f"Character {count}/{total_characters}: {character_name}")
             if args.hashprogress:
                 new_name = args.hashprogress.replace(f".{count - 1}.", f".{count}.")
                 os.rename(args.hashprogress, new_name)
