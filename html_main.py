@@ -28,6 +28,7 @@ def main_loop(args: Namespace):
         image_functions.open_image_and_get_measurements,
         do_trim=args.trim,
         remove_empty=args.removeempty,
+        remove_empty_pixels=args.removeemptypixels
     )
 
     remove_path_setup = partial(path_functions.remove_path, path_to_remove=args.inputdir)

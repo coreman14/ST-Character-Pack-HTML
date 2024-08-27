@@ -135,6 +135,13 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
         + "Off accessories do not need to be present if they have no pixels. Does not remove anything during -b/bounds check.",
         action="store_true",
     )
+    argroup.add_argument(
+        "-se",
+        "--skipempty",
+        dest="removeemptypixels",
+        help="By default, faces are put through numpy to remove any invisible pixels that may be left. Add this argument to skip this step.",
+        action="store_false",
+    )
 
     argroup = parser.add_argument_group("General Functions")
 

@@ -8,7 +8,9 @@ import numpy as np
 FILES_THAT_COULD_BE_REMOVED = []
 
 
-def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
+def attempt_to_open_image(
+    name: str | list[str], remove_empty_pixels: bool = True
+) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
     """Attempts to open image. Treats image as a string first, then on failure treats it as a list."""
     return_name = name
     try:
@@ -19,7 +21,7 @@ def attempt_to_open_image(name: str | list[str]) -> tuple[str | list[str], Image
             return_name = name[0]
         if image.mode != "RGBA":
             image = image.convert("RGBA")
-        if "faces" in name:
+        if "faces" in name and remove_empty_pixels:
             img_np = np.array(image)
             img_np[img_np < (0, 0, 0, 255)] = 0
             image = Image.fromarray(img_np)
@@ -43,13 +45,13 @@ def return_bb_box(name: str | list[str]) -> tuple[int, int, int, int]:
 
 # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
 def open_image_and_get_measurements(
-    name: str | list[str], do_trim=False, remove_empty=False
+    name: str | list[str], do_trim: bool = False, remove_empty: bool = False, remove_empty_pixels: bool = True
 ) -> tuple[int, int, None] | tuple[int, int, tuple[int, int, int, int] | None]:
     """Opens the given image or first image in the list, then returns the size and bound box.
     If do_trim is true, will trim the image before
     Setting remove_empty as true will remove any blank image.
     """
-    name, trim_img = attempt_to_open_image(name)
+    name, trim_img = attempt_to_open_image(name, remove_empty_pixels=remove_empty_pixels)
     image_size = trim_img.size
     # if trim_img.mode != "RGBA":
     #     trim_img = trim_img.convert("RGBA")
