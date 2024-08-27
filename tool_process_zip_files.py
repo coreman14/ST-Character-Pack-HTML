@@ -1,21 +1,15 @@
 from contextlib import redirect_stdout
-import hashlib
 import io
 import logging.config
 import os
-import argparse
-from glob import glob
 import pathlib
 from zipfile import ZipFile
 import traceback
 from shutil import rmtree
-from threading import Thread
 from time import sleep, time
 import logging
 
 import yaml
-from fasthtml.common import fast_app, serve, FileResponse, Style, Script
-from fasthtml import ft, FastHTML
 from html_main import main
 
 DIR_OF_HOLDING = "tmp"
