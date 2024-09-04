@@ -34,10 +34,10 @@ def json2yaml(args: argparse.Namespace = None, input_dir=""):
                     )
                 )
             converted_files += 1
+            os.remove(file_json)
         except (OSError, json.JSONDecodeError, YAMLError):
             print(f"Failed to parse : {file_json}")
 
-        os.remove(file_json)
     print("Completed YML conversion.")
     print(f"Converted {converted_files}/{file_len} of json files found.")
 
