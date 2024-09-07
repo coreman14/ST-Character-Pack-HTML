@@ -289,7 +289,7 @@ def update_outfits_with_face_accessories(pose: str, outfits: list[tuple[str, lis
             mutation_face_list = []
             for path_of_face_accessory in glob(os.path.join(pose, "faces", "mutations", mutation, "face", "*/")):
                 glob_for_face_accessories(pose, path_of_face_accessory, mutation_face_list)
-                mutations_dict[mutation] = mutation_face_list
+            mutations_dict[mutation] = mutation_face_list
 
     for outfit_path, _, on_accessories in outfits:
         outfit_to_check = get_outfit_name(outfit_path, pose)
