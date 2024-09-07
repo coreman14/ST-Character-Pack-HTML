@@ -6,6 +6,9 @@ from glob import glob
 
 import yaml
 from yaml import YAMLError
+from colorama import just_fix_windows_console, Fore
+
+just_fix_windows_console()
 
 
 def json2yaml(args: argparse.Namespace = None, input_dir=""):
@@ -18,7 +21,8 @@ def json2yaml(args: argparse.Namespace = None, input_dir=""):
     file_len = len(files)
     converted_files = 0
     for index, file_json in enumerate(files, start=1):
-        print(f"File {file_json}, {index}/{file_len}")
+        file_print = file_json.replace(input_dir, "")[1:]
+        print(f"File {file_print}, {index}/{file_len}")
         file_yaml = f"{os.path.splitext(file_json)[0]}.yml"
         try:
             with open(file_json, "r", encoding="utf8") as f:
@@ -36,7 +40,7 @@ def json2yaml(args: argparse.Namespace = None, input_dir=""):
             converted_files += 1
             os.remove(file_json)
         except (OSError, json.JSONDecodeError, YAMLError):
-            print(f"Failed to parse : {file_json}")
+            print(f"{Fore.RED}Failed to parse : {file_print}{Fore.RESET}")
 
     print("Completed YML conversion.")
     print(f"Converted {converted_files}/{file_len} of json files found.")
