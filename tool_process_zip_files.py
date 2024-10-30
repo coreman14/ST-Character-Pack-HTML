@@ -38,11 +38,13 @@ def process_uploaded_files():
         for filename in [x for x in files_to_check if x.endswith(".zip")]:
             logger.info("Found file %s", filename)
             file_hash = filename.split(".")[0]
+            zip_name = filename.split(".")[1]
             zip_file_path = os.path.join(DIR_OF_HOLDING, filename)
             extract_folder_path = zip_file_path.replace(".zip", "")
             error_file_path = extract_folder_path + ".error"
             # Don't try to process a file that is already being processed
             if extract_folder_path not in files_to_check:
+                only_html = filename + ".return_html" in files_to_check
                 yml_file_folder = ""
                 list_of_files_in_zip = []
                 # For a general error we print the HTML creation std_out.
@@ -97,11 +99,14 @@ def process_uploaded_files():
                         continue
 
                     index_html_location = extract_folder_path + "/" + yml_file_folder + "/index.html"
-                    with ZipFile(zip_file_path, "w") as f:
-                        for zip_file in list_of_files_in_zip:
-                            f.write(extract_folder_path + "/" + zip_file, zip_file)
-                        if yml_file_folder + "/index.html" not in list_of_files_in_zip:
-                            f.write(index_html_location, yml_file_folder + "/index.html")
+                    if only_html:
+                        os.rename(index_html_location, DIR_OF_HOLDING + "/" + file_hash + f".{zip_name}.html-completed")
+                    else:
+                        with ZipFile(zip_file_path, "w") as f:
+                            for zip_file in list_of_files_in_zip:
+                                f.write(extract_folder_path + "/" + zip_file, zip_file)
+                            if yml_file_folder + "/index.html" not in list_of_files_in_zip:
+                                f.write(index_html_location, yml_file_folder + "/index.html")
                     sleep(5)
                     rmtree(extract_folder_path)
                     logger.info("Finished Processing File %s", filename)

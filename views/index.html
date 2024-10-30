@@ -14,6 +14,16 @@
         .container > h1 {
             padding-bottom: 0.5em;
         }
+        #return_html {
+            width: 30px;
+            height: 30px;
+            margin-right: 0px;
+        }
+        #return_html_div {
+            padding-bottom: 6px;
+            margin-bottom: 20px;
+
+        }
     </style>
 </head>
 {{end}}
@@ -54,7 +64,11 @@
         hx-disabled-elt="find button"
     >
         <label for="file">Upload a character pack in a .zip format</label>
-        <input type="file" name="file" accept=".rpy,.zip" id="file" />
+        <input type="file" name="file" accept=".rpy,.zip" id="file" style="margin-bottom: 0px;"/>
+        <div id="return_html_div">
+            <input type="checkbox" name="return_html" id="return_html" />
+            <label for="return_html" style="display: inline">Return only HTML file instead of a zip file</label>
+        </div>
         <button type="submit">Upload</button>
     </form>
     <progress value="0" max="100" id="progress"></progress>
@@ -71,6 +85,7 @@
         This website allows users to upload their scenarios or zip files to create an index.html using
         <a href="https://github.com/coreman14/ST-Character-Pack-HTML">ST-Charcter-Pack-HTML</a>
     </p>
+    <p>The file stays on the server for 30 minutes before it is deleted. Because of this, the "Return only HTML file instead of a zip file" option cannot be changed in this time period.</p>
     <p>You cannot enter any arguments when you upload the character pack to this site.</p>
     <p>
         You
@@ -100,10 +115,16 @@ hx-get="/progress/{{.FileHash}}"
 <div id="form" style="font-size: 2em">
     <title>Finished creating {{.Filename}}</title>
     <p>
-        Completed HTML for {{ .Filename }}. You can download it
+        Completed generating HTML for {{ .Filename }}. <br>You can download 
+        {{ if .IsZipFile }}
+            the zip file 
+        {{ else }}
+            the html file
+        {{ end }}
         <a href="{{ .LinkToFile }}">
             here
         </a>
+        .
         {{template "returnhome" }}
     </p>
 </div>

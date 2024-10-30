@@ -84,12 +84,14 @@ func newErrorText(errorText string) *ErrorText {
 type Filename struct {
 	Filename   string
 	LinkToFile string
+	IsZipFile  bool
 }
 
-func newFilename(filename string, linkToFile string) *Filename {
+func newFilename(filename string, linkToFile string, isZipFile bool) *Filename {
 	return &Filename{
 		Filename:   filename,
 		LinkToFile: linkToFile,
+		IsZipFile:  isZipFile,
 	}
 }
 
@@ -117,9 +119,10 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 	})
 
 	if len(files) > 0 {
-		completedFilesSlice := slices.Clone(files)
+		completedFilesSliceHtml := slices.Clone(files)
+		completedFilesSliceZip := slices.Clone(files)
 		errorFile := slices.DeleteFunc(files, func(file os.DirEntry) bool {
-			//Remove original zip file
+			//Remove any file that does not have .error in the name
 			return !strings.HasSuffix(file.Name(), ".error")
 		})
 		if len(errorFile) == 1 {
@@ -142,13 +145,21 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 			data_string = strings.ReplaceAll(data_string, sep+fileHash+".", "")
 			return c.Render(200, "error", newErrorText(data_string))
 		}
-		completedFile := slices.DeleteFunc(completedFilesSlice, func(file os.DirEntry) bool {
-			//Remove original zip file
+		completedFileHtml := slices.DeleteFunc(completedFilesSliceHtml, func(file os.DirEntry) bool {
+			//Check if an HTML file is completed
+			return !strings.HasSuffix(file.Name(), ".html-completed")
+		})
+		if len(completedFileHtml) == 1 {
+			linkToFile := strings.ReplaceAll(completedFileHtml[0].Name(), ".html-completed", "")
+			return c.Render(200, "finishedhtml", newFilename(strings.Split(linkToFile, ".")[1]+".html", "/downloadCompletedHtml/"+linkToFile, false))
+		}
+		completedFileZip := slices.DeleteFunc(completedFilesSliceZip, func(file os.DirEntry) bool {
+			//Check if a zip file is completed
 			return !strings.HasSuffix(file.Name(), ".zip-completed")
 		})
-		if len(completedFile) == 1 {
-			linkToFile := strings.ReplaceAll(completedFile[0].Name(), ".zip-completed", "")
-			return c.Render(200, "finishedhtml", newFilename(strings.Split(linkToFile, ".")[1]+".zip", "/downloadCompletedZip/"+linkToFile))
+		if len(completedFileZip) == 1 {
+			linkToFile := strings.ReplaceAll(completedFileZip[0].Name(), ".zip-completed", "")
+			return c.Render(200, "finishedhtml", newFilename(strings.Split(linkToFile, ".")[1]+".zip", "/downloadCompletedZip/"+linkToFile, true))
 		}
 	} else if unZippedFolderPath != "" {
 		err = filepath.WalkDir(unZippedFolderPath, func(path string, info os.DirEntry, err error) error {
@@ -171,7 +182,7 @@ func decideDivReturn(c echo.Context, fileHash string) error {
 			log.Fatal(err)
 		}
 		files = slices.DeleteFunc(files, func(file os.DirEntry) bool {
-			//Remove original zip file
+			//Remove any files that are not progress files
 			return !strings.HasPrefix(file.Name(), "progress.")
 		})
 		if len(files) == 1 {
@@ -218,6 +229,7 @@ func upload(c echo.Context) error {
 	if _, err := io.Copy(md5, src); err != nil {
 		log.Fatal(err)
 	}
+	md5.Write([]byte(file.Filename)) //Add filename to hash
 	src.Seek(0, io.SeekStart)
 	file_hash := hex.EncodeToString(md5.Sum(nil))
 	filename := DIR_OF_HOLDING + "/" + file_hash + "." + file.Filename
@@ -227,7 +239,7 @@ func upload(c echo.Context) error {
 		log.Fatal(err)
 	}
 	files = slices.DeleteFunc(files, func(file os.DirEntry) bool {
-		//Remove original zip file
+		//Remove files that don't have the correct hash
 		return !strings.HasPrefix(file.Name(), file_hash)
 	})
 	// Destination
@@ -243,6 +255,14 @@ func upload(c echo.Context) error {
 			return err
 		}
 		logger.Printf("File %s was saved at \"%s\"\n", file.Filename, filename)
+		if c.FormValue("return_html") == "on" {
+			htmlFile, err := os.Create(filename + ".return_html")
+			if err != nil {
+				return err
+			}
+			defer htmlFile.Close()
+
+		}
 	} else {
 		logger.Printf("File %s is a duplicate, returning correct Div\n", filename)
 	}
@@ -277,6 +297,9 @@ func main() {
 	})
 	e.GET("/progress/:fileHash", func(c echo.Context) error {
 		return decideDivReturn(c, c.Param("fileHash"))
+	})
+	e.GET("/downloadCompletedHtml/:fName", func(c echo.Context) error {
+		return c.Attachment(DIR_OF_HOLDING+"/"+c.Param("fName")+".html-completed", strings.Split(c.Param("fName"), ".")[1]+".html")
 	})
 	e.GET("/downloadCompletedZip/:fName", func(c echo.Context) error {
 		return c.Attachment(DIR_OF_HOLDING+"/"+c.Param("fName")+".zip-completed", strings.Split(c.Param("fName"), ".")[1]+".zip")
