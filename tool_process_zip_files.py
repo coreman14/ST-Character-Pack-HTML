@@ -100,7 +100,10 @@ def process_uploaded_files():
 
                     index_html_location = extract_folder_path + "/" + yml_file_folder + "/index.html"
                     if only_html:
-                        os.rename(index_html_location, DIR_OF_HOLDING + "/" + file_hash + f".{zip_name}.html-completed")
+                        os.rename(
+                            index_html_location,
+                            DIR_OF_HOLDING + "/" + file_hash + f".{zip_name}-Character-viewer.html-completed",
+                        )
                     else:
                         with ZipFile(zip_file_path, "w") as f:
                             for zip_file in list_of_files_in_zip:
