@@ -1,0 +1,17 @@
+services:
+    go-server:
+        build:
+            context: .
+            dockerfile: golang.dockerfile
+        ports:
+            - "80:80"
+        volumes:
+            - ./tmp:/app/tmp
+            - ./logs:/app/serverConfig/logs
+    python-job:
+        build:
+            context: .
+            dockerfile: python.dockerfile
+        volumes:
+            - ./tmp:/app/tmp
+            - ./logs:/app/serverConfig/logs
