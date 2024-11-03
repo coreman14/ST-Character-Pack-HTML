@@ -1,5 +1,7 @@
+"Runs a infinite loop that will scan the DIR_OF_HOLDING for files to process and create HTML for."
 from contextlib import redirect_stdout
 import io
+import logging
 import logging.config
 import os
 import pathlib
@@ -7,7 +9,6 @@ from zipfile import ZipFile
 import traceback
 from shutil import rmtree
 from time import sleep, time
-import logging
 
 import yaml
 from html_main import main
@@ -21,8 +22,9 @@ os.makedirs(DIR_OF_LOGGING, exist_ok=True)
 
 
 def setup_logging():
+    "Read the logging config"
     config_file = pathlib.Path("serverConfig/pythonloggingconfig.yaml")
-    with config_file.open() as f:
+    with config_file.open(encoding="utf8") as f:
         config = yaml.safe_load(f)
     logging.config.dictConfig(config)
 
@@ -49,6 +51,7 @@ def process_uploaded_files():
                 list_of_files_in_zip = []
                 # For a general error we print the HTML creation std_out.
                 general_error = False
+                logger.info("Unzipping file %s", filename)
                 try:
                     with ZipFile(zip_file_path, "r") as f:
                         list_of_files_in_zip = f.namelist()
@@ -91,7 +94,7 @@ def process_uploaded_files():
                         logger.info("Something went wrong with HTML processing, printing debug log")
                         with open(error_file_path, "w", encoding="utf8") as filename:
                             if os_error:
-                                filename.write("OSError: Please contact server Admin to fix or wait 30 minutes.")
+                                filename.write("OSError: Please contact the server Admin to fix or wait 30 minutes.")
                             else:
                                 filename.write(f.getvalue())
                                 logger.debug(f.getvalue())
@@ -100,11 +103,13 @@ def process_uploaded_files():
 
                     index_html_location = extract_folder_path + "/" + yml_file_folder + "/index.html"
                     if only_html:
+                        logger.info("Moving HTML file %s", filename)
                         os.rename(
                             index_html_location,
                             DIR_OF_HOLDING + "/" + file_hash + f".{zip_name}-Character-viewer.html-completed",
                         )
                     else:
+                        logger.info("Rezipping entire file %s", filename)
                         with ZipFile(zip_file_path, "w") as f:
                             for zip_file in list_of_files_in_zip:
                                 f.write(extract_folder_path + "/" + zip_file, zip_file)
@@ -117,7 +122,7 @@ def process_uploaded_files():
                     logger.info("Something went wrong")
                     logger.debug(traceback.format_exc())
                     with open(error_file_path, "w", encoding="utf8") as filename:
-                        filename.write("An error has occured. Please contact server Admin to fix or wait 30 minutes.")
+                        filename.write("An error has occurred. Please contact server Admin to fix or wait 30 minutes.")
                 os.rename(zip_file_path, zip_file_path + "-completed")
 
         files = [os.path.join(DIR_OF_HOLDING, f) for f in os.listdir(DIR_OF_HOLDING)]  # add path to each file
