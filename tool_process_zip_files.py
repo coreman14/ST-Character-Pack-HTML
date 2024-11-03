@@ -15,6 +15,8 @@ from html_main import main
 
 DIR_OF_HOLDING = "tmp"
 DIR_OF_LOGGING = "serverConfig/logs"
+DIR_OF_LOGGING_CONFIG = "serverConfig/"
+YAML_LOGGING_CONFIG = "pythonloggingconfig.yaml"
 
 
 os.makedirs(DIR_OF_HOLDING, exist_ok=True)
@@ -23,7 +25,7 @@ os.makedirs(DIR_OF_LOGGING, exist_ok=True)
 
 def setup_logging():
     "Read the logging config"
-    config_file = pathlib.Path("serverConfig/pythonloggingconfig.yaml")
+    config_file = pathlib.Path(f"{DIR_OF_LOGGING_CONFIG}{YAML_LOGGING_CONFIG}")
     with config_file.open(encoding="utf8") as f:
         config = yaml.safe_load(f)
     logging.config.dictConfig(config)
