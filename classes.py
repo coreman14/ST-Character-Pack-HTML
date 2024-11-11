@@ -4,7 +4,7 @@ import os
 import re
 from math import ceil
 from dataclasses import dataclass, field
-from typing import NamedTuple
+from typing import Literal, NamedTuple
 from sort_functions import face_sort_imp
 
 from PIL import Image
@@ -183,8 +183,9 @@ class Pose:
     blushes: list[ImagePath]
     default_outfit: ImagePath
     default_accessories: list[Accessory]
-    face_height: int = None
+    face_height: int = field(init=False)
     accessories_name: list[str] = field(init=False, repr=False)
+    facing_direction: Literal["left", "right"] = "left"
 
     def __post_init__(self):
         self.accessories_name = []
@@ -209,6 +210,10 @@ class Pose:
                 self.blushes.append(self.faces[index])
         self.faces.sort(key=face_sort_imp)
         self.blushes.sort(key=face_sort_imp)
+
+    @property
+    def swap_direction(self):
+        return (self.facing_direction == "right").__str__().lower()
 
     @property
     def formatted_outfit_output(self) -> str:
@@ -309,6 +314,8 @@ class Character(NamedTuple):
             builder += f'"max_accessory_outfit_width" : {pose.accessory_view_width}, '
             builder += f'"outfit_path": "{pose.outfit_path}", "default_outfit" : "{pose.default_outfit.clean_path}", '
             builder += f'"default_accessories" : [ {acc} ], '
+            if pose.swap_direction:
+                builder += f'"swap_direction" : {pose.swap_direction}, '
             builder += (
                 f'"default_left_crop" : {bounds_box.left}, "default_right_crop" : {bounds_box.right},'
                 + f'"default_top_crop" : {bounds_box.top},"accessory_names" : [{"".join(pose.accessories_name)}], '

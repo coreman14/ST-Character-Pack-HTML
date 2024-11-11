@@ -134,7 +134,7 @@ def create_character(
 
     char_yml: dict = get_yaml(input_dir, name)
     excluded_accessories = char_yml.get("poses", {}).get(pose_letter, {}).get("excludes", {})
-
+    face_direction = char_yml.get("poses", {}).get(pose_letter, {}).get("facing", "left")
     inverse_accessories = defaultdict(list)
     for k, v in excluded_accessories.items():
         for x in v:
@@ -254,7 +254,7 @@ def create_character(
         new_outfits.append(Outfit(outfit_path, image_paths_off_access, image_paths_on_access))
 
     new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])
-    return new_outfits, faces, blushes, *outfit_tuple
+    return new_outfits, faces, blushes, *outfit_tuple, face_direction
 
 
 def create_html_file(args: Namespace, html_snips: tuple[str, str, str], chars: list[Character], split_files=False):
