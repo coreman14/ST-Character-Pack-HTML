@@ -12,10 +12,18 @@ import yaml
 import classes
 
 import json2yaml
-import path_functions
 
 INPUT_DIR = ""
 STRICT_ERROR_PARSING = False
+OUTFIT_PRIORITY = [
+    "uniform",
+    "suit",
+    "casual",
+    "dress",
+    "nude",
+    "under",
+    "underwear",
+]
 
 
 def get_args(args: list[str] = None) -> argparse.Namespace:
@@ -32,7 +40,7 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
         "-i",
         "--inputdir",
         help="Run the program in a different directory.",
-        type=path_functions.dir_path,
+        type=dir_path,
         default=os.path.abspath(os.curdir),
     )
     parser.add_argument("-s", "--silent", help="Will not ask for input", action="store_true")
@@ -166,8 +174,9 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
         "-op",
         "--outfitpriority",
         help="Change the priority in which outfits are chosen. Outfits priority is decided by order from the command line. "
-        + f"This switch will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIORITY}",
+        + f"This switch will replace the default order. Current order, from left to right, is: {OUTFIT_PRIORITY}",
         nargs="+",
+        default=OUTFIT_PRIORITY,
     )
     argroup.add_argument(
         "-oh",
@@ -277,3 +286,10 @@ def setup_args(args: argparse.Namespace) -> dict:
     global INPUT_DIR, STRICT_ERROR_PARSING
     INPUT_DIR = args.inputdir if not json_convert else ""
     STRICT_ERROR_PARSING = args.strict
+
+
+def dir_path(path: str) -> str:
+    """Checks if a path is real and returns the full path, else error's out"""
+    if os.path.exists(path):
+        return os.path.abspath(path)
+    raise argparse.ArgumentTypeError(f'Output directory "{path}" is not a valid path')

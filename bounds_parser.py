@@ -7,7 +7,6 @@ from collections import Counter
 from colorama import Fore, Style
 
 
-import path_functions
 from classes import Character, CropBox
 from image_functions import return_bb_box
 import sort_functions
@@ -41,13 +40,11 @@ class BoundsParser(ParserBase):
         Use it to find invisible pixels left over from editing"""
 
         pose_letter = self.input_path.split(os.sep)[-1]
-        if (self.regex is None or re.match(self.regex, path_to_character)) and path_functions.check_character_is_valid(
-            pose_path
-        ):
+        if (self.regex is None or re.match(self.regex, path_to_character)) and not self.is_character_invalid(pose_path):
             char_yml: dict = self.get_yaml(self.input_path, path_to_character)
-            outfits = path_functions.get_outfits(pose_path, path_to_character)
-            faces = path_functions.get_faces(pose_path, path_to_character)
-            blushes = path_functions.get_faces(pose_path, path_to_character, face_folder="blush")
+            outfits = self.get_outfits(pose_path, path_to_character)
+            faces = self.get_faces(pose_path, path_to_character)
+            blushes = self.get_faces(pose_path, path_to_character, face_folder="blush")
 
             mutations: dict[str, list[str]]
             print(f"Character {path_to_character}: Pose {pose_letter}")
@@ -61,15 +58,13 @@ class BoundsParser(ParserBase):
                     print("Blush faces")
                     self.bounds_print(blushes, self.skip_if_same)
                 if mutations := char_yml.get("mutations", {}):
-                    for key in [
-                        x for x in mutations.keys() if path_functions.check_character_mutation_is_valid(pose_path, x)
-                    ]:
-                        faces = path_functions.get_faces(pose_path, path_to_character, key)
+                    for key in [x for x in mutations.keys() if self.check_character_mutation_is_valid(pose_path, x)]:
+                        faces = self.get_faces(pose_path, path_to_character, key)
                         if faces:
                             faces.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" face')
                             self.bounds_print(faces, self.skip_if_same)
-                        blushes = path_functions.get_faces(pose_path, path_to_character, key, face_folder="blush")
+                        blushes = self.get_faces(pose_path, path_to_character, key, face_folder="blush")
                         if blushes:
                             blushes.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
