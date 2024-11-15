@@ -6,12 +6,6 @@ from typing import Protocol
 class ImagePath(Protocol):
     "Protocol class to avoid requirement looping"
     path: str
-    width: int
-    height: int
-
-    @property
-    def clean_path(self):
-        "Remove unnecessary path info"
 
 
 def sort_by_numbers(path: str, sep=os.sep):
