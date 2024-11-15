@@ -11,12 +11,11 @@ from colorama import just_fix_windows_console, Fore
 just_fix_windows_console()
 
 
-def json2yaml(args: argparse.Namespace = None, input_dir=""):
+def json2yaml(input_dir: str = ""):
     """Traverse given directory and convert all json files to yaml files
     Takes a namespace object or a string as input to allow for main program to use it
     Returns a tuple of the number of files converted and the total number of json files found
     """
-    input_dir = args.input_dir if args else input_dir
     files = glob(os.path.join(input_dir, "**", "*.json"), recursive=True)
     file_len = len(files)
     converted_files = 0
@@ -61,7 +60,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        json2yaml(args)
+        json2yaml(args.input_dir)
     except KeyboardInterrupt:
         print("\nReceived SIGINT, terminating...")
 

@@ -203,7 +203,7 @@ def setup_args(args: argparse.Namespace) -> dict:
 
     if args.json2yaml:
         print("Attempting to convert all JSON to YML.")
-        json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
+        json2yaml.json2yaml(args.inputdir)
         input("Press Enter to exit...")
         sys.exit(1)
     yml_data: dict = {}
@@ -215,7 +215,7 @@ def setup_args(args: argparse.Namespace) -> dict:
             "Would you like to convert all JSON files to YAML? (y for yes, anything else to exit): ",
         )
         if response.lower() in ["y"]:
-            json2yaml.json2yaml(argparse.Namespace(input_dir=args.inputdir))
+            json2yaml.json2yaml(args.inputdir)
         else:
             sys.exit(1)
     if not args.bounds:

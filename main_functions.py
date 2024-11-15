@@ -94,7 +94,7 @@ def get_yaml(input_dir: str, name: str) -> dict:
             else:
                 response = ""
             if response.lower() in ["y"]:
-                json2yaml.json2yaml(input_dir=args_functions.INPUT_DIR)
+                json2yaml.json2yaml(args_functions.INPUT_DIR)
                 return get_yaml(input_dir, name)
             elif not args_functions.STRICT_ERROR_PARSING:
                 pass
