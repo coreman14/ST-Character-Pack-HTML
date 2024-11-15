@@ -165,7 +165,6 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
     argroup.add_argument(
         "-op",
         "--outfitpriority",
-        dest="outfitprio",
         help="Change the priority in which outfits are chosen. Outfits priority is decided by order from the command line. "
         + f"This switch will replace the default order. Current order, from left to right, is: {path_functions.OUTFIT_PRIORITY}",
         nargs="+",
@@ -234,7 +233,7 @@ def setup_args(args: argparse.Namespace) -> dict:
 
         if "outfitpriority" in yml_data and isinstance(yml_data["outfitpriority"], list):
             print("Found new value for outfit priority in YML file")
-            args.outfitprio = yml_data["outfitpriority"]
+            args.outfitpriority = yml_data["outfitpriority"]
         if "maxheightmultiplier" in yml_data:
             print("Found new value for the expression sheet max height multiplier in YML file")
             args.maxheightmultiplier = yml_data["maxheightmultiplier"]
