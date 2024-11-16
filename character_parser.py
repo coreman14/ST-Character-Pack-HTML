@@ -28,34 +28,33 @@ class CharacterParser(ParserBase):
     def __post_init__(self):
         self.clean_path_function = partial(self.remove_path, path_to_remove=self.input_path)
 
-    def parse(self, path_to_character: str) -> Character:
+    def parse(self, character_name: str) -> Character:
         "Create a character from a given character path"
+        self.current_character_name = character_name
         pose_list = []
         for pose_path in [
-            os.path.join(self.input_path, "characters", path_to_character, path)
-            for path in os.listdir(os.path.join(self.input_path, "characters", path_to_character))
-            if os.path.isdir(os.path.join(self.input_path, "characters", path_to_character, path))
+            os.path.join(self.input_path, "characters", character_name, path)
+            for path in os.listdir(os.path.join(self.input_path, "characters", character_name))
+            if os.path.isdir(os.path.join(self.input_path, "characters", character_name, path))
         ]:
             self.current_pose_letter = pose_path.split(os.sep)[-1]
             invalid = self.is_character_invalid(pose_path)
             if invalid:
                 print(
-                    f"Character {path_to_character} is not valid for pose {self.current_pose_letter}. Reason: {invalid}."
+                    f"Character {character_name} is not valid for pose {self.current_pose_letter}. Reason: {invalid}."
                 )
                 continue
             if char_pose := self.create_character(
-                path_to_character,
                 pose_path,
             ):
                 pose_list.append(Pose(self.input_path, self.current_pose_letter, *char_pose))
 
         if pose_list:
-            return Character(path_to_character, pose_list, self.max_height_constant)
+            return Character(character_name, pose_list, self.max_height_constant)
         return None
 
     def create_character(
         self,
-        path_to_character: str,
         pose_path: str,
     ) -> None | tuple[list[Outfit], list[ImagePath], list[ImagePath], ImagePath, list[ImagePath]]:
         """
@@ -63,9 +62,9 @@ class CharacterParser(ParserBase):
         """
         mutation = None
 
-        outfits = self.get_outfits(pose_path, path_to_character)
+        outfits = self.get_outfits(pose_path)
 
-        char_yml: dict = self.get_yaml(path_to_character)
+        char_yml: dict = self.get_yaml()
         excluded_accessories = char_yml.get("poses", {}).get(self.current_pose_letter, {}).get("excludes", {})
         face_direction = char_yml.get("poses", {}).get(self.current_pose_letter, {}).get("facing", "left")
         inverse_accessories = defaultdict(list)
@@ -86,13 +85,13 @@ class CharacterParser(ParserBase):
                         mutation = key
                     else:
                         print(
-                            f'WARNING: Character "{path_to_character}" for pose "{self.current_pose_letter}" default outfit of "{default_outfit_name}"'
+                            f'WARNING: Character "{self.current_character_name}" for pose "{self.current_pose_letter}" default outfit of "{default_outfit_name}"'
                             + f' has mutation "{key}", but no faces are provided for that mutation.',
                         )
                     break
 
-        faces = self.get_faces(pose_path, path_to_character, mutation)
-        blushes = self.get_faces(pose_path, path_to_character, mutation, face_folder="blush")
+        faces = self.get_faces(pose_path, mutation)
+        blushes = self.get_faces(pose_path, mutation, face_folder="blush")
 
         self.update_outfits_with_face_accessories(pose_path, outfits, char_yml)
         widths = []

@@ -17,6 +17,7 @@ class ParserBase:
     "Contains methods that a parser may need"
     input_path: str
     strict_mode: bool
+    current_character_name: ClassVar[str] = ""
     accepted_extensions: ClassVar[list[str]] = [".webp", ".png"]
     # To make sure the warning about a blank config is not said more than once per character, we track the characters we said
     failed_yml_converts: ClassVar[list[str]] = []
@@ -47,11 +48,11 @@ class ParserBase:
             return "No outfits exists"
         return "This should never be returned"
 
-    def get_yaml(self, name: str) -> dict:
+    def get_yaml(self) -> dict:
         "Get the YAML file for the character"
         try:
             with open(
-                os.path.join(self.input_path, "characters", name, "character.yml"),
+                os.path.join(self.input_path, "characters", self.current_character_name, "character.yml"),
                 "r",
                 encoding="utf8",
             ) as char_file:
@@ -61,34 +62,36 @@ class ParserBase:
             if self.strict_mode:
                 json_ask_finish = "anything else to exit"
             if (
-                os.path.exists(os.path.join(self.input_path, "characters", name, "character.json"))
+                os.path.exists(
+                    os.path.join(self.input_path, "characters", self.current_character_name, "character.json")
+                )
                 and not self.asked_for_json_convert
             ):
                 self.asked_for_json_convert = True
-                print(f"ERROR: Could not find character YML for {name}, but found a json file.")
+                print(f"ERROR: Could not find character YML for {self.current_character_name}, but found a json file.")
                 response = input(
                     f"Would you like to convert all JSON files to YAML? (y for yes, {json_ask_finish}): ",
                 )
                 if response.lower() in ["y"]:
                     json2yaml.json2yaml(self.input_path)
-                    return self.get_yaml(name)
-                self.failed_yml_converts.append(name)
+                    return self.get_yaml()
+                self.failed_yml_converts.append(self.current_character_name)
                 if self.strict_mode:
                     sys.exit(1)
             elif self.strict_mode:
-                print(f"ERROR: Could not find character YML for {name}")
+                print(f"ERROR: Could not find character YML for {self.current_character_name}")
                 input("Press Enter to exit...")
                 sys.exit(1)
 
-            elif name not in self.failed_yml_converts:
+            elif self.current_character_name not in self.failed_yml_converts:
                 print(
-                    f"Could not find config info for {name}. "
+                    f"Could not find config info for {self.current_character_name}. "
                     + "Using blank configuration. To disable this feature, use enable strict mode using --strict",
                 )
-                self.failed_yml_converts.append(name)
+                self.failed_yml_converts.append(self.current_character_name)
             return {}
         except yaml.YAMLError as error:
-            print(f"ERROR: Character YML for {name}, could not be read.\nInfo: {error}")
+            print(f"ERROR: Character YML for {self.current_character_name}, could not be read.\nInfo: {error}")
 
             input("Press Enter to exit...")
             sys.exit(1)
@@ -126,7 +129,7 @@ class ParserBase:
                 return True
         return False
 
-    def get_outfits(self, path_to_pose: str, character_name: str) -> None | list[Tuple[str, list[str], list[str]]]:
+    def get_outfits(self, path_to_pose: str) -> None | list[Tuple[str, list[str], list[str]]]:
         "Get outfits and accessories for a given pose"
         outfits: list[Tuple[str, list[str], list[str]]] = []
         off_pose_level_accessories = []
@@ -162,7 +165,7 @@ class ParserBase:
             if len(set(outfit_folders)) + non_folder_outfits_count != len(outfit_folders):
                 dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
                 print(
-                    f'Error: Character "{character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                    f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
                     + "contains more than one outfit with an accessory in single folder.",
                 )
                 print(
@@ -178,16 +181,14 @@ class ParserBase:
 
         if not outfits:
             print(
-                f'Error: Character "{character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
                 + "does not contain outfits. Skipping.",
             )
             return None
         outfits = self.remove_path_duplicates_no_ext(outfits)
         return outfits
 
-    def get_faces(
-        self, path_to_pose: str, character_name: str, mutation: str = None, face_folder: str = None
-    ) -> None | list[str]:
+    def get_faces(self, path_to_pose: str, mutation: str = None, face_folder: str = None) -> None | list[str]:
         "Attempts to get the faces for a given pose, a mutation or different face folder can adjust where it will look"
         folder_to_look_in = face_folder or "face"
         faces: list[str] = []
@@ -199,7 +200,7 @@ class ParserBase:
         if not faces and not face_folder:  # Only error if no folder is given
             mutation_string = f' for mutation "{mutation}"' if mutation else ""
             print(
-                f'Error: Character "{character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
                 + f"does not contain faces in folder {folder_to_look_in}{mutation_string}. Skipping.",
             )
             return None

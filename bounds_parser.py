@@ -23,6 +23,7 @@ class BoundsParser(ParserBase):
 
     def parse(self, character_name: str) -> Character:
         "Run bounds check on given character path"
+        self.current_character_name = character_name
         for pose_path in [
             os.path.join(self.input_path, "characters", character_name, path)
             for path in os.listdir(os.path.join(self.input_path, "characters", character_name))
@@ -31,22 +32,25 @@ class BoundsParser(ParserBase):
 
             self.bounds(
                 pose_path,
-                character_name,
             )
 
-    def bounds(self, pose_path: str, character_name: str):
+    def bounds(self, pose_path: str):
         """Output the minimum size of each image for the character.
         Use it to find invisible pixels left over from editing"""
 
         pose_letter = self.input_path.split(os.sep)[-1]
-        if (self.regex is None or re.match(self.regex, character_name)) and not self.is_character_invalid(pose_path):
-            char_yml: dict = self.get_yaml(character_name)
-            outfits = self.get_outfits(pose_path, character_name)
-            faces = self.get_faces(pose_path, character_name)
-            blushes = self.get_faces(pose_path, character_name, face_folder="blush")
+        if (self.regex is None or re.match(self.regex, self.current_character_name)) and not self.is_character_invalid(
+            pose_path
+        ):
+            char_yml: dict = self.get_yaml()
+            outfits = self.get_outfits(pose_path)
+            faces = self.get_faces(
+                pose_path,
+            )
+            blushes = self.get_faces(pose_path, face_folder="blush")
 
             mutations: dict[str, list[str]]
-            print(f"Character {character_name}: Pose {pose_letter}")
+            print(f"Character {self.current_character_name}: Pose {pose_letter}")
             if self.print_faces:
                 faces.sort(key=sort_functions.sort_by_numbers)
 
@@ -58,12 +62,12 @@ class BoundsParser(ParserBase):
                     self.bounds_print(blushes, self.skip_if_same)
                 if mutations := char_yml.get("mutations", {}):
                     for key in [x for x in mutations.keys() if self.check_character_mutation_is_valid(pose_path, x)]:
-                        faces = self.get_faces(pose_path, character_name, key)
+                        faces = self.get_faces(pose_path, key)
                         if faces:
                             faces.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" face')
                             self.bounds_print(faces, self.skip_if_same)
-                        blushes = self.get_faces(pose_path, character_name, key, face_folder="blush")
+                        blushes = self.get_faces(pose_path, key, face_folder="blush")
                         if blushes:
                             blushes.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
