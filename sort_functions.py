@@ -3,6 +3,7 @@ import os
 from typing import Protocol
 
 
+# TODO: After moving the combine faces out of the pose class, move these into the correct parser
 class ImagePath(Protocol):
     "Protocol class to avoid requirement looping"
     path: str

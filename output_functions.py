@@ -9,10 +9,6 @@ from classes import Character
 from html_arg_functions import update_html
 
 
-YML_FAILS = []
-JSON_CONVERT_ASK = False
-
-
 def create_html_file(args: Namespace, html_snips: tuple[str, str, str], chars: list[Character], split_files=False):
     "Create the HTML file for the scenario"
     html_snip1, html_snip2 = html_snips

@@ -1,21 +1,23 @@
 "Contains the base class for a parser object. This class holds methods that all types of parsers may need"
+from dataclasses import dataclass
 from typing import ClassVar, Tuple
-import json2yaml
-import args_functions
 import os
 import sys
-import yaml
 from glob import glob
 import itertools
+import yaml
+import json2yaml
 
-YML_FAILS = []
-JSON_CONVERT_ASK = False
 
-
+@dataclass()
 class ParserBase:
     "Contains methods that a parser may need"
-
-    ACCEPTED_EXT: ClassVar[list[str]] = [".webp", ".png"]
+    input_path: str
+    strict_mode: bool
+    accepted_extensions: ClassVar[list[str]] = [".webp", ".png"]
+    # To make sure the warning about a blank config is not said more than once per character, we track the characters we said
+    failed_yml_converts: ClassVar[list[str]] = []
+    asked_for_json_convert: ClassVar[bool] = False
 
     def is_character_invalid(self, path_to_pose: str) -> str:
         """Check if character is invalid.
@@ -24,7 +26,7 @@ class ParserBase:
         Else returns an empty string"""
         face_found = False
         outfit_found = False
-        for ext in self.ACCEPTED_EXT:
+        for ext in self.accepted_extensions:
             # Check for any outfits/faces
             outfit_found = (
                 outfit_found
@@ -42,52 +44,45 @@ class ParserBase:
             return "No outfits exists"
         return "This should never be returned"
 
-    def get_yaml(self, input_dir: str, name: str) -> dict:
+    def get_yaml(self, name: str) -> dict:
         "Get the YAML file for the character"
         try:
             with open(
-                os.path.join(input_dir, "characters", name, "character.yml"),
+                os.path.join(self.input_path, "characters", name, "character.yml"),
                 "r",
                 encoding="utf8",
             ) as char_file:
                 return yaml.safe_load(char_file) or {}
         except FileNotFoundError:
-            global JSON_CONVERT_ASK
             json_ask_finish = "anything else to skip"
-            if args_functions.STRICT_ERROR_PARSING:
+            if self.strict_mode:
                 json_ask_finish = "anything else to exit"
             if (
-                os.path.exists(os.path.join(input_dir, "characters", name, "character.json"))
-                and args_functions.INPUT_DIR != ""
-                and name not in YML_FAILS
+                os.path.exists(os.path.join(self.input_path, "characters", name, "character.json"))
+                and not self.asked_for_json_convert
             ):
-                if not JSON_CONVERT_ASK:
-                    print(f"ERROR: Could not find character YML for {name}, but found a json file.")
-                    response = input(
-                        f"Would you like to convert all JSON files to YAML? (y for yes, {json_ask_finish}): ",
-                    )
-                    JSON_CONVERT_ASK = True
-                else:
-                    response = ""
+                self.asked_for_json_convert = True
+                print(f"ERROR: Could not find character YML for {name}, but found a json file.")
+                response = input(
+                    f"Would you like to convert all JSON files to YAML? (y for yes, {json_ask_finish}): ",
+                )
                 if response.lower() in ["y"]:
-                    json2yaml.json2yaml(args_functions.INPUT_DIR)
-                    return self.get_yaml(input_dir, name)
-                elif not args_functions.STRICT_ERROR_PARSING:
-                    pass
-                else:
+                    json2yaml.json2yaml(self.input_path)
+                    return self.get_yaml(name)
+                self.failed_yml_converts.append(name)
+                if self.strict_mode:
                     sys.exit(1)
-            elif not args_functions.STRICT_ERROR_PARSING:
-                pass
-            else:
+            elif self.strict_mode:
                 print(f"ERROR: Could not find character YML for {name}")
                 input("Press Enter to exit...")
                 sys.exit(1)
-            if name not in YML_FAILS:
+
+            elif name not in self.failed_yml_converts:
                 print(
                     f"Could not find config info for {name}. "
                     + "Using blank configuration. To disable this feature, use enable strict mode using --strict",
                 )
-                YML_FAILS.append(name)
+                self.failed_yml_converts.append(name)
             return {}
         except yaml.YAMLError as error:
             print(f"ERROR: Character YML for {name}, could not be read.\nInfo: {error}")
@@ -104,7 +99,7 @@ class ParserBase:
         on_acc = []
         if not outfit_access:
             return out_path, off_acc, on_acc
-        for direct, ext in itertools.product(outfit_access, self.ACCEPTED_EXT):
+        for direct, ext in itertools.product(outfit_access, self.accepted_extensions):
             if acc_list := glob(os.path.join(direct, f"*{ext}")):
                 acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
                 for key, value in acc_dict.items():
@@ -119,7 +114,7 @@ class ParserBase:
     def check_character_mutation_is_valid(self, path_to_pose: str, mutation: str) -> bool:
         "Check if faces for a given mutation exists"
         face_found = False
-        for ext in self.ACCEPTED_EXT:
+        for ext in self.accepted_extensions:
             # Check for any outfits/faces
             face_found = face_found or bool(
                 glob(os.path.join(path_to_pose, "faces", "mutations", mutation, "face", f"*{ext}"))
@@ -134,10 +129,10 @@ class ParserBase:
         off_pose_level_accessories = []
         on_pose_level_accessories = []
         # Scan for off accessories
-        for ext in self.ACCEPTED_EXT:
+        for ext in self.accepted_extensions:
             off_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"off{ext}")))
             on_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"on*{ext}")))
-        for ext in self.ACCEPTED_EXT:
+        for ext in self.accepted_extensions:
             outfits.extend(
                 (x, list(off_pose_level_accessories), list(on_pose_level_accessories))
                 for x in glob(os.path.join(path_to_pose, "outfits", f"*{ext}"))
@@ -196,7 +191,7 @@ class ParserBase:
         face_path = os.path.join(
             path_to_pose, "faces", *(("mutations", mutation) if mutation else ""), folder_to_look_in
         )
-        for ext in self.ACCEPTED_EXT:
+        for ext in self.accepted_extensions:
             faces.extend(glob(os.path.join(face_path, f"*{ext}")))
         if not faces and not face_folder:  # Only error if no folder is given
             mutation_string = f' for mutation "{mutation}"' if mutation else ""

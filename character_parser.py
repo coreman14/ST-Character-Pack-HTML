@@ -15,7 +15,6 @@ from glob import glob
 @dataclass
 class CharacterParser(ParserBase):
     "A reusable class for creating a character. This will create a character object by giving a character path to parse"
-    input_path: str
     trim_function: Callable
     outfit_priority: list[str]
     max_height_constant: float
@@ -62,7 +61,7 @@ class CharacterParser(ParserBase):
 
         outfits = self.get_outfits(pose_path, path_to_character)
 
-        char_yml: dict = self.get_yaml(self.input_path, path_to_character)
+        char_yml: dict = self.get_yaml(path_to_character)
         excluded_accessories = char_yml.get("poses", {}).get(self.current_pose_letter, {}).get("excludes", {})
         face_direction = char_yml.get("poses", {}).get(self.current_pose_letter, {}).get("facing", "left")
         inverse_accessories = defaultdict(list)

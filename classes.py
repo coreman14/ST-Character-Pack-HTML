@@ -194,6 +194,7 @@ class Pose:
         self.accessories_name = sorted(set(self.accessories_name))
         self._combine_faces()
 
+    # TODO: Move this functions out of here into character parser. So we combine the faces before the creation of the pose.
     def _combine_faces(self):
         """
         Add missing faces to to blushes and faces

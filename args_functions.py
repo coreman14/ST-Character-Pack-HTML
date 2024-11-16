@@ -13,8 +13,6 @@ import classes
 
 import json2yaml
 
-INPUT_DIR = ""
-STRICT_ERROR_PARSING = False
 OUTFIT_PRIORITY = [
     "uniform",
     "suit",
@@ -215,9 +213,7 @@ def setup_args(args: argparse.Namespace) -> dict:
         input("Press Enter to exit...")
         sys.exit(1)
     yml_data: dict = {}
-    json_convert = False
     if not os.path.exists(os.path.join(args.inputdir, "scenario.yml")) and not args.bounds:
-        json_convert = True
         print(f"Error: Scenario.yml does not exist in '{args.inputdir}'.")
         response = input(
             "Would you like to convert all JSON files to YAML? (y for yes, anything else to exit): ",
@@ -283,9 +279,6 @@ def setup_args(args: argparse.Namespace) -> dict:
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")
         input("Press Enter to exit...")
         sys.exit(1)
-    global INPUT_DIR, STRICT_ERROR_PARSING
-    INPUT_DIR = args.inputdir if not json_convert else ""
-    STRICT_ERROR_PARSING = args.strict
 
 
 def dir_path(path: str) -> str:

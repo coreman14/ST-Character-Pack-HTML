@@ -16,7 +16,7 @@ from base_parser import ParserBase
 @dataclass
 class BoundsParser(ParserBase):
     "A reusable class for the bounds function. After init, it will print the output by calling parse with the character path"
-    input_path: str
+
     regex: str
     skip_if_same: bool
     print_faces: bool
@@ -41,7 +41,7 @@ class BoundsParser(ParserBase):
 
         pose_letter = self.input_path.split(os.sep)[-1]
         if (self.regex is None or re.match(self.regex, path_to_character)) and not self.is_character_invalid(pose_path):
-            char_yml: dict = self.get_yaml(self.input_path, path_to_character)
+            char_yml: dict = self.get_yaml(path_to_character)
             outfits = self.get_outfits(pose_path, path_to_character)
             faces = self.get_faces(pose_path, path_to_character)
             blushes = self.get_faces(pose_path, path_to_character, face_folder="blush")

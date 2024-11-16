@@ -3,6 +3,7 @@ Main runner for the HTML process
 """
 
 from argparse import Namespace
+from email.policy import strict
 import os
 import sys
 from functools import partial
@@ -41,9 +42,9 @@ def main_loop(args: Namespace):
 
     total_characters = len(paths)
     character_parser = (
-        BoundsParser(args.inputdir, args.regex, args.skip_if_same, args.skip_faces, args.skip_outfits)
+        BoundsParser(args.inputdir, args.strict, args.regex, args.skip_if_same, args.skip_faces, args.skip_outfits)
         if args.bounds
-        else CharacterParser(args.inputdir, trim_images, args.outfitpriority, args.maxheightmultiplier)
+        else CharacterParser(args.inputdir, args.strict, trim_images, args.outfitpriority, args.maxheightmultiplier)
     )
     if args.hashprogress:
         # Set hashprogress as the path
