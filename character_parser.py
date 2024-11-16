@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from functools import partial
-from typing import Callable, Tuple
+from typing import Callable, ClassVar, Tuple
 from classes import Character, Pose, Outfit, ImagePath, Accessory
 import classes
 import re
@@ -15,11 +15,15 @@ from glob import glob
 @dataclass
 class CharacterParser(ParserBase):
     "A reusable class for creating a character. This will create a character object by giving a character path to parse"
-    trim_function: Callable
     outfit_priority: list[str]
     max_height_constant: float
+    do_trim: bool
+    remove_empty: bool
+    remove_empty_pixels: bool
     clean_path_function: Callable = field(init=False, repr=False)
     current_pose_letter: str = field(init=False, repr=False)
+
+    FILES_THAT_COULD_BE_REMOVED: ClassVar[list[str]] = []
 
     def __post_init__(self):
         self.clean_path_function = partial(self.remove_path, path_to_remove=self.input_path)
@@ -94,7 +98,7 @@ class CharacterParser(ParserBase):
         widths = []
         heights = []
         bb_boxes = []
-        for width, height, bbox in map(self.trim_function, faces):
+        for width, height, bbox in map(self.open_image_and_get_measurements, faces):
             widths.append(width)
             heights.append(height)
             bb_boxes.append(bbox)
@@ -109,7 +113,7 @@ class CharacterParser(ParserBase):
             )
         )
         faces.sort(key=sort_functions.face_sort_imp)
-        for width, height, bbox in map(self.trim_function, blushes):
+        for width, height, bbox in map(self.open_image_and_get_measurements, blushes):
             widths.append(width)
             heights.append(height)
             bb_boxes.append(bbox)
@@ -128,7 +132,7 @@ class CharacterParser(ParserBase):
         widths.clear()
         heights.clear()
         bb_boxes.clear()
-        for width, height, bbox in map(self.trim_function, outfits):
+        for width, height, bbox in map(self.open_image_and_get_measurements, outfits):
             widths.append(width)
             heights.append(height)
             bb_boxes.append(bbox)
@@ -141,9 +145,10 @@ class CharacterParser(ParserBase):
             image_paths_on_access = []
             image_paths_off_access = []
             if outfit_obj[1]:
-                no_blank_off_access = [x for x in outfit_obj[1] if None not in self.trim_function(x)]
+                no_blank_off_access = [x for x in outfit_obj[1] if None not in self.open_image_and_get_measurements(x)]
                 image_paths_off_access = [
-                    ImagePath(self.clean_path_function(x), *self.trim_function(x)) for x in no_blank_off_access
+                    ImagePath(self.clean_path_function(x), *self.open_image_and_get_measurements(x))
+                    for x in no_blank_off_access
                 ]
                 # get Layering for default accessories
                 image_paths_off_access = [
@@ -158,9 +163,10 @@ class CharacterParser(ParserBase):
                     for x in image_paths_off_access
                 ]
             if outfit_obj[2]:
-                no_blank_on_access = [x for x in outfit_obj[2] if None not in self.trim_function(x)]
+                no_blank_on_access = [x for x in outfit_obj[2] if None not in self.open_image_and_get_measurements(x)]
                 image_paths_on_access = [
-                    ImagePath(self.clean_path_function(x), *self.trim_function(x)) for x in no_blank_on_access
+                    ImagePath(self.clean_path_function(x), *self.open_image_and_get_measurements(x))
+                    for x in no_blank_on_access
                 ]
                 # get Layering for default accessories
                 image_paths_on_access = [
@@ -211,10 +217,13 @@ class CharacterParser(ParserBase):
 
         image_paths_access = []
 
-        outfit_image = ImagePath(self.remove_path(default_outfit, self.input_path), *self.trim_function(default_outfit))
-        no_blank_access = [x for x in default_outfit[1] if None not in self.trim_function(x)]
+        outfit_image = ImagePath(
+            self.remove_path(default_outfit, self.input_path), *self.open_image_and_get_measurements(default_outfit)
+        )
+        no_blank_access = [x for x in default_outfit[1] if None not in self.open_image_and_get_measurements(x)]
         image_paths_access = [
-            ImagePath(self.remove_path(x, self.input_path), *self.trim_function(x)) for x in no_blank_access
+            ImagePath(self.remove_path(x, self.input_path), *self.open_image_and_get_measurements(x))
+            for x in no_blank_access
         ]
         # get Layering for default accessories
         image_paths_access = [
@@ -333,3 +342,35 @@ class CharacterParser(ParserBase):
     def natural_sort(self, l: list[str]):
         "Naturally sort the list"
         return sorted(l, key=self.alpha_num_key)
+
+    # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
+    def open_image_and_get_measurements(
+        self, name: str | list[str]
+    ) -> tuple[int, int, None] | tuple[int, int, tuple[int, int, int, int] | None]:
+        """Opens the given image or first image in the list, then returns the size and bound box.
+        If do_trim is true, will trim the image before
+        Setting remove_empty as true will remove any blank image.
+        """
+        name, trim_img = self.attempt_to_open_image(name, remove_empty_pixels=self.remove_empty_pixels)
+        image_size = trim_img.size
+        # if trim_img.mode != "RGBA":
+        #     trim_img = trim_img.convert("RGBA")
+        bbox = trim_img.split()[-1].getbbox()
+        if not bbox:
+            if f"{os.sep}face{os.sep}" in name or "/face/" in name:
+                return (*image_size, None)
+            if self.remove_empty:
+                os.remove(name)
+            elif name not in self.FILES_THAT_COULD_BE_REMOVED:
+                self.FILES_THAT_COULD_BE_REMOVED.append(name)
+                print(f"{name} is empty, it can be removed")
+            return (*image_size, None)
+
+        amount_to_trim = bbox[2:]
+
+        if amount_to_trim != image_size and self.do_trim:
+            trim_img = trim_img.crop((0, 0) + amount_to_trim)
+            bbox = trim_img.getbbox()
+            trim_img.save(name)
+            image_size = trim_img.size
+        return (*image_size, bbox)

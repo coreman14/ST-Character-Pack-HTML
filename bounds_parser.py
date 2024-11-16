@@ -8,7 +8,6 @@ from colorama import Fore, Style
 
 
 from classes import Character, CropBox
-from image_functions import return_bb_box
 import sort_functions
 from base_parser import ParserBase
 
@@ -22,32 +21,32 @@ class BoundsParser(ParserBase):
     print_faces: bool
     print_outfits: bool
 
-    def parse(self, path_to_character: str) -> Character:
+    def parse(self, character_name: str) -> Character:
         "Run bounds check on given character path"
         for pose_path in [
-            os.path.join(self.input_path, "characters", path_to_character, path)
-            for path in os.listdir(os.path.join(self.input_path, "characters", path_to_character))
-            if os.path.isdir(os.path.join(self.input_path, "characters", path_to_character, path))
+            os.path.join(self.input_path, "characters", character_name, path)
+            for path in os.listdir(os.path.join(self.input_path, "characters", character_name))
+            if os.path.isdir(os.path.join(self.input_path, "characters", character_name, path))
         ]:
 
             self.bounds(
                 pose_path,
-                path_to_character,
+                character_name,
             )
 
-    def bounds(self, pose_path: str, path_to_character: str):
+    def bounds(self, pose_path: str, character_name: str):
         """Output the minimum size of each image for the character.
         Use it to find invisible pixels left over from editing"""
 
         pose_letter = self.input_path.split(os.sep)[-1]
-        if (self.regex is None or re.match(self.regex, path_to_character)) and not self.is_character_invalid(pose_path):
-            char_yml: dict = self.get_yaml(path_to_character)
-            outfits = self.get_outfits(pose_path, path_to_character)
-            faces = self.get_faces(pose_path, path_to_character)
-            blushes = self.get_faces(pose_path, path_to_character, face_folder="blush")
+        if (self.regex is None or re.match(self.regex, character_name)) and not self.is_character_invalid(pose_path):
+            char_yml: dict = self.get_yaml(character_name)
+            outfits = self.get_outfits(pose_path, character_name)
+            faces = self.get_faces(pose_path, character_name)
+            blushes = self.get_faces(pose_path, character_name, face_folder="blush")
 
             mutations: dict[str, list[str]]
-            print(f"Character {path_to_character}: Pose {pose_letter}")
+            print(f"Character {character_name}: Pose {pose_letter}")
             if self.print_faces:
                 faces.sort(key=sort_functions.sort_by_numbers)
 
@@ -59,12 +58,12 @@ class BoundsParser(ParserBase):
                     self.bounds_print(blushes, self.skip_if_same)
                 if mutations := char_yml.get("mutations", {}):
                     for key in [x for x in mutations.keys() if self.check_character_mutation_is_valid(pose_path, x)]:
-                        faces = self.get_faces(pose_path, path_to_character, key)
+                        faces = self.get_faces(pose_path, character_name, key)
                         if faces:
                             faces.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" face')
                             self.bounds_print(faces, self.skip_if_same)
-                        blushes = self.get_faces(pose_path, path_to_character, key, face_folder="blush")
+                        blushes = self.get_faces(pose_path, character_name, key, face_folder="blush")
                         if blushes:
                             blushes.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
@@ -85,7 +84,7 @@ class BoundsParser(ParserBase):
         for image_path in to_print:
             if not isinstance(image_path, str):
                 image_path = image_path[0]
-            if bb_box := return_bb_box(image_path):
+            if bb_box := self.return_bb_box(image_path):
                 print_box.append(CropBox(*bb_box))
             else:
                 print_box.append(None)
@@ -103,3 +102,11 @@ class BoundsParser(ParserBase):
                     f_name,
                 )
         print(Style.RESET_ALL, end="")
+
+    def return_bb_box(self, name: str | list[str]) -> tuple[int, int, int, int]:
+        """Opens the given image or first image in the list, then returns the bounding box of the image."""
+        name, trim_img = self.attempt_to_open_image(name)
+        if trim_img.mode != "RGBA":
+            trim_img = trim_img.convert("RGBA")
+        bbox = trim_img.split()[-1].getbbox()
+        return bbox or (0, 0, 0, 0)

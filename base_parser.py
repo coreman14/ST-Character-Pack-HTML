@@ -7,6 +7,9 @@ from glob import glob
 import itertools
 import yaml
 import json2yaml
+from PIL import Image, UnidentifiedImageError
+from PIL.Image import Image as ImageType
+import numpy as np
 
 
 @dataclass()
@@ -218,3 +221,28 @@ class ParserBase:
                 seen.add(parse_item)
                 result.append(item)
         return result
+
+    def attempt_to_open_image(
+        self, name: str | list[str], remove_empty_pixels: bool = True
+    ) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
+        """Attempts to open image. Treats image as a string first, then on failure treats it as a list."""
+        return_name = name
+        try:
+            try:
+                image = Image.open(name)
+            except AttributeError:
+                image = Image.open(name[0])
+                return_name = name[0]
+            if image.mode != "RGBA":
+                image = image.convert("RGBA")
+            if "faces" in name and remove_empty_pixels:
+                img_np = np.array(image)
+                img_np[img_np < (0, 0, 0, 255)] = 0
+                image = Image.fromarray(img_np)
+            return return_name, image
+
+        except UnidentifiedImageError as pil_error:
+            print()
+            print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
+            input("Press Enter to exit...")
+            sys.exit(1)
