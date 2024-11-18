@@ -1,29 +1,78 @@
 "Main runner functions for the program"
 from argparse import Namespace
+
 import os
 import json
+import sys
+import re
+import zipfile
 import yaml
-
+import minify_html
 
 from classes import Character
 
 
-def create_html_file(args: Namespace, html_snips: tuple[str, str, str], chars: list[Character], split_files=False):
+def read_base_html_file():
+    def resource_path(relative_path):
+        """Get absolute path to resource, works for dev and for PyInstaller"""
+        base_path = getattr(sys, "_MEIPASS", os.path.abspath("."))
+        file_path = os.path.join(base_path, relative_path)
+        if not os.path.exists(file_path):
+            # Assume its the zip file and return false
+            return False
+        return file_path
+
+    def read_from_zipfile(relative_path):
+        with zipfile.ZipFile(sys.argv[0]) as zf:
+            with zf.open(relative_path) as f:
+                return f.read().decode("utf-8")
+
+    if html_file_path := resource_path("base.html"):
+        with open(html_file_path, "r", encoding="utf8") as html_file:
+            html = html_file.read()
+    else:
+        html = read_from_zipfile("base.html")
+    return html
+
+
+def clean_line(line: str):
+    "We do any text changes here, such as removing the end slash from br tags."
+    # Replace single line comments in multiline comments (Comments aren't minified well)
+    if match := re.match(r"""(.*;\s*|^\s*)\/\/(?=(?:[^"']*("|')[^"']*("|'))*[^"']*$)(.*)""", line):
+        line = match.group(1)
+        comment = "/*" + match.group(4) + "*/"
+        comment += line
+        line = comment
+    line = re.sub("([\\.#]\\w*) {", "\\1{", line)
+    line = re.sub(" ([=]+) ", "\\1", line)
+    return line.replace("\n", "").replace("\r", "").strip()
+
+
+def create_html_file(args: Namespace, chars: list[Character], split_files=False):
     "Create the HTML file for the scenario"
-    html_snip1, html_snip2 = html_snips
-    html_snip1 = html_snip1.replace("FAVICONHERE", args.favicon)
-    html_snip1 = update_html(args, html_snip1)
+    html = read_base_html_file()
+    html = html.replace("FAVICONHERE", args.favicon)
+    html = update_html(args, html)
+    html, html2 = html.split("/*SPLIT HERE*/", maxsplit=1)
     with open(os.path.join(args.inputdir, args.name), "w+", encoding="utf8") as html_file:
-        html_file.write(html_snip1)
+        full_html = html
         if split_files:
-            html_file.write(
-                f'</script><script src="{args.jsonname}"></script><script>var jsonData = data.characters;scenario=data.scenario;prefix=data.prefix;'
-            )
+            full_html += f'</script><script src="{args.jsonname}"></script><script>var jsonData = data.characters;scenario=data.scenario;prefix=data.prefix;'
+
         else:
-            html_file.write(f'scenario="{args.titlename}";prefix="{args.prefix}";')
-            html_file.write("var jsonData={ " + "".join(str(x) for x in chars) + "};")
+            full_html += f'scenario="{args.titlename}";prefix="{args.prefix}";'
+            full_html += "var jsonData={ " + "".join(str(x) for x in chars) + "};"
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
-        html_file.write(html_snip2)
+        full_html += html2
+        full_html = minify_html.minify(  # pylint: disable=no-member
+            full_html,
+            minify_css=True,
+            ensure_spec_compliant_unquoted_attribute_values=True,
+            keep_html_and_head_opening_tags=True,
+            do_not_minify_doctype=True,
+        )
+        full_html = "".join(clean_line(x) for x in full_html.split("\n"))
+        html_file.write(full_html)
     print(
         f"Outputted to HTML at {os.path.join(args.inputdir, args.name)}",
         end="\n" if split_files else "",

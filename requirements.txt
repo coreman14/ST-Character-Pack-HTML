@@ -2,3 +2,4 @@ colorama==0.4.6
 Pillow==10.1.0
 PyYAML==6.0.1
 Numpy==2.0.1
+minify_html==0.15.0
