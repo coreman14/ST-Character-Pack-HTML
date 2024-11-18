@@ -53,7 +53,7 @@ def get_args(args: list[str] = None) -> argparse.Namespace:
     parser.add_argument(
         "-st",
         "--strict",
-        help="If enabled, will force exit when a characters YML file is setup incorrectly.",
+        help="If enabled, will force an exit when a character is not set up correctly. ",
         action="store_true",
     )
     argroup = parser.add_argument_group(

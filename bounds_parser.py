@@ -47,7 +47,6 @@ class BoundsParser(ParserBase):
             faces = self.get_faces(
                 pose_path,
             )
-            blushes = self.get_faces(pose_path, face_folder="blush")
 
             mutations: dict[str, list[str]]
             print(f"Character {self.current_character_name}: Pose {pose_letter}")
@@ -56,19 +55,17 @@ class BoundsParser(ParserBase):
 
                 print("Faces")
                 self.bounds_print(faces, self.skip_if_same)
-                if blushes:
+                if blushes := self.get_faces(pose_path, face_folder="blush"):
                     blushes.sort(key=sort_functions.sort_by_numbers)
                     print("Blush faces")
                     self.bounds_print(blushes, self.skip_if_same)
                 if mutations := char_yml.get("mutations", {}):
                     for key in [x for x in mutations.keys() if self.check_character_mutation_is_valid(pose_path, x)]:
-                        faces = self.get_faces(pose_path, key)
-                        if faces:
+                        if faces := self.get_faces(pose_path, key):
                             faces.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" face')
                             self.bounds_print(faces, self.skip_if_same)
-                        blushes = self.get_faces(pose_path, key, face_folder="blush")
-                        if blushes:
+                        if blushes := self.get_faces(pose_path, key, face_folder="blush"):
                             blushes.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
                             self.bounds_print(blushes, self.skip_if_same)
@@ -83,6 +80,8 @@ class BoundsParser(ParserBase):
     def bounds_print(self, to_print: list[str], skip_if_same: bool, split_str=os.sep):
         """Prints the real calculate size of each file. Will highlight any files where the size is different than the others"""
         print(Style.RESET_ALL, end="")
+        if not to_print:
+            print("No images found")
         print_box = []
         print_name = []
         for image_path in to_print:

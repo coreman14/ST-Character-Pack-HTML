@@ -1,5 +1,5 @@
 "Contains the base class for a parser object. This class holds methods that all types of parsers may need"
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import ClassVar, Tuple
 import os
 import sys
@@ -17,17 +17,17 @@ class ParserBase:
     "Contains methods that a parser may need"
     input_path: str
     strict_mode: bool
+    asked_for_json_convert: bool = field(init=False, repr=False)
     current_character_name: ClassVar[str] = ""
     accepted_extensions: ClassVar[list[str]] = [".webp", ".png"]
     # To make sure the warning about a blank config is not said more than once per character, we track the characters we said
     failed_yml_converts: ClassVar[list[str]] = []
-    asked_for_json_convert: ClassVar[bool] = False
 
     def is_character_invalid(self, path_to_pose: str) -> str:
         """Check if character is invalid.
-        To be a invalid character, It must be missing all faces or all outfits or both.
-        If invalid, returns the reason it's invalid.
-        Else returns an empty string"""
+        An invalid character has no faces or outfits or both.
+        If the given character is invalid, returns a string containing the reason it's invalid.
+        If the character is valid, it returns a empty string"""
         face_found = False
         outfit_found = False
         for ext in self.accepted_extensions:
@@ -44,9 +44,8 @@ class ParserBase:
             return "No faces or outfits exists"
         if not face_found:
             return "No faces exists"
-        if not outfit_found:
-            return "No outfits exists"
-        return "This should never be returned"
+        # If it gets here, assume we couldn't find outfits
+        return "No outfits exists"
 
     def get_yaml(self) -> dict:
         "Get the YAML file for the character"
@@ -57,6 +56,18 @@ class ParserBase:
                 encoding="utf8",
             ) as char_file:
                 return yaml.safe_load(char_file) or {}
+        except yaml.YAMLError as error:
+            if self.current_character_name not in self.failed_yml_converts:
+                print(
+                    f"{"ERROR" if self.strict_mode else "WARNING"}: Character "
+                    + f"YML for {self.current_character_name}, could not be read.\nInfo: {error}"
+                )
+                if self.strict_mode:
+                    input("Press Enter to exit...")
+                    sys.exit(1)
+                print("Continuing blank configuration. To disable this feature, use enable strict mode using --strict")
+                self.failed_yml_converts.append(self.current_character_name)
+            return {}
         except FileNotFoundError:
             json_ask_finish = "anything else to skip"
             if self.strict_mode:
@@ -90,29 +101,23 @@ class ParserBase:
                 )
                 self.failed_yml_converts.append(self.current_character_name)
             return {}
-        except yaml.YAMLError as error:
-            print(f"ERROR: Character YML for {self.current_character_name}, could not be read.\nInfo: {error}")
-
-            input("Press Enter to exit...")
-            sys.exit(1)
 
     def find_access(
         self, out_path: str, off_accessories_to_add: list[str] = None, on_accessories_to_add: list[str] = None
     ) -> tuple[str, list[str]]:
         "Looks for accessories for a given outfit"
-        outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
         off_acc = []
         on_acc = []
-        if not outfit_access:
-            return out_path, off_acc, on_acc
-        for direct, ext in itertools.product(outfit_access, self.accepted_extensions):
-            if acc_list := glob(os.path.join(direct, f"*{ext}")):
-                acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
-                for key, value in acc_dict.items():
-                    if key == f"off{ext}":
-                        off_acc.append(value)
-                    else:
-                        on_acc.append(value)
+        outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
+        if outfit_access:
+            for direct, ext in itertools.product(outfit_access, self.accepted_extensions):
+                if acc_list := glob(os.path.join(direct, f"*{ext}")):
+                    acc_dict = {x.split(os.sep)[-1]: x for x in acc_list}
+                    for key, value in acc_dict.items():
+                        if key == f"off{ext}":
+                            off_acc.append(value)
+                        else:
+                            on_acc.append(value)
         off_acc.extend(off_accessories_to_add or ())
         on_acc.extend(on_accessories_to_add or ())
         return out_path, off_acc, on_acc
@@ -129,55 +134,78 @@ class ParserBase:
                 return True
         return False
 
+    # Inverted still works the same. If it's in the same folder it loses accessories. So one outfit per accessory folder
     def get_outfits(self, path_to_pose: str) -> None | list[Tuple[str, list[str], list[str]]]:
         "Get outfits and accessories for a given pose"
         outfits: list[Tuple[str, list[str], list[str]]] = []
-        off_pose_level_accessories = []
-        on_pose_level_accessories = []
+        off_pose_level_accessories: list[str] = []
+        on_pose_level_accessories: list[str] = []
         # Scan for off accessories
         for ext in self.accepted_extensions:
             off_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"off{ext}")))
             on_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"on*{ext}")))
         for ext in self.accepted_extensions:
+            glob_outfits = [
+                self.find_access(x, off_pose_level_accessories, on_pose_level_accessories)
+                for x in glob(os.path.join(path_to_pose, "outfits", "*", f"*{ext}"))
+                if f"{os.sep}acc_" not in x
+            ]
+            # Get the folder names of the outfits we pulled in a set to remove dups
+            outfit_folders = [x[0].rsplit(os.sep, 1)[0] for x in glob_outfits]
+            # Check if there is more than one outfit in a folder
+            if len(set(outfit_folders)) != len(outfit_folders):
+                print(
+                    f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" '
+                    + f'with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                    + "has a folder containing more than one outfit.",
+                )
+                print(
+                    "This will cause any outfits that do not match the name to lose access to the folders accessories."
+                )
+                print("Move the offending outfits to a different folder.")
+                print("Folder names: ")
+                dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
+                char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
+                for x in dup:
+                    print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
+                if self.strict_mode:
+                    input("Press Enter to exit...")
+                    sys.exit(1)
+            # Check if a folder outfit is not named the same
+            if any(
+                x[0][0].rsplit(os.sep, 1)[-1] != x[1].rsplit(os.sep, 1)[-1] + f"{ext}"
+                for x in zip(glob_outfits, outfit_folders)
+            ):
+                print(
+                    f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" '
+                    + f'with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                    + "has a outfit folder where the image file does not match the name of the folder.",
+                )
+                print("This will cause the image to show up twice. Once as the image name and once as the folder name")
+                print("The one with the image name will not be able to access the accessories in the folder.")
+                print("This also applies for inverted outfits.")
+                print("Rename the outfits to match the folder name.")
+                print("Folder names: ")
+
+                mismatches = sorted(
+                    x[1]
+                    for x in zip(glob_outfits, outfit_folders)
+                    if x[0][0].rsplit(os.sep, 1)[-1] != x[1].rsplit(os.sep, 1)[-1] + f"{ext}"
+                )
+                char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
+                for x in mismatches:
+                    print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
+                if self.strict_mode:
+                    input("Press Enter to exit...")
+                    sys.exit(1)
+            # Add them after
+            outfits.extend(glob_outfits)
+            # Deal with outfit folders first to avoid false positives from global accessories
             outfits.extend(
                 (x, list(off_pose_level_accessories), list(on_pose_level_accessories))
                 for x in glob(os.path.join(path_to_pose, "outfits", f"*{ext}"))
             )
-            outfits.extend(
-                self.find_access(x, off_pose_level_accessories, on_pose_level_accessories)
-                for x in glob(os.path.join(path_to_pose, "outfits", "*", f"*{ext}"))
-                if f"{os.sep}acc_" not in x
-            )
-            outfits_in_folders = [
-                x[0] for x in outfits if (x[1] or x[2])
-            ]  # Get folders that have outfits and an off or on accessory
-            outfit_folders = [x.rsplit(os.sep, 1)[0] for x in outfits_in_folders]
-            # If there are pose accessories, outfits not in folders will mess up this count.
-            # So we get that number and subtract 1 for the copy that will be left in
-            # We use max to make sure its not a negative number
-            non_folder_outfits_count = max(outfit_folders.count(os.path.join(path_to_pose, "outfits")) - 1, 0)
-            outfits = [
-                x
-                for x in outfits
-                if (isinstance(x, str) and not x.endswith(f"_inverted{ext}"))
-                or (isinstance(x, tuple) and not x[0].endswith(f"_inverted{ext}"))
-            ]
-            if len(set(outfit_folders)) + non_folder_outfits_count != len(outfit_folders):
-                dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
-                print(
-                    f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
-                    + "contains more than one outfit with an accessory in single folder.",
-                )
-                print(
-                    "Doing this will result in the second outfit in the folder not being able to access any accessories from the folder."
-                )
-                print("Consider making a second folder for this outfit.")
-                print("Folder names: ")
-                char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
-                for x in dup:
-                    print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
-                input("Press Enter to exit...")
-                sys.exit(1)
+            outfits = [x for x in outfits if not x[0].endswith(f"_inverted{ext}")]
 
         if not outfits:
             print(
@@ -193,7 +221,7 @@ class ParserBase:
         folder_to_look_in = face_folder or "face"
         faces: list[str] = []
         face_path = os.path.join(
-            path_to_pose, "faces", *(("mutations", mutation) if mutation else ""), folder_to_look_in
+            path_to_pose, "faces", ((f"mutations{os.sep}{mutation}") if mutation else ""), folder_to_look_in
         )
         for ext in self.accepted_extensions:
             faces.extend(glob(os.path.join(face_path, f"*{ext}")))
