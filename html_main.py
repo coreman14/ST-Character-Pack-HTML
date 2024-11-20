@@ -17,7 +17,7 @@ import create_html_js
 init(convert=True)
 
 
-def main_loop(args: Namespace):
+def process_charcters(args: Namespace):
     """Main Method"""
     chars: list[classes.Character] = []
     paths = [
@@ -91,9 +91,7 @@ def main_loop(args: Namespace):
 
 def main(args: list[str] = None):
     "Main method"
-    args = args_functions.get_args(args)
-    args_functions.setup_args(args)
-    main_loop(args)
+    process_charcters(args_functions.get_args(args))
 
 
 if __name__ == "__main__":

@@ -13,6 +13,7 @@ from time import sleep, time
 import yaml
 from html_main import main
 
+# Todo: Lets convert this into a webserver instead of a always on script.
 DIR_OF_HOLDING = "tmp"
 DIR_OF_LOGGING = "serverConfig/logs"
 DIR_OF_LOGGING_CONFIG = "serverConfig/"

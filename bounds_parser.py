@@ -11,6 +11,8 @@ from classes import Character, CropBox
 import sort_functions
 from base_parser import ParserBase
 
+type path = str
+
 
 @dataclass
 class BoundsParser(ParserBase):
@@ -22,31 +24,26 @@ class BoundsParser(ParserBase):
     print_outfits: bool
 
     def parse(self, character_name: str) -> Character:
-        "Run bounds check on given character path"
+        "Run bounds check on given character"
         self.current_character_name = character_name
         for pose_path in [
             os.path.join(self.input_path, "characters", character_name, path)
             for path in os.listdir(os.path.join(self.input_path, "characters", character_name))
             if os.path.isdir(os.path.join(self.input_path, "characters", character_name, path))
         ]:
+            self.read_character_yml()
+            self.pose_path = pose_path
+            if self.pose_path:
+                self.parse_pose_bounds()
 
-            self.bounds(
-                pose_path,
-            )
-
-    def bounds(self, pose_path: str):
+    def parse_pose_bounds(self):
         """Output the minimum size of each image for the character.
         Use it to find invisible pixels left over from editing"""
 
         pose_letter = self.input_path.split(os.sep)[-1]
-        if (self.regex is None or re.match(self.regex, self.current_character_name)) and not self.is_character_invalid(
-            pose_path
-        ):
-            char_yml: dict = self.get_yaml()
-            outfits = self.get_outfits(pose_path)
-            faces = self.get_faces(
-                pose_path,
-            )
+        if self.regex is None or re.match(self.regex, self.current_character_name):
+            outfits = self.get_pose_outfits_paths()
+            faces = self.get_pose_face_paths()
 
             mutations: dict[str, list[str]]
             print(f"Character {self.current_character_name}: Pose {pose_letter}")
@@ -54,30 +51,30 @@ class BoundsParser(ParserBase):
                 faces.sort(key=sort_functions.sort_by_numbers)
 
                 print("Faces")
-                self.bounds_print(faces, self.skip_if_same)
-                if blushes := self.get_faces(pose_path, face_folder="blush"):
+                self.print_bounds(faces, self.skip_if_same)
+                if blushes := self.get_pose_face_paths(face_folder="blush"):
                     blushes.sort(key=sort_functions.sort_by_numbers)
                     print("Blush faces")
-                    self.bounds_print(blushes, self.skip_if_same)
-                if mutations := char_yml.get("mutations", {}):
-                    for key in [x for x in mutations.keys() if self.check_character_mutation_is_valid(pose_path, x)]:
-                        if faces := self.get_faces(pose_path, key):
+                    self.print_bounds(blushes, self.skip_if_same)
+                if mutations := self.character_config.get("mutations", {}):
+                    for key in [x for x in mutations.keys() if self.check_pose_mutation_is_valid(x)]:
+                        if faces := self.get_pose_face_paths(key):
                             faces.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" face')
-                            self.bounds_print(faces, self.skip_if_same)
-                        if blushes := self.get_faces(pose_path, key, face_folder="blush"):
+                            self.print_bounds(faces, self.skip_if_same)
+                        if blushes := self.get_pose_face_paths(key, face_folder="blush"):
                             blushes.sort(key=sort_functions.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
-                            self.bounds_print(blushes, self.skip_if_same)
+                            self.print_bounds(blushes, self.skip_if_same)
             if self.print_outfits:
                 outfits.sort(key=sort_functions.face_sort_out_tuple)
                 print()
                 print("Outfits")
-                self.bounds_print(outfits, self.skip_if_same)
+                self.print_bounds(outfits, self.skip_if_same)
 
             print()
 
-    def bounds_print(self, to_print: list[str], skip_if_same: bool, split_str=os.sep):
+    def print_bounds(self, to_print: list[path], skip_if_same: bool, split_str=os.sep):
         """Prints the real calculate size of each file. Will highlight any files where the size is different than the others"""
         print(Style.RESET_ALL, end="")
         if not to_print:
@@ -106,7 +103,7 @@ class BoundsParser(ParserBase):
                 )
         print(Style.RESET_ALL, end="")
 
-    def return_bb_box(self, name: str | list[str]) -> tuple[int, int, int, int]:
+    def return_bb_box(self, name: path | list[path]) -> tuple[int, int, int, int]:
         """Opens the given image or first image in the list, then returns the bounding box of the image."""
         name, trim_img = self.attempt_to_open_image(name)
         if trim_img.mode != "RGBA":

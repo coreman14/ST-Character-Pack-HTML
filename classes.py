@@ -47,7 +47,8 @@ class CropBox(NamedTuple):
         return f"Actual Image Size {self.right}x{self.bottom}"
 
 
-class ImagePath(NamedTuple):
+@dataclass(slots=True)
+class ImagePath:
     """Hold an images location, width and height"""
 
     path: str
@@ -80,6 +81,21 @@ class ImagePath(NamedTuple):
     def file_name(self) -> str:
         "Returns the file name"
         return self.path.split("/")[-1]
+
+
+@dataclass(slots=True)
+class OutfitImagePath(ImagePath):
+    "Clarity class to make working with outfits easier"
+    off_accessories: list[ImagePath]
+    on_accessories: list[ImagePath]
+
+
+class Face(ImagePath):
+    "Clarity class to make typing easier for faces"
+
+
+class Blush(ImagePath):
+    "Clarity class to make typing easier for blushes"
 
 
 @dataclass

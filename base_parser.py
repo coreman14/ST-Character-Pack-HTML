@@ -1,4 +1,7 @@
-"Contains the base class for a parser object. This class holds methods that all types of parsers may need"
+"""Contains the ParserBase class for generating information about a character/pose.
+In docstrings, {} means a object variable. [] means a passed in arguement, but only in file paths.
+"""
+
 from dataclasses import dataclass, field
 from typing import ClassVar, Tuple
 import os
@@ -11,22 +14,44 @@ from PIL import Image, UnidentifiedImageError
 from PIL.Image import Image as ImageType
 import numpy as np
 
+type path = str
+
 
 @dataclass()
 class ParserBase:
-    "Contains methods that a parser may need"
-    input_path: str
+    "Contains the basic methods for generating information about a character/pose"
+    input_path: path
     strict_mode: bool
     asked_for_json_convert: bool = field(init=False, repr=False)
+    character_config: bool = field(init=False, repr=False)
+    _pose_path: path = field(init=False, repr=False)
     current_character_name: ClassVar[str] = ""
     accepted_extensions: ClassVar[list[str]] = [".webp", ".png"]
     # To make sure the warning about a blank config is not said more than once per character, we track the characters we said
-    failed_yml_converts: ClassVar[list[str]] = []
+    failed_yml_converts: ClassVar[list[path]] = []
 
-    def is_character_invalid(self, path_to_pose: str) -> str:
-        """Check if character is invalid.
+    @property
+    def pose_path(self):
+        "The path used for processing a pose. When set, we check if the pose is valid before setting it"
+        return self._pose_path
+
+    @pose_path.setter
+    def pose_path(self, new_pose_path: str):
+        if invalid := self.is_pose_path_invalid(new_pose_path):
+            print(
+                f"Given path {new_pose_path.removeprefix(self.input_path + os.sep).replace(os.sep, "/")} is invalid. Reason: {invalid}."
+            )
+            self._pose_path = ""
+            return
+        self._pose_path = new_pose_path
+
+    def is_pose_path_invalid(self, new_pose_path) -> str:
+        """Check if new_pose_path is invalid.
+
         An invalid character has no faces or outfits or both.
+
         If the given character is invalid, returns a string containing the reason it's invalid.
+
         If the character is valid, it returns a empty string"""
         face_found = False
         outfit_found = False
@@ -34,10 +59,10 @@ class ParserBase:
             # Check for any outfits/faces
             outfit_found = (
                 outfit_found
-                or bool([x for x in glob(os.path.join(path_to_pose, "outfits", f"*{ext}"))])
-                or bool([x for x in glob(os.path.join(path_to_pose, "outfits", "*", f"*{ext}"))])
+                or bool([x for x in glob(os.path.join(new_pose_path, "outfits", f"*{ext}"))])
+                or bool([x for x in glob(os.path.join(new_pose_path, "outfits", "*", f"*{ext}"))])
             )
-            face_found = face_found or bool(glob(os.path.join(path_to_pose, "faces", "face", f"*{ext}")))
+            face_found = face_found or bool(glob(os.path.join(new_pose_path, "faces", "face", f"*{ext}")))
             if face_found and outfit_found:
                 return ""
         if not face_found and not outfit_found:
@@ -47,15 +72,33 @@ class ParserBase:
         # If it gets here, assume we couldn't find outfits
         return "No outfits exists"
 
-    def get_yaml(self) -> dict:
-        "Get the YAML file for the character"
+    def read_character_yml(self):
+        """Attempts to read the YAML file for the character for the '{input_path}/characters/{current_character_name}/character.yml' file.
+
+        If found and parsed, will set {character_config} to the results or a blank dict
+
+        If the YAML file is corrupted, it will exit if strict_mode is true.
+
+        Else if the file is not found, it will
+
+        - Check if a JSON file exists, which if found will prompt the user to convert all JSON files to YAMl.
+
+            - If the user does not convert the files, it will exit if strict_mode is true.
+
+        - Else if no JSON file is found, it will exit if strict_mode is true.
+
+        input_path and current_character_name must be set before calling this method
+
+        The user will only be asked to convert JSON to YML once, and the error message for YML file will only be shown once.
+        """
+        self.character_config = {}
         try:
             with open(
                 os.path.join(self.input_path, "characters", self.current_character_name, "character.yml"),
                 "r",
                 encoding="utf8",
             ) as char_file:
-                return yaml.safe_load(char_file) or {}
+                self.character_config = yaml.safe_load(char_file) or {}
         except yaml.YAMLError as error:
             if self.current_character_name not in self.failed_yml_converts:
                 print(
@@ -67,7 +110,7 @@ class ParserBase:
                     sys.exit(1)
                 print("Continuing blank configuration. To disable this feature, use enable strict mode using --strict")
                 self.failed_yml_converts.append(self.current_character_name)
-            return {}
+            return
         except FileNotFoundError:
             json_ask_finish = "anything else to skip"
             if self.strict_mode:
@@ -85,7 +128,8 @@ class ParserBase:
                 )
                 if response.lower() in ["y"]:
                     json2yaml.json2yaml(self.input_path)
-                    return self.get_yaml()
+                    self.read_character_yml()
+                    return
                 self.failed_yml_converts.append(self.current_character_name)
                 if self.strict_mode:
                     sys.exit(1)
@@ -100,15 +144,21 @@ class ParserBase:
                     + "Using blank configuration. To disable this feature, use enable strict mode using --strict",
                 )
                 self.failed_yml_converts.append(self.current_character_name)
-            return {}
+            return
 
-    def find_access(
-        self, out_path: str, off_accessories_to_add: list[str] = None, on_accessories_to_add: list[str] = None
-    ) -> tuple[str, list[str]]:
-        "Looks for accessories for a given outfit"
+    def find_outfit_accessories(
+        self,
+        outfit_path: path,
+        addtional_off_accessories: list[path] = None,
+        addtional_on_accessories: list[path] = None,
+    ) -> tuple[path, list[path], list[path]]:
+        """Looks for accessories for a given outfit_path.
+
+        Passing in addtional_off_accessories or addtional_on_accessories containing image paths will add them to return tuple
+        """
         off_acc = []
         on_acc = []
-        outfit_access = glob(os.path.join(os.path.dirname(out_path), "*", ""))
+        outfit_access = glob(os.path.join(os.path.dirname(outfit_path), "*", ""))
         if outfit_access:
             for direct, ext in itertools.product(outfit_access, self.accepted_extensions):
                 if acc_list := glob(os.path.join(direct, f"*{ext}")):
@@ -118,36 +168,48 @@ class ParserBase:
                             off_acc.append(value)
                         else:
                             on_acc.append(value)
-        off_acc.extend(off_accessories_to_add or ())
-        on_acc.extend(on_accessories_to_add or ())
-        return out_path, off_acc, on_acc
+        off_acc.extend(addtional_off_accessories or ())
+        on_acc.extend(addtional_on_accessories or ())
+        return outfit_path, off_acc, on_acc
 
-    def check_character_mutation_is_valid(self, path_to_pose: str, mutation: str) -> bool:
-        "Check if faces for a given mutation exists"
+    def check_pose_mutation_is_valid(self, mutation: str) -> bool:
+        """Check if the mutation folder exists in {pose_path}.
+
+        This will check '{pose_path}/faces/mutations/[mutation]/face' for a valid image"""
         face_found = False
         for ext in self.accepted_extensions:
             # Check for any outfits/faces
             face_found = face_found or bool(
-                glob(os.path.join(path_to_pose, "faces", "mutations", mutation, "face", f"*{ext}"))
+                glob(os.path.join(self.pose_path, "faces", "mutations", mutation, "face", f"*{ext}"))
             )
             if face_found:
                 return True
         return False
 
     # Inverted still works the same. If it's in the same folder it loses accessories. So one outfit per accessory folder
-    def get_outfits(self, path_to_pose: str) -> None | list[Tuple[str, list[str], list[str]]]:
-        "Get outfits and accessories for a given pose"
-        outfits: list[Tuple[str, list[str], list[str]]] = []
-        off_pose_level_accessories: list[str] = []
-        on_pose_level_accessories: list[str] = []
+    def get_pose_outfits_paths(self) -> list[Tuple[path, list[path], list[path]]]:
+        """Get outfits for {pose_path}.
+
+        This will return a list of tuples containing the path to the outfit, any off accessories, any on accessories.
+
+        This will also check for global accessories and add them to the correct list
+
+        This will also check that the files are named correctly in folder outfits and that only one outfit exists in a folder.
+
+        Depending on strict mode, this will either warn the user or exit the program.
+
+        """
+        outfits: list[Tuple[path, list[path], list[path]]] = []
+        off_pose_level_accessories: list[path] = []
+        on_pose_level_accessories: list[path] = []
         # Scan for off accessories
         for ext in self.accepted_extensions:
-            off_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"off{ext}")))
-            on_pose_level_accessories.extend(glob(os.path.join(path_to_pose, "outfits", "acc_*", f"on*{ext}")))
+            off_pose_level_accessories.extend(glob(os.path.join(self.pose_path, "outfits", "acc_*", f"off{ext}")))
+            on_pose_level_accessories.extend(glob(os.path.join(self.pose_path, "outfits", "acc_*", f"on*{ext}")))
         for ext in self.accepted_extensions:
             glob_outfits = [
-                self.find_access(x, off_pose_level_accessories, on_pose_level_accessories)
-                for x in glob(os.path.join(path_to_pose, "outfits", "*", f"*{ext}"))
+                self.find_outfit_accessories(x, off_pose_level_accessories, on_pose_level_accessories)
+                for x in glob(os.path.join(self.pose_path, "outfits", "*", f"*{ext}"))
                 if f"{os.sep}acc_" not in x
             ]
             # Get the folder names of the outfits we pulled in a set to remove dups
@@ -156,7 +218,7 @@ class ParserBase:
             if len(set(outfit_folders)) != len(outfit_folders):
                 print(
                     f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" '
-                    + f'with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                    + f'with corresponding pose "{self.pose_path.split(os.sep)[-1]}" '
                     + "has a folder containing more than one outfit.",
                 )
                 print(
@@ -165,9 +227,9 @@ class ParserBase:
                 print("Move the offending outfits to a different folder.")
                 print("Folder names: ")
                 dup = sorted({x for x in outfit_folders if outfit_folders.count(x) > 1})
-                char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
+                char_folder_path = os.sep.join(self.pose_path.rsplit(os.sep, 2)[1:])
                 for x in dup:
-                    print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
+                    print("\t" + (char_folder_path + x.replace(self.pose_path, "")).replace(os.sep, "/"))
                 if self.strict_mode:
                     input("Press Enter to exit...")
                     sys.exit(1)
@@ -178,7 +240,7 @@ class ParserBase:
             ):
                 print(
                     f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" '
-                    + f'with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                    + f'with corresponding pose "{self.pose_path.split(os.sep)[-1]}" '
                     + "has a outfit folder where the image file does not match the name of the folder.",
                 )
                 print("This will cause the image to show up twice. Once as the image name and once as the folder name")
@@ -192,9 +254,9 @@ class ParserBase:
                     for x in zip(glob_outfits, outfit_folders)
                     if x[0][0].rsplit(os.sep, 1)[-1] != x[1].rsplit(os.sep, 1)[-1] + f"{ext}"
                 )
-                char_folder_path = os.sep.join(path_to_pose.rsplit(os.sep, 2)[1:])
+                char_folder_path = os.sep.join(self.pose_path.rsplit(os.sep, 2)[1:])
                 for x in mismatches:
-                    print("\t" + (char_folder_path + x.replace(path_to_pose, "")).replace(os.sep, "/"))
+                    print("\t" + (char_folder_path + x.replace(self.pose_path, "")).replace(os.sep, "/"))
                 if self.strict_mode:
                     input("Press Enter to exit...")
                     sys.exit(1)
@@ -203,43 +265,51 @@ class ParserBase:
             # Deal with outfit folders first to avoid false positives from global accessories
             outfits.extend(
                 (x, list(off_pose_level_accessories), list(on_pose_level_accessories))
-                for x in glob(os.path.join(path_to_pose, "outfits", f"*{ext}"))
+                for x in glob(os.path.join(self.pose_path, "outfits", f"*{ext}"))
             )
             outfits = [x for x in outfits if not x[0].endswith(f"_inverted{ext}")]
-
-        if not outfits:
-            print(
-                f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
-                + "does not contain outfits. Skipping.",
-            )
-            return None
+        # We dont check for outfits, because invalid mutations should be ran before
         outfits = self.remove_path_duplicates_no_ext(outfits)
         return outfits
 
-    def get_faces(self, path_to_pose: str, mutation: str = None, face_folder: str = None) -> None | list[str]:
-        "Attempts to get the faces for a given pose, a mutation or different face folder can adjust where it will look"
+    def get_pose_face_paths(self, mutation: str = None, face_folder: str = None) -> None | list[path]:
+        """Attempts to get the faces for {pose_path}.
+
+        By default this will look in {pose_path}/faces/face' but the folder can be adjusted using a mutation or different face folder.
+
+        If mutation is given, the path will be adjusted to '{pose_path}/faces/mutations/[mutation]/face'
+
+        If a face_folder is given, this will change the last part of the path to the given value.
+
+        If no faces are found, a message will be printed, then if strict_mode is true, will exit the program. Else it will return none.
+        """
         folder_to_look_in = face_folder or "face"
-        faces: list[str] = []
+        faces: list[path] = []
         face_path = os.path.join(
-            path_to_pose, "faces", ((f"mutations{os.sep}{mutation}") if mutation else ""), folder_to_look_in
+            self.pose_path, "faces", ((f"mutations{os.sep}{mutation}") if mutation else ""), folder_to_look_in
         )
         for ext in self.accepted_extensions:
             faces.extend(glob(os.path.join(face_path, f"*{ext}")))
         if not faces and not face_folder:  # Only error if no folder is given
             mutation_string = f' for mutation "{mutation}"' if mutation else ""
             print(
-                f'Error: Character "{self.current_character_name}" with corresponding pose "{path_to_pose.split(os.sep)[-1]}" '
+                f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" with corresponding pose "{self.pose_path.split(os.sep)[-1]}" '
                 + f"does not contain faces in folder {folder_to_look_in}{mutation_string}. Skipping.",
             )
+            if self.strict_mode:
+                input("Press Enter to exit...")
+                sys.exit(1)
             return None
         faces = self.remove_path_duplicates_no_ext(faces)
         return faces
 
-    def remove_path_duplicates_no_ext(self, a: list[str | tuple[str]]) -> list[str | tuple[str]]:
-        "Attempts to remove duplicates from a list of str/tuples of strings"
+    def remove_path_duplicates_no_ext(self, list_to_scan: list[path | tuple[path]]) -> list[path | tuple[path]]:
+        """Attempts to remove duplicates from a list of str/tuples of paths.
+
+        This will remove the file extension before checking if the path is a duplicate."""
         seen = set()
         result = []
-        for item in a:
+        for item in list_to_scan:
             parse_item = (
                 os.sep.join(item.split(os.sep)[-2:]).split(".", maxsplit=1)[0]
                 if isinstance(item, str)
@@ -252,9 +322,11 @@ class ParserBase:
         return result
 
     def attempt_to_open_image(
-        self, name: str | list[str], remove_empty_pixels: bool = True
-    ) -> tuple[str | list[str], ImageType] | tuple[str, ImageType]:
-        """Attempts to open image. Treats image as a string first, then on failure treats it as a list."""
+        self, name: path | list[path], remove_empty_pixels: bool = True
+    ) -> tuple[path | list[path], ImageType] | tuple[path, ImageType]:
+        """Attempts to open image. Treats image as a string first, then on failure treats it as a list.
+
+        If the image cannot be read, prints the error then exits the program"""
         return_name = name
         try:
             try:
