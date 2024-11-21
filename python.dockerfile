@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the current directory contents into the container at /app
 COPY *.py /app
 COPY /serverConfig /app/serverConfig
+COPY base.html /app
 
 # Run app.py when the container launches
 CMD ["python", "tool_process_zip_files.py"]
