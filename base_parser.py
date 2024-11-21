@@ -347,3 +347,17 @@ class ParserBase:
             print(f"Error: {pil_error}. Please try to re convert the file to png or webp.")
             input("Press Enter to exit...")
             sys.exit(1)
+
+    def sort_by_numbers(self, image_path: str, sep=os.sep):
+        "Add numbers to the front of the file name to allow for correct sorting of numbered files"
+        face_name = image_path.split(sep)[-1].split(".")[0]
+        num = ""
+        letter: str
+        for letter in face_name:
+            if letter.isdigit():
+                num += letter
+            else:
+                break
+        if not num:
+            return face_name
+        return ("0" * (3 - len(num))) + face_name

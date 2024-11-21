@@ -9,7 +9,7 @@ from io import BytesIO
 
 from PIL import Image, UnidentifiedImageError
 import yaml
-import classes
+from character_parser_classes import Pose
 
 import json2yaml
 
@@ -274,11 +274,15 @@ def setup_args(args: argparse.Namespace):
         except UnidentifiedImageError:
             print("ERROR: Could not identify given image. Please specify an image or re-convert the image")
 
+    # TODO: After giving classes and all the other files the final check, I want to disconnect this and character parser.
+    # The goal is to have the parsers take inpu8t_path and strict mode, then take a dictionary that has the defining behaviours
+    # That way, it is easier to change out steps 1 and steps 3. Step 1 makes a input path, strict mode and a config dict for the parsers to use
+    # And step 3 takes the output from a parser
     if args.outfitheight:
-        classes.HEIGHT_OF_MAIN_PAGE = args.outfitheight
+        Pose.HEIGHT_OF_MAIN_PAGE = args.outfitheight
 
     if args.accessoryheight:
-        classes.HEIGHT_OF_ACCESSORY_PAGE = args.accessoryheight
+        Pose.HEIGHT_OF_ACCESSORY_PAGE = args.accessoryheight
 
     if "characters" not in os.listdir(args.inputdir):
         print(f"Error: Could not find 'characters' folder in {args.inputdir}")

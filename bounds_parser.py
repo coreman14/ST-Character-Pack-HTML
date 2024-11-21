@@ -7,8 +7,7 @@ from collections import Counter
 from colorama import Fore, Style
 
 
-from classes import Character, CropBox
-import sort_functions
+from character_parser_classes import Character, CropBox
 from base_parser import ParserBase
 
 type path = str
@@ -48,26 +47,26 @@ class BoundsParser(ParserBase):
             mutations: dict[str, list[str]]
             print(f"Character {self.current_character_name}: Pose {pose_letter}")
             if self.print_faces:
-                faces.sort(key=sort_functions.sort_by_numbers)
+                faces.sort(key=self.sort_by_numbers)
 
                 print("Faces")
                 self.print_bounds(faces, self.skip_if_same)
                 if blushes := self.get_pose_face_paths(face_folder="blush"):
-                    blushes.sort(key=sort_functions.sort_by_numbers)
+                    blushes.sort(key=self.sort_by_numbers)
                     print("Blush faces")
                     self.print_bounds(blushes, self.skip_if_same)
                 if mutations := self.character_config.get("mutations", {}):
                     for key in [x for x in mutations.keys() if self.check_pose_mutation_is_valid(x)]:
                         if faces := self.get_pose_face_paths(key):
-                            faces.sort(key=sort_functions.sort_by_numbers)
+                            faces.sort(key=self.sort_by_numbers)
                             print(f'Mutation "{key}" face')
                             self.print_bounds(faces, self.skip_if_same)
                         if blushes := self.get_pose_face_paths(key, face_folder="blush"):
-                            blushes.sort(key=sort_functions.sort_by_numbers)
+                            blushes.sort(key=self.sort_by_numbers)
                             print(f'Mutation "{key}" blush face')
                             self.print_bounds(blushes, self.skip_if_same)
             if self.print_outfits:
-                outfits.sort(key=sort_functions.face_sort_out_tuple)
+                outfits.sort(key=self.face_sort_out_tuple)
                 print()
                 print("Outfits")
                 self.print_bounds(outfits, self.skip_if_same)
@@ -105,8 +104,14 @@ class BoundsParser(ParserBase):
 
     def return_bb_box(self, name: path | list[path]) -> tuple[int, int, int, int]:
         """Opens the given image or first image in the list, then returns the bounding box of the image."""
-        name, trim_img = self.attempt_to_open_image(name)
+        # For bounds, we should never trim the image, it should reflect what is shown in the game.
+        # We do empty pixel remove in the HTML because it makes it easier to do it's job
+        name, trim_img = self.attempt_to_open_image(name, remove_empty_pixels=False)
         if trim_img.mode != "RGBA":
             trim_img = trim_img.convert("RGBA")
         bbox = trim_img.split()[-1].getbbox()
         return bbox or (0, 0, 0, 0)
+
+    def face_sort_out_tuple(self, image: tuple[str]):
+        "Return a sortable version of the given file"
+        return self.sort_by_numbers(image[0])

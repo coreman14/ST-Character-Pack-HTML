@@ -9,9 +9,9 @@ import sys
 from colorama import init
 from bounds_parser import BoundsParser
 from character_parser import CharacterParser
+from character_parser_classes import Character
 
 import args_functions
-import classes
 import create_html_js
 
 init(convert=True)
@@ -19,7 +19,7 @@ init(convert=True)
 
 def process_charcters(args: Namespace):
     """Main Method"""
-    chars: list[classes.Character] = []
+    chars: list[Character] = []
     paths = [
         path
         for path in os.listdir(os.path.join(args.inputdir, "characters"))

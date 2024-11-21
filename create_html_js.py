@@ -9,7 +9,7 @@ import zipfile
 import yaml
 import minify_html
 
-from classes import Character
+from character_parser_classes import Character
 
 
 def read_base_html_file():
@@ -61,7 +61,7 @@ def create_html_file(args: Namespace, chars: list[Character], split_files=False)
 
         else:
             full_html += f'scenario="{args.titlename}";prefix="{args.prefix}";'
-            full_html += "var jsonData={ " + "".join(str(x) for x in chars) + "};"
+            full_html += "var jsonData={ " + "".join(x.json_output() for x in chars) + "};"
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
         full_html += html2
         full_html = minify_html.minify(  # pylint: disable=no-member
@@ -93,7 +93,7 @@ def create_js(args: Namespace, chars: list[Character]):
         + '", "prefix": "'
         + args.prefix
         + '", "characters": { '
-        + "".join(str(x) for x in chars)
+        + "".join(x.json_output() for x in chars)
         + "}}",
     )
     with open(os.path.join(args.inputdir, args.jsonname), "w+", encoding="utf8") as json_file:

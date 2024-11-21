@@ -7,9 +7,17 @@ import os
 from collections import defaultdict
 import sys
 from glob import glob
-from classes import Character, Pose, Outfit, ImagePath, Accessory, Face, Blush, OutfitImagePath
-import classes
-import sort_functions
+from character_parser_classes import (
+    Character,
+    CropBox,
+    Pose,
+    Outfit,
+    ImagePath,
+    Accessory,
+    Face,
+    Blush,
+    OutfitImagePath,
+)
 from base_parser import ParserBase
 
 type path = str
@@ -56,58 +64,33 @@ class CharacterParser(ParserBase):
         face_direction: str = (
             self.character_config.get("poses", {}).get(self.current_pose_letter, {}).get("facing", "left")
         )
-        outfits, mutation, default_outfit, default_accessories = self.get_pose_outfits()
+        # Get the list of outfits
+        outfits = self.get_pose_outfits_paths()
+        # Using that list of outfits, get the default outfit mutation
+        mutation = self.get_default_outfit_mutation(outfits)
+        # Get faces and blushes using that mutation
         faces, blushes = self.get_pose_faces(mutation)
-        return Pose(
+        # Get the default outfit imagepath + accessories and pass in the max height of the faces so the crop boxes come out right
+        c = CropBox.cropbox_from_multiple_images((x.cropbox for x in faces))
+        face_height = c.bottom if c is not None else 0
+        default_outfit, default_accessories = self.get_default_outfit(outfits, face_height=face_height)
+        # Convert the outfits from imagepath to Outfit objects
+
+        outfits = self.convert_outfit_paths_to_objects(outfits)
+        new_pose = Pose(
             self.input_path,
             self.current_pose_letter,
             outfits,
             faces,
             blushes,
             default_outfit,
-            default_accessories,
-            face_direction,
+            facing_direction=face_direction,
         )
+        new_pose.add_default_accessories(default_accessories)
+        return new_pose
 
-    def check_default_outfit_mutation_is_valid(self, default_outfit: ImagePath) -> str | None:
-        """Checks if the default_outfit mutation is valid.
-
-        If the mutation is valid, it will return the mutation for the default outfit.
-
-        If the mutation is invalid, it will print a message, then if strict_mode is true, it will exit the program, else it will return none
-        """
-        mutations: dict[str, list[str]]
-        if mutations := self.character_config.get("mutations", {}):
-            for key, value in mutations.items():
-                if any(x in default_outfit.file_name for x in value):
-                    if self.check_pose_mutation_is_valid(key):
-                        return key
-
-                    print(
-                        f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" for pose "{self.current_pose_letter}" '
-                        + f'default outfit of "{default_outfit.file_name}"'
-                        + f' has mutation "{key}", but no faces are provided for that mutation.',
-                    )
-                    if self.strict_mode:
-                        input("Press Enter to exit...")
-                        sys.exit(1)
-                    return None
-        return None
-
-    def get_pose_outfits(self):
-        """Creates the outfits for the pose.
-
-        This functions returns:
-
-        - The fully parsed Outfit objects in a list with
-
-        - The mutation used for the default outfit which can be None
-
-        - The default outfit ImagePath object
-
-        - The list of the Accessory objects for the default outfit.
-        """
-
+    def convert_outfit_paths_to_objects(self, outfit_data: list[Tuple[path, list[path], list[path]]]):
+        """Creates the outfits objects for the pose."""
         inverse_accessories = defaultdict(list)
         for k, v in (
             self.character_config.get("poses", {}).get(self.current_pose_letter, {}).get("excludes", {}).items()
@@ -115,17 +98,10 @@ class CharacterParser(ParserBase):
             for x in v:
                 inverse_accessories[x].append(k)
 
-        outfits = self.get_pose_outfits_paths()
-        default_outfit, default_accessories = self.get_default_outfit(
-            outfits,
-        )
-
-        mutation = self.check_default_outfit_mutation_is_valid(default_outfit)
-
-        self.update_outfits_with_face_accessories(outfits)
+        self.update_outfits_with_face_accessories(outfit_data)
 
         outfits_with_measurements: list[OutfitImagePath] = []
-        for outfit, off_accessories, on_accessories in outfits:
+        for outfit, off_accessories, on_accessories in outfit_data:
             measurements = self.open_image_and_get_measurements(outfit)
             outfits_with_measurements.append(
                 OutfitImagePath(
@@ -143,20 +119,51 @@ class CharacterParser(ParserBase):
             image_paths_on_access = []
             image_paths_off_access = []
             if outfit.off_accessories:
-                image_paths_off_access = self.create_outfit_accessories(outfit, outfit.off_accessories)
+                image_paths_off_access = self.create_outfit_accessories_imagepaths(outfit.off_accessories)
             if outfit.on_accessories:
-                image_paths_on_access = self.create_outfit_accessories(
-                    outfit, outfit.on_accessories, inverse_accessories
-                )
+                image_paths_on_access = self.create_outfit_accessories_imagepaths(outfit.on_accessories)
 
-            new_outfits.append(Outfit(outfit, image_paths_off_access, image_paths_on_access))
+            new_outfit = Outfit(outfit)
+            new_outfit.add_on_accessories(image_paths_on_access, inverse_accessories)
+            new_outfit.add_off_accessories(image_paths_off_access)
+            new_outfits.append(new_outfit)
 
         new_outfits.sort(key=lambda x: x.path.path.split(os.sep)[-1].split(".")[0])
-        return new_outfits, mutation, default_outfit, default_accessories
+        return new_outfits
 
-    def create_outfit_accessories(
-        self, outfit: OutfitImagePath, outfit_acessories_list: list[ImagePath], inverse_accessories: defaultdict = None
-    ):
+    def get_default_outfit_mutation(self, outfit_data: list[Tuple[path, list[path], list[path]]]):
+        "Finds the default outfit then return the mutation that the default outfit will use"
+        default_outfit = self.get_default_outfit(outfit_data, skip_parsing=True)
+        return self.check_default_outfit_mutation_is_valid(default_outfit[0])
+
+    def check_default_outfit_mutation_is_valid(self, default_outfit: path) -> str | None:
+        """Checks if the default_outfit mutation is valid.
+
+        If the mutation is valid, it will return the mutation for the default outfit.
+
+        If the mutation is invalid, it will print a message, then if strict_mode is true, it will exit the program, else it will return none
+        """
+        mutations: dict[str, list[str]]
+        default_outfit_file = default_outfit.split(os.sep)[-1].split(".")[0]
+        if mutations := self.character_config.get("mutations", {}):
+            for key, value in mutations.items():
+                if any(x in default_outfit_file for x in value):
+                    if self.check_pose_mutation_is_valid(key):
+                        return key
+
+                    print(
+                        f'{"ERROR" if self.strict_mode else "WARNING"}: Character "{self.current_character_name}" '
+                        + f'for pose "{self.current_pose_letter}" '
+                        + f'default outfit of "{default_outfit_file}"'
+                        + f' has mutation "{key}", but no faces are provided for that mutation.',
+                    )
+                    if self.strict_mode:
+                        input("Press Enter to exit...")
+                        sys.exit(1)
+                    return None
+        return None
+
+    def create_outfit_accessories_imagepaths(self, outfit_acessories_list: list[ImagePath]):
         """Convert a list of ImagePath of accessories to a list of Accessory.
         If inverse_accessories is given, Accessories will be checked against the dict and removed if they are found for the outfit
         """
@@ -165,51 +172,45 @@ class CharacterParser(ParserBase):
             if measurements := self.open_image_and_get_measurements(x):
                 image_paths_access.append(ImagePath(self.remove_input_path(x), *measurements))
 
-        # get Layering for default accessories
-        image_paths_access = [
-            Accessory(
-                self.get_name_for_accessory(x),
-                self.get_state_for_accessory(x),
-                x,
-                self.get_layering_for_accessory(x),
-                self.get_scaled_image_height(outfit, x, classes.HEIGHT_OF_MAIN_PAGE),
-                self.get_scaled_image_height(outfit, x, classes.HEIGHT_OF_ACCESSORY_PAGE),
-            )
-            for x in image_paths_access
-        ]
-        if inverse_accessories:
-            out_name = outfit.file_name.split(".")[0]
-            if out_name in inverse_accessories:
-                access_to_remove = []
-                for access in image_paths_access:
-                    if access.is_pose_level_accessory and access.name in inverse_accessories[out_name]:
-                        access_to_remove.append(access)
-                for access in access_to_remove:
-                    image_paths_access.remove(access)
         return image_paths_access
 
     def get_pose_faces(self, mutation: str):
         "Returns the face and blush object used to initialize a pose. Mutation can be none"
         faces_paths = self.get_pose_face_paths(mutation)
-        faces = []
+        faces: list[Face] = []
 
         for face in faces_paths:
             faces.append(Face(self.remove_input_path(face), *self.open_image_and_get_measurements(face)))
-        faces.sort(key=sort_functions.face_sort_imp)
+        faces.sort(key=self.face_sort_imp)
 
         blush_paths = self.get_pose_face_paths(mutation, face_folder="blush")
-        blushes = []
+        blushes: list[Blush] = []
 
         for blush in blush_paths:
             blushes.append(Face(self.remove_input_path(blush), *self.open_image_and_get_measurements(blush)))
-        blushes.sort(key=sort_functions.face_sort_imp)
+        blushes.sort(key=self.face_sort_imp)
+
+        # Don't combine faces if no blushes are present
+        if blushes:
+            file_names_faces = [x.file_name for x in faces]
+            file_names_blushes = [x.file_name for x in blushes]
+            for index, x in enumerate(file_names_blushes):
+                if x not in file_names_faces:
+                    faces.append(blushes[index])
+            for index, x in enumerate(file_names_faces):
+                if x not in file_names_blushes:
+                    blushes.append(faces[index])
+            faces.sort(key=self.face_sort_imp)
+            blushes.sort(key=self.face_sort_imp)
 
         return faces, blushes
 
     def get_default_outfit(
         self,
         outfit_data: list[Tuple[path, list[path], list[path]]],
-    ) -> Tuple[ImagePath, list[Accessory]]:
+        skip_parsing: bool = False,
+        face_height: int = None,
+    ) -> Tuple[ImagePath, list[ImagePath]]:
         """Calculates the default outfit that should be used in expression sheets and needed accessories."""
 
         default_outfit = None
@@ -222,26 +223,21 @@ class CharacterParser(ParserBase):
                     break
         if not default_outfit:
             default_outfit = outfit_data[0]
+        if skip_parsing:
+            return default_outfit
 
         outfit_image = ImagePath(
-            self.remove_input_path(default_outfit), *self.open_image_and_get_measurements(default_outfit)
+            self.remove_input_path(default_outfit), *self.open_image_and_get_measurements(default_outfit, face_height)
         )
         image_paths_access = []
         for x in default_outfit[1]:
-            if measurements := self.open_image_and_get_measurements(x):
-                image_paths_access.append(ImagePath(self.remove_input_path(x), *measurements))
-        # get Layering for default accessories
-        image_paths_access = [
-            Accessory(
-                "",
-                "",
-                x,
-                self.get_layering_for_accessory(x),
-                self.get_scaled_image_height(outfit_image, x, classes.HEIGHT_OF_MAIN_PAGE),
-            )
-            for x in image_paths_access
-        ]
-
+            if measurements := self.open_image_and_get_measurements(x, face_height):
+                image_paths_access.append(
+                    ImagePath(
+                        self.remove_input_path(x),
+                        *measurements,
+                    )
+                )
         return (
             outfit_image,
             image_paths_access,
@@ -254,36 +250,6 @@ class CharacterParser(ParserBase):
             if isinstance(a, str)
             else a[0].replace(self.input_path + os.sep, "").replace(os.sep, "/")
         )
-
-    def get_layering_for_accessory(self, image: ImagePath) -> str:
-        "Checks if the accessory has a layer other than 0"
-        if image.clean_path.startswith("acc_"):
-            acc_folder = image.clean_path.split("/")[0]
-        else:
-            acc_folder = image.clean_path.split("/")[-2]
-        return acc_folder[-2:] if acc_folder[-2] in ("+", "-") else "0"
-
-    def get_scaled_image_height(self, outfit: ImagePath, accessory: ImagePath, page_height: int) -> int:
-        "Find the height to be display on based on the outfit height and page height"
-        return round((accessory.height / outfit.height) * page_height)
-
-    def get_name_for_accessory(self, image: ImagePath) -> str:
-        "Calculates the name of the accessory."
-        if image.clean_path.startswith("acc_"):
-            acc_folder = image.clean_path.split("/")[0].replace("acc_", "")
-        else:
-            acc_folder = image.clean_path.split("/")[-2]
-        return re.split("[+-]", acc_folder)[0]
-
-    def get_state_for_accessory(self, image: ImagePath) -> str:
-        "Calculates the state for the given accessory."
-
-        acc_file = image.clean_path.split("/")[-1]
-        if not acc_file.startswith("on"):
-            return ""
-        if "on." in acc_file:
-            return ""
-        return acc_file.split("_", maxsplit=1)[1].rsplit(".", 1)[0]
 
     def get_outfit_name(self, outfit_path: str):
         "Calculates the name of outfit_path"
@@ -328,13 +294,14 @@ class CharacterParser(ParserBase):
 
     def glob_for_face_accessories(self, path_to_glob: path, list_to_append: list[str]):
         """Attempt to find face accessories for a given pose.
-        If the given folder was empty, it will print a message, then if strict_mode is true, it will exit the program, else it will return none
+        If the path was empty, it will print a message, then if strict_mode is true, it will exit the program, else it will return none
         """
         for path_of_face_accessory in glob(path_to_glob):
             files = self.natural_sort(os.listdir(path_of_face_accessory))
             if not files:
                 print(
-                    f"{"ERROR" if self.strict_mode else "WARNING"}: Face accessory was not found for accessory '{path_of_face_accessory.removesuffix(os.sep).split(os.sep)[-1]}',"
+                    f"{"ERROR" if self.strict_mode else "WARNING"}: Face accessory was not "
+                    + f"found for accessory '{path_of_face_accessory.removesuffix(os.sep).split(os.sep)[-1]}',"
                     + f" for pose '{self.pose_path.split(os.sep)[-2:]}'",
                 )
                 if self.strict_mode:
@@ -356,7 +323,7 @@ class CharacterParser(ParserBase):
 
     # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
     def open_image_and_get_measurements(
-        self, name: str | list[str]
+        self, name: str | list[str], max_height=None
     ) -> tuple[int, int, None | tuple[int, int, int, int]] | None:
         """Opens the given image or first image in the list, then returns the size and bound box.
         If {trim_and_save_image} is true, any changes to the image will be saved
@@ -364,9 +331,8 @@ class CharacterParser(ParserBase):
         """
         name, trim_img = self.attempt_to_open_image(name, remove_empty_pixels=self.remove_empty_pixels_for_faces)
         image_size = trim_img.size
-        # if trim_img.mode != "RGBA":
-        #     trim_img = trim_img.convert("RGBA")
-        bbox = trim_img.split()[-1].getbbox()
+
+        bbox = trim_img.getbbox()
         if not bbox:
             if f"{os.sep}face{os.sep}" in name or "/face/" in name:
                 return (*image_size, None)
@@ -383,4 +349,14 @@ class CharacterParser(ParserBase):
             bbox = trim_img.getbbox()
             trim_img.save(name)
             image_size = trim_img.size
+
+        if max_height:
+            bbox = trim_img.crop((0, 0, trim_img.width, max_height)).getbbox()
         return (*image_size, bbox)
+
+    def face_sort_imp(self, image: ImagePath):
+        "Return a sortable version of the given file"
+        return self.sort_by_numbers(image.path, sep="/")
+
+    def __hash__(self) -> int:
+        return 1
