@@ -9,7 +9,7 @@ import sys
 from colorama import init
 from bounds_parser import BoundsParser
 from character_parser import CharacterParser
-from character_parser_classes import Character
+from character_parser_classes import Character, Pose
 
 import args_functions
 import create_html_js
@@ -27,10 +27,17 @@ def process_charcters(args: Namespace):
     ]
 
     total_characters = len(paths)
-    character_parser = (
-        BoundsParser(args.inputdir, args.strict, args.regex, args.skip_if_same, args.skip_faces, args.skip_outfits)
-        if args.bounds
-        else CharacterParser(
+    if args.hashprogress:
+        # Set hashprogress as the path
+        args.hashprogress = args.inputdir + f"/progress.{args.hashprogress}.0.{len(paths)}"
+        with open(args.hashprogress, "w", encoding="utf8"):
+            pass
+    if args.bounds:
+        character_parser = BoundsParser(
+            args.inputdir, args.strict, args.regex, args.skip_if_same, args.skip_faces, args.skip_outfits
+        )
+    else:
+        character_parser = CharacterParser(
             args.inputdir,
             args.strict,
             args.outfitpriority,
@@ -39,12 +46,12 @@ def process_charcters(args: Namespace):
             args.removeempty,
             args.removeemptypixels,
         )
-    )
-    if args.hashprogress:
-        # Set hashprogress as the path
-        args.hashprogress = args.inputdir + f"/progress.{args.hashprogress}.0.{len(paths)}"
-        with open(args.hashprogress, "w", encoding="utf8"):
-            pass
+        if args.outfitheight:
+            Pose.HEIGHT_OF_MAIN_PAGE = args.outfitheight
+
+        if args.accessoryheight:
+            Pose.HEIGHT_OF_ACCESSORY_PAGE = args.accessoryheight
+
     for count, character_name in enumerate(
         sorted(paths),
         start=1,
