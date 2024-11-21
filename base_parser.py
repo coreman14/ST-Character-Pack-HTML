@@ -250,9 +250,11 @@ class ParserBase:
                 print("Folder names: ")
 
                 mismatches = sorted(
-                    x[1]
-                    for x in zip(glob_outfits, outfit_folders)
-                    if x[0][0].rsplit(os.sep, 1)[-1] != x[1].rsplit(os.sep, 1)[-1] + f"{ext}"
+                    {
+                        x[1]
+                        for x in zip(glob_outfits, outfit_folders)
+                        if x[0][0].rsplit(os.sep, 1)[-1] != x[1].rsplit(os.sep, 1)[-1] + f"{ext}"
+                    }
                 )
                 char_folder_path = os.sep.join(self.pose_path.rsplit(os.sep, 2)[1:])
                 for x in mismatches:
