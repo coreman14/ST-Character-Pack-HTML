@@ -1328,9 +1328,19 @@
                     }
                     context.fillRect(0, 0, n_width, n_height + image_padding);
                     for (var i = 0; i < skip_num; i++) {
+                        let iSrc = images[i].src.split("/");
+                        if (iSrc[iSrc.length - 2].match(/.+\+\d/)){
+                            continue;
+                        }
                         context.drawImage(images[i], left_crop, top_crop, n_width, n_height, 0, 0, n_width, n_height);
                     }
                     context.drawImage(images[index], left_crop, top_crop, n_width, n_height, 0, 0, n_width, n_height);
+                    for (var i = 0; i < skip_num; i++) {
+                        let iSrc = images[i].src.split("/");
+                        if (iSrc[iSrc.length - 2].match(/.+\+\d/)){
+                            context.drawImage(images[i], left_crop, top_crop, n_width, n_height, 0, 0, n_width, n_height);
+                        }
+                    }
                     context.fillStyle = face_name_fill;
                     /*rect color*/ context.fillRect(
                         0,
