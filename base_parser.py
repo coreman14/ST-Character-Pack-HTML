@@ -20,10 +20,11 @@ type path = str
 @dataclass()
 class ParserBase:
     "Contains the basic methods for generating information about a character/pose"
+
     input_path: path
     strict_mode: bool
     asked_for_json_convert: bool = field(init=False, repr=False)
-    character_config: bool = field(init=False, repr=False)
+    character_config: dict = field(init=False, repr=False)
     _pose_path: path = field(init=False, repr=False)
     current_character_name: ClassVar[str] = ""
     accepted_extensions: ClassVar[list[str]] = [".webp", ".png"]
@@ -274,7 +275,7 @@ class ParserBase:
         outfits = self.remove_path_duplicates_no_ext(outfits)
         return outfits
 
-    def get_pose_face_paths(self, mutation: str = None, face_folder: str = None) -> None | list[path]:
+    def get_pose_face_paths(self, mutation: str | None = None, face_folder: str | None = None) -> None | list[path]:
         """Attempts to get the faces for {pose_path}.
 
         By default this will look in {pose_path}/faces/face' but the folder can be adjusted using a mutation or different face folder.

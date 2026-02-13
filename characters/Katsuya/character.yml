@@ -1,0 +1,20 @@
+display_name: Katsuya
+eye_line: 0.2058
+name_color: '#1d90cc'
+poses:
+  a:
+    facing: right
+  b:
+    facing: right
+  c:
+    facing: right
+  d:
+    facing: right
+scale: 1.0
+voice: male
+archetype: young man
+sprite_creator_poses:
+- a
+- b
+- c
+- d

@@ -26,15 +26,18 @@ type path = str
 @dataclass
 class CharacterParser(ParserBase):
     "A reusable class for creating a character. This will create a character object by using the input path and the given characters name."
+
     outfit_priority: list[str]
     max_height_constant: float
     trim_and_save_image: bool
     delete_empty_images: bool
     remove_empty_pixels_for_faces: bool
     current_pose_letter: str = field(init=False, repr=False)
+    is_snom: bool = False
 
     def parse(self, character_name: str) -> Character:
         "Create a character from a given character name and {input_path}. Goes through each pose defined in the character folder."
+        self.is_snom = False
         self.current_character_name = character_name
         pose_list = []
         for pose_path in [
@@ -50,7 +53,7 @@ class CharacterParser(ParserBase):
                     pose_list.append(char_pose)
 
         if pose_list:
-            return Character(character_name, pose_list, self.max_height_constant)
+            return Character(character_name, pose_list, 1 if self.is_snom else self.max_height_constant, self.is_snom)
         return None
 
     def parse_character_pose(
@@ -64,8 +67,19 @@ class CharacterParser(ParserBase):
         face_direction: str = (
             self.character_config.get("poses", {}).get(self.current_pose_letter, {}).get("facing", "left")
         )
-        # Get the list of outfits
         outfits = self.get_pose_outfits_paths()
+
+        if len(outfits) == 1 and self.is_image_is_empty(outfits[0][0]):
+            # Assume that it is a snom image
+            # Snom difference: Same structure but outfits don't exist.
+            # Faces are the character. So theres an empty outfit image that has the name and nothing else
+            # We don't have to do anything differently for the moment. We just mark it first.
+            # Only thing i'm concerned about is face height/outfit heights getting messed with
+
+            # Changes
+            # Max height multiplier is always 1.
+            self.is_snom = True
+
         # Using that list of outfits, get the default outfit mutation
         mutation = self.get_default_outfit_mutation(outfits)
         # Get faces and blushes using that mutation
@@ -321,6 +335,11 @@ class CharacterParser(ParserBase):
         "Naturally sort the list"
         return sorted(l, key=self.alpha_num_key)
 
+    def is_image_is_empty(self, name):
+        name, trim_img = self.attempt_to_open_image(name, False)
+
+        return trim_img.getbbox() is None
+
     # Taken and edited from https://git.student-transfer.com/st/student-transfer/-/blob/master/tools/asset-ingest/trim-image.py
     def open_image_and_get_measurements(
         self, name: str | list[str], max_height=None
@@ -339,7 +358,8 @@ class CharacterParser(ParserBase):
             if self.delete_empty_images:
                 os.remove(name)
             else:
-                print(f"{name} is empty, it can be removed")
+                if not self.is_snom:
+                    print(f"{name} is empty, it can be removed")
             return (*image_size, None)
 
         amount_to_trim = bbox[2:]

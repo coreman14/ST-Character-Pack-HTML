@@ -127,11 +127,12 @@
             .characterImagesOutfitAccessoryViews {
                 position: absolute;
             }
-            .characterImagesOutfitMainViews {
+            .characterImagesOutfitMainViews, .characterImageSnom {
                 position: relative;
             }
             .characterImagesOutfitAccessoryViews,
-            .characterImagesOutfitMainViews {
+            .characterImagesOutfitMainViews
+            ,.characterImageSnom {
                 padding-top: 20px;
                 left: 0;
             }
@@ -140,6 +141,9 @@
             }
             .characterImagesOutfitAccessoryViews {
                 height: 400px; /*Access Height replace*/
+            }
+            .characterImageSnom {
+                height: 500px; /*Snom Height replace*/
             }
             .characterImagesAccessory {
                 padding-top: 20px;
@@ -393,6 +397,10 @@
                 font-weight: 700;
                 line-height: 25px;
             }
+            .expressionSheetSeparatorExtra { 
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
             .characterIsFacingRight img {
                 transform: rotateY(180deg);
             }
@@ -404,6 +412,13 @@
             #infoButton,
             #toggleFind {
                 padding-left: 5px;
+            }
+            .snomFlex{
+                display:flex;
+                flex-direction:column;
+                font-size: 24pt;
+                font-family: calibri;
+
             }
         </style>
     </head>
@@ -1362,6 +1377,10 @@
                 }
             }
             function changeFaces(currentFacesShowing, first_run = false) {
+                if (character.snom){
+                    changeFacesWrapper(expressionSheetMode);
+                    return;
+                }
                 /*We have to track first run because we need to force the faces to be loaded*/ if (
                     character.poses[selectedPose].blushes.length == 0 &&
                     !first_run
@@ -1397,6 +1416,10 @@
                 return currentFacesShowing;
             }
             function changeFacesExpressionSheetMode(currentFacesShowing, first_run = false) {
+                if (character.snom){
+                    changeFacesWrapper(expressionSheetMode);
+                    return;
+                }
                 /*We have to track first run because we need to force the faces to be loaded*/ if (
                     Object.values(character.poses).every((x) => x.blushes.length == 0) &&
                     !first_run
@@ -1498,7 +1521,49 @@
                 There is a theory that it may need to be longer if it loads slower but this should cover most basis*/
                 if (!inprogress) {
                     inprogress = true;
-                    if (expressionSheetMode) {
+                    if (character.snom && document.querySelector("#imageList2").children.length == 0){
+                        const expressionSheet = (poseName, addPoseSeporator = false) => {
+                            loadImages(character.poses[poseName].faces, poseName, function (k, name) {
+                                let imList = document.querySelector("#imageList2");
+                                if (addPoseSeporator){
+                                    sep = document.createElement("div");
+                                    sep.classList.add("expressionSheetSeparator");
+                                    sep.classList.add("expressionSheetSeparatorExtra");
+                                    sep.textContent = "Pose " + name + " " + character.poses[name].default_outfit.split("/")[0].split(".")[0];
+                                    imList.append(sep)
+                                }
+                                for (const [index, element] of enumerate(Object.values(k))) {
+                                    txt_str = name + "_ " + element.src.split("/").pop().split(".")[0].replace("%23", "#");
+                                    divWrap = document.createElement("div");
+                                    divWrap.classList.add("snomFlex");
+                                    textDiv = document.createElement("div");
+                                    textDiv.textContent = txt_str;
+                                    if (index % 2 == 1) {
+                                        element.style.backgroundColor = "Black"; /*Color1 replace*/
+                                    } else {
+                                        element.style.backgroundColor = "#121212"; /*Color2 replace*/
+                                    }
+                                    element.classList.add("characterImageSnom");
+                                    divWrap.append(element);
+                                    divWrap.append(textDiv);
+                                    imList.append(divWrap);
+                                    if (character.poses[name].swap_direction) {
+                                        element.classList.add("characterIsFacingRight");
+                                    }
+                                }
+                        }
+                            )};
+                        if (!expressionSheetMode){
+                            expressionSheet(selectedPose);
+                        }
+                        else {
+                            for (pose in character.poses) {
+                                console.log(pose);
+                                expressionSheet(pose, true);
+                            }
+                        }
+                    }
+                    else if (expressionSheetMode) {
                         currentFacesShowing = changeFacesExpressionSheetMode(currentFacesShowing);
                     } else {
                         currentFacesShowing = changeFaces(currentFacesShowing);
@@ -1778,13 +1843,22 @@
                 title.textContent = scenario;
                 var url2 = new URL(newURL.toString());
                 Object.entries(jsonData).forEach(([character, characterData]) => {
+                    let snom = characterData.snom;
                     if (pose_filter > 1 && Object.keys(characterData.poses).length < pose_filter) {
                         return;
                     }
                     url2.searchParams.set("character", character);
                     if (outfit_filter) {
                         Object.entries(characterData.poses).forEach(([pose, poseData]) => {
-                            var outfits = poseData.outfits.map((outfit) => [
+                            var snomOutfit = snom ? poseData.default_outfit.split("/").pop().split(".")[0] : "";
+                            var outfits = 
+							snom ? 
+							poseData.faces.map((face) => [
+                                face,
+                                "",
+                                [],
+                            ]) :
+							poseData.outfits.map((outfit) => [
                                 outfit.path,
                                 outfit.path.split("/").pop(),
                                 outfit.off_accessories,
@@ -1796,7 +1870,7 @@
                             characterDiv.href = url2.toString();
                             span = document.createElement("span");
                             span.classList.add("characterNameSpan");
-                            span.textContent = character + "_" + pose;
+                            span.textContent = snom ? character + "_" + pose + " " + snomOutfit : character + "_" + pose;
                             characterDiv.name = character;
                             characterDiv.pose = pose;
                             characterDiv.appendChild(span);
@@ -1811,7 +1885,7 @@
                                 }
                                 charLink.appendChild(outerDiv);
                                 var default_outfit = getLayeringOrderOutfits(
-                                    poseData.outfit_path,
+                                    snom ? "" : poseData.outfit_path,
                                     outfit[0],
                                     outfit[2]
                                 );
@@ -1833,7 +1907,7 @@
                                 }
                                 nameDiv = document.createElement("div");
                                 nameDiv.classList.add("characterPoseName");
-                                nameDiv.textContent = getProperOutfitName(outfit[0]);
+                                nameDiv.textContent = snom ? "" : getProperOutfitName(outfit[0]);
                                 outerDiv.appendChild(nameDiv);
                             }
                             characterDiv.addEventListener("mouseenter", function (evt) {
@@ -1881,6 +1955,9 @@
                                     image_path = i;
                                     img.classList.add("characterImagesOutfitMainViews");
                                 }
+                                if (characterData.snom){
+                                    image_path = poseData.faces[0]
+                                }
                                 img.src = makeUrlCompatible(image_path);
                                 img.alt = image_path.split("/")[1].split(".")[0];
                                 outerDiv.appendChild(img);
@@ -1922,6 +1999,7 @@
                     changeFacesWrapper(expressionSheetMode);
                 });
                 var character = jsonData[selectedCharacter];
+                var snomMode = character.snom;
                 document.querySelector("#backButton").href = homeURL.toString();
                 window.addEventListener("resize", (event) => {
                     calculateImageListMaxHeight();
@@ -1935,9 +2013,15 @@
                     sessionStorage.setItem("outfitOrAccessory", "0");
                     /*0 is show outfits, 1 is show access*/ outfits_or_accessories = "0";
                 }
+                if (snomMode){
+                    document.querySelector("#selectionButtonDiv").style.display = "none";
+                    document.querySelector("#hideDiv").style.display = "none";
+                    document.querySelector("#hideButton").style.display = "none";
+                    // document.querySelector("#selectionButtonDiv").remove();
+                }
                 if (!expressionSheetMode) {
                     document.querySelector("#title").title = "Swap to expression sheet view";
-                    title.textContent = selectedCharacter + "_" + selectedPose;
+                    title.textContent = selectedCharacter + "_" + selectedPose + (snomMode ?  " " + getProperOutfitName(character.poses[selectedPose].default_outfit) : "");
                     const out_start = character.poses[selectedPose].outfit_path;
                     characterContainer = document.createElement("div");
                     characterContainer.classList.add("character2Container");
@@ -1946,6 +2030,7 @@
                     }
                     let outfits = Object.keys(character.poses[selectedPose].outfits);
                     Object.entries(character.poses[selectedPose].outfits).forEach(([index, outfit]) => {
+                        if (snomMode) return;
                         var default_outfit = getLayeringOrderOutfits(out_start, outfit.path, outfit.off_accessories);
                         var char2 = document.createElement("div");
                         char2.classList.add("character2");

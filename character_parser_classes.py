@@ -1,4 +1,5 @@
 "Classes for the parsed characters. These classes do not read the file system and must have all relevant information passed in."
+
 import html
 import re
 from math import ceil
@@ -8,6 +9,7 @@ from typing import ClassVar, DefaultDict, Literal, NamedTuple
 
 class CropBox(NamedTuple):
     "Holds the max amount of pixels that can be trimmed from an image."
+
     left: int
     top: int
     right: int
@@ -75,6 +77,7 @@ class ImagePath:
 @dataclass(slots=True)
 class OutfitImagePath(ImagePath):
     "Typing class"
+
     off_accessories: list[ImagePath]
     on_accessories: list[ImagePath]
 
@@ -90,6 +93,7 @@ class Blush(ImagePath):
 @dataclass
 class Accessory:
     "Holds information about an accessory"
+
     name: str
     state: str | None  # Can be None
     image: ImagePath
@@ -180,6 +184,7 @@ class Accessory:
 @dataclass
 class Outfit:
     "Holds the outfit and the accessories for given outfit"
+
     path: ImagePath
     off_accessories: list[Accessory] = field(default_factory=list, init=False)
     on_accessories: list[Accessory] = field(default_factory=list, init=False)
@@ -247,6 +252,7 @@ class Outfit:
 @dataclass
 class Pose:
     "Holds a pose's name, outfits and faces"
+
     path_to_pose: str
     pose_name: str
     outfits: list[Outfit]
@@ -357,10 +363,11 @@ class Character(NamedTuple):
     name: str
     poses: list[Pose]
     max_height_multiplier: float
+    snom: bool
 
     def json_output(self):
         "Output the character class as a JSON Object entry. This output with trailing commas"
-        builder = f'"{self.name}": {{ "poses" :{{'
+        builder = f'"{self.name}": {{ "snom": {str(self.snom).lower()}, "poses" :{{'
         for pose in self.poses:
             print(f"Creating: {self.name} {pose.pose_name}")
             builder += pose.json_output(self.max_height_multiplier)
