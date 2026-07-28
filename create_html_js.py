@@ -1,4 +1,5 @@
 "Main runner functions for the program"
+
 from argparse import Namespace
 
 import os
@@ -8,6 +9,7 @@ import re
 import zipfile
 import yaml
 import minify_html
+from importlib.metadata import version
 
 from character_parser_classes import Character
 
@@ -64,12 +66,20 @@ def create_html_file(args: Namespace, chars: list[Character], split_files=False)
             full_html += "var jsonData={ " + "".join(x.json_output() for x in chars) + "};"
         # Add scenario title, '"; ", then add the "json" with "var jsonData={ " at start with "};" at the end
         full_html += html2
+        is_breaking = int(version("minify_html").split(".")[1]) > 15
+        html_things_break = {
+            "minify_css": True,
+            "keep_html_and_head_opening_tags": True,
+            "minify_doctype": False,
+        }
+        html_things_unbreak = {
+            "minify_css": True,
+            "ensure_spec_compliant_unquoted_attribute_values": True,
+            "keep_html_and_head_opening_tags": True,
+            "do_not_minify_doctype": True,
+        }
         full_html = minify_html.minify(  # pylint: disable=no-member
-            full_html,
-            minify_css=True,
-            ensure_spec_compliant_unquoted_attribute_values=True,
-            keep_html_and_head_opening_tags=True,
-            do_not_minify_doctype=True,
+            full_html, **(html_things_break if is_breaking else html_things)
         )
         full_html = "".join(clean_line(x) for x in full_html.split("\n"))
         html_file.write(full_html)
