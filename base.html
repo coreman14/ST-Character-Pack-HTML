@@ -112,7 +112,8 @@
             left: 12px;
         }
 
-        #sidebarToggle, .floatingButtons2 .sidebarToggle {
+        #sidebarToggle,
+        .floatingButtons2 .sidebarToggle {
             width: 34px;
             height: 36px;
         }
@@ -369,6 +370,7 @@
             border: 3px solid #000;
 
         }
+
         .paginationButton {
             border: 1px solid #000;
             border-radius: 4px;
@@ -474,7 +476,8 @@
             padding: 3px 10px;
             font-size: 1.4em;
             box-sizing: border-box;
-            height: 41px;;
+            height: 41px;
+            ;
         }
 
         #searchBar::placeholder {
@@ -499,9 +502,11 @@
             padding-right: 5px;
             display: inline-block;
         }
+
         #searchSection * {
             padding: 0px 3px;
         }
+
         .navigationButton:hover,
         .outfitLine:not(.tableSelected):hover,
         .accessoryLine:hover,
@@ -532,23 +537,26 @@
 
         body.sidebarCollapsed #paginationControls,
         body.sidebarCollapsed .paginationHeader,
-        body.sidebarCollapsed .paginationDots
-         {
+        body.sidebarCollapsed .paginationDots {
             height: 100%;
         }
+
         body.sidebarCollapsed .paginationInfo {
             display: none;
         }
+
         body.sidebarCollapsed .paginationDots,
         body.sidebarCollapsed .paginationHeader {
             flex-direction: column;
-            
+
         }
+
         .paginationHeader {
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
+            align-items: flex-start;
         }
 
         .paginationTitle {
@@ -749,7 +757,7 @@
             left: unset;
         }
 
-        #accessorySelect{
+        #accessorySelect {
             padding-left: 5px;
         }
 
@@ -970,24 +978,25 @@
             <a class="sidebarToggle" id="backButton"><img
                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURQAAAAAAAKVnuc8AAAACdFJOU/8A5bcwSgAAAAlwSFlzAAAOwwAADsMBx2+oZAAAAG9JREFUOE/FzVEOwCAMAlC9/6U3U6xthejPMn4m5SVr/ZAfQNsO+CLtDZ5IrmMvIjXbNWB7BHQPgO8LiN2B2ieQOwD2PQBoJLfg+AsXVlLmTQo/KbEuQoQDF7FTkSoTpZ2ACbwtBQyBF1LBls9B7w90XAMfmMyTSQAAAABJRU5ErkJggg=="
                     title="Back to Main Page" alt="Back button" id="backbuttonimage1" />
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" title="Back to Main Page"
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" title="Back to Main Page"
                     alt="Back button" id="backbuttonimage2"
                     style="width:32px;"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
                     <path fill="rgb(0, 0, 0)"
-                    d="M320.2 176C364.4 176 400.2 140.2 400.2 96L453.7 96C470.7 96 487 102.7 499 114.7L617.6 233.4C630.1 245.9 630.1 266.2 617.6 278.7L566.9 329.4C554.4 341.9 534.1 341.9 521.6 329.4L480.2 288L480.2 512C480.2 547.3 451.5 576 416.2 576L224.2 576C188.9 576 160.2 547.3 160.2 512L160.2 288L118.8 329.4C106.3 341.9 86 341.9 73.5 329.4L22.9 278.6C10.4 266.1 10.4 245.8 22.9 233.3L141.5 114.7C153.5 102.7 169.8 96 186.8 96L240.3 96C240.3 140.2 276.1 176 320.3 176z" />
+                        d="M320.2 176C364.4 176 400.2 140.2 400.2 96L453.7 96C470.7 96 487 102.7 499 114.7L617.6 233.4C630.1 245.9 630.1 266.2 617.6 278.7L566.9 329.4C554.4 341.9 534.1 341.9 521.6 329.4L480.2 288L480.2 512C480.2 547.3 451.5 576 416.2 576L224.2 576C188.9 576 160.2 547.3 160.2 512L160.2 288L118.8 329.4C106.3 341.9 86 341.9 73.5 329.4L22.9 278.6C10.4 266.1 10.4 245.8 22.9 233.3L141.5 114.7C153.5 102.7 169.8 96 186.8 96L240.3 96C240.3 140.2 276.1 176 320.3 176z" />
                 </svg>
-                
-                
+
+
             </a>
-            <button type="button" id="expressionToggle" class="sidebarToggle" aria-label="Expression sheet mode" onclick='document.querySelector("body").dispatchEvent(new KeyboardEvent("keydown", { code: "KeyX" }));'>EX</button>
+            <button type="button" id="expressionToggle" class="sidebarToggle" aria-label="Expression sheet mode"
+                onclick='document.querySelector("body").dispatchEvent(new KeyboardEvent("keydown", { code: "KeyX" }));'>EX</button>
             <div class=" sidebarToggle" id="infoButton" onclick="popOutHelp()">
                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAINSURBVFhHxZe7SgQxFIZH8VLYWNhY2AjiAyh4wcJCtLIRBF9AfAltBPUNxJfQXlAUtfRSC2IvCFoJ2uj/rfllZd2ZZNm4H/zJMJucc3ZykjlTdJqu0MfQJy1JC9KENCYNSvAqPUjX0ol0LH1IbQEn29Kz9BkpxjLHAbbMmvQk2fCttCnNS8NSbxDX3OM3xng8c7GRTI90INnQpTQnxcLYC8nzsYXNKBh4KDHxTVqXUnLFMGdDwga2sBkVhP/5izTDjSZsSWdBq9xoAjacP9guhfXyPy9zDnsSY1FZADAt+Uk0zQky1gnHY68iJQBgORiLjz93B9uGASRczJoPSCNBMWDzXMIHvn7BIeN1Ssn2VGYlfOALnz8sS/zAHs7NnYQvfBbdNILjFY5CH0NqDhi2IyzSOADOdrgKfU7sY5LGAfBigfvQ58Q+RmkcgLcFyZEb+6j5dAAdwwHwPoeh0OfEPmo+HQDFBIyHPif28UjjAKhkIOchZOzjhsYBnIZ+JfQ5sQ/Kth/6pdSjuJWDqOEo9hN4l/a/L4tdqZUCpAps7nxf1nw1FK0dfx1DfUFCEVFGSgBTUmVBYlySsU5lQcQGgHPnV2VJBrFFaVUAzGmpKAUG+kkgKhkyOBbGUqx6PraindfDejkx0b99mNRDxmb7NEvZ7/44pZKhmOB9bge8WDjbOV454dr6cZqRovgCfJ2xnbN9A/cAAAAASUVORK5CYII="
                     title="Open Shortcuts and Information" alt="Info button" />
             </div>
         </div>
         <div id="searchSection">
-            <input type="text" id="searchBar" placeholder="Search"
-                oninput="updateResults(this.value)" title="Search for a character. Click the Tips button for help" />
+            <input type="text" id="searchBar" placeholder="Search" oninput="updateResults(this.value)"
+                title="Search for a character. Click the Tips button for help" />
             <div class="titleButton" id="toggleFind" onclick="popOutTips()">
                 <img src="data:image/png;base64,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"
                     title="Search Tips" alt="Search Tips" />
@@ -1009,10 +1018,9 @@
                 </div>
                 <div class="paginationHeader">
                     <button type="button" class="sidebarToggle" id="paginationPrev"
-                    aria-label="Previous page">-</button>
+                        aria-label="Previous page">-</button>
                     <div class="paginationDots" id="paginationDots" aria-label="Pagination options"></div>
-                    <button type="button" class=" sidebarToggle" id="paginationNext"
-                        aria-label="Next page">+</button>
+                    <button type="button" class=" sidebarToggle" id="paginationNext" aria-label="Next page">+</button>
                 </div>
             </div>
         </div>
@@ -1955,12 +1963,12 @@
     function getCharacterPaginationElements() {
         return [...document.querySelectorAll("#imageList > .character")];
     }
-    function updatePaginationControls(secondBar=false) {
+    function updatePaginationControls(secondBar = false) {
         var paginationControls = document.getElementById("paginationControls");
         var paginationStatus = document.getElementById("paginationStatus");
         var paginationPrev = document.getElementById("paginationPrev");
         var paginationNext = document.getElementById("paginationNext");
-        var paginationDots = document.getElementById(secondBar ? "poseFilterDots": "paginationDots");
+        var paginationDots = document.getElementById(secondBar ? "poseFilterDots" : "paginationDots");
         var paginationTitle = document.getElementById("paginationTitle");
         if (selectedCharacter != undefined) {
             var poseNames = Object.keys(jsonData[selectedCharacter].poses);
@@ -1978,11 +1986,11 @@
             poseNames.forEach((poseName) => {
                 var dot = document.createElement("button");
                 dot.type = "button";
-                if (secondBar){
+                if (secondBar) {
                     dot.className = "paginationButton" + (!expressionSheetMode && poseName == selectedPose ? " active" : "");
                     dot.textContent = poseName;
                 }
-                else{
+                else {
                     dot.className = "paginationDot" + (poseName == selectedPose ? " active" : "");
                     dot.title = poseName;
                 }
@@ -1992,17 +2000,18 @@
                 });
                 paginationDots.appendChild(dot);
             });
-        
+
             return;
         }
         var pageElements = getCharacterPaginationElements();
         var filteredCharacters = pageElements.filter((element) => !element.classList.contains("displayHidden"));
         var totalPages = Math.max(1, Math.ceil(filteredCharacters.length / charactersPerPage));
         paginationControls.classList.remove("displayHidden");
-        if (pageElements.length == 0|| filteredCharacters.length <= charactersPerPage) {
+        if (pageElements.length == 0 || filteredCharacters.length <= charactersPerPage) {
             document.querySelectorAll(".floatingButtons2")[0].classList.add("displayHidden");
             return;
         }
+        document.querySelectorAll(".floatingButtons2")[0].classList.remove("displayHidden");
         paginationPage = Math.min(Math.max(1, paginationPage), totalPages);
         paginationStatus.textContent = "Page " + paginationPage + " of " + totalPages;
         paginationPrev.disabled = paginationPage <= 1;
@@ -2110,6 +2119,8 @@
         }
     }
     function updateResults(value) {
+        paginationPage = 1;
+        newURL.searchParams.set("page", 1);
         if (!value || value.trim() == "") {
             resetResults();
             return;
@@ -2771,8 +2782,8 @@
             return;
         }
         var replaceUrl;
-         if (modifierKeyPressed) {
-        }  else if (event.code == "KeyD") {
+        if (modifierKeyPressed) {
+        } else if (event.code == "KeyD") {
             toggleDarkMode();
         } else if (event.code == "KeyI") {
             if (document.querySelector("#WelcomeDialog") != undefined) {
